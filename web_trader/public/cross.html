@@ -1,0 +1,102 @@
+<!doctype html>
+<html ng-app="app">
+  <head>
+  <!-- 
+  <link href="https://cdn.rawgit.com/angular-ui/bower-ui-grid/master/ui-grid.min.css" rel="stylesheet">
+  <script src="https://cdn.rawgit.com/angular-ui/bower-ui-grid/master/ui-grid.min.js"></script>
+   -->
+<!-- <link rel="stylesheet" type="text/css" href="stylesheets/uigrid.css" >-->
+<link rel="stylesheet" type="text/css" href="stylesheets/invoice.css" >
+  	<!-- <link href="stylesheets/invoice.css" rel="stylesheet"> -->
+	
+	<!-- ========== mddialog ========= -->
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+<link rel="stylesheet" type="text/css" href="stylesheets/datepicker.css" />
+<link rel="stylesheet" type="text/css" href="stylesheets/dialog.css" />
+<link rel="stylesheet" type="text/css" href="stylesheets/tradeconfo.css" />
+<!--
+    Your HTML content here
+  -->
+
+<!-- Angular Material requires Angular.js Libraries -->
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+
+<!-- Angular Material Library -->
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+	<!-- ============================= -->
+	
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-touch.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="javascripts/angular-ui-grid/ui-grid.css" />
+	<script src="javascripts/angular-ui-grid/ui-grid.js"></script>
+    <script src="javascripts/cross.js"></script>
+    
+  </head>
+  <body ng-controller="InvoiceCtrl">
+    <div>
+      <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-move-columns ui-grid-edit ui-grid-row-edit ui-grid-cellNav ui-grid-selection ui-grid-exporter></div>
+    </div>
+    <!-- 
+	<div>
+		<table>
+ 		<col width="100">
+ 		<col width="100">
+  		<col width="100">
+  		<col width="100">
+  		<col width="100">
+  		<col width="100">
+  		<col width="100">
+  		<col width="100">
+  		<col width="100">
+		<tr>
+		<th class="table-border-none">Unpaid (HKD)</th>
+		<th class="table-border-none">Paid (HKD)</th>
+		<th class="table-border-none">Total (HKD)</th>
+		<th class="table-border-left">Unpaid (USD)</th>
+		<th class="table-border-none">Paid (USD)</th>
+		<th class="table-border-none">Total (USD)</th>
+		<th class="table-border-left">Unpaid (JPY)</th>
+		<th class="table-border-none">Paid (JPY)</th>
+		<th class="table-border-none">Total (JPY)</th>
+		</tr>
+		<tr>
+		<td class="table-border-none">{{hkd_unpaid | number:0}}</td>
+		<td class="table-border-none">{{hkd_paid   | number:0}}</td>
+		<td class="table-border-none">{{hkd_total  | number:0}}</td>
+		<td class="table-border-left">{{usd_unpaid | number:0}}</td>
+		<td class="table-border-none">{{usd_paid   | number:0}}</td>
+		<td class="table-border-none">{{usd_total  | number:0}}</td>
+		<td class="table-border-left">{{jpy_unpaid | number:0}}</td>
+		<td class="table-border-none">{{jpy_paid   | number:0}}</td>
+		<td class="table-border-none">{{jpy_total  | number:0}}</td>
+		</tr>
+		
+	</table>
+	</div>
+	 -->
+	<div class="md-padding" id="popupContainer"	ng-cloak >
+		<div class="dialog-demo-content" layout="row" layout-wrap layout-margin layout-align="left">
+			<md-button ng-show="disabled" class="md-primary md-raised" ng-click="showSave($event)"> Save </md-button>
+			<md-button class="md-primary md-raised" ng-click="showSendEmail($event)"> Send Email </md-button>
+			<md-button ng-show="disabled" class="md-primary md-raised" ng-click="showDeleteInvoice($event)"> Remove invoice </md-button>
+		</div>
+	</div>
+
+</body>
+</html>

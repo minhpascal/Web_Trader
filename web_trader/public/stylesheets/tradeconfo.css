@@ -1,0 +1,66 @@
+@charset "UTF-8";
+
+body {
+    padding: 10px;
+    padding-right:30px;
+}
+table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+    padding: 0px;
+}
+thead th {
+    background-color: #006DCC;
+    color: white;
+}
+tbody td {
+    <!-- background-color: #EEEEEE;
+    -->
+}
+tr td:first-child, tr th:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+tr td:last-child, tr th:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+.clickableRow {
+    cursor: pointer;
+}
+p, textarea {
+    font-variant: small-caps !important;
+    text-rendering: auto;
+}
+td, th {
+    font-size: 8pt;
+}
+table {
+    padding: 0px;
+}
+
+.plunker {
+	/** Demo styles for mdCalendar. */
+	
+}
+
+.plunker md-content {
+	padding-bottom: 200px;
+}
+
+.plunker .validation-messages {
+	font-size: 12px;
+	color: #dd2c00;
+	margin-left: 15px;
+}
+
+
+md-content {
+	padding-bottom: 200px;
+}
+
+validation-messages {
+	font-size: 12px;
+	color: #dd2c00;
+	margin-left: 15px;
+}

@@ -1,0 +1,22 @@
+body {
+  padding: 20px;
+}
+
+.grid {
+  width: 1200px;
+  height: 350px;
+}
+
+.ui-grid-cell {
+  overflow: visible;
+  z-index: 99999;
+}
+
+.ui-grid-cell, ui-select-wrap {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
