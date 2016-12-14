@@ -8,16 +8,20 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var r_cross = require('./routes/cross');
 var r_test = require('./routes/test');
+var r_api = require('./routes/api');
 
 var PipelineVentilator = require('./controllers/PipelineVentilator');
 
 var app = express();
 var plVent = new PipelineVentilator(app);
 
+var map_block = {};
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.set('plVent', plVent);
+app.set('map_block', map_block);
 
 
 // uncomment after placing your favicon in /public
@@ -29,6 +33,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/api', r_api);
 app.use('/cross', r_cross);
 app.use('/test', r_test);
 

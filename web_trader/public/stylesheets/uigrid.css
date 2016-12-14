@@ -1,0 +1,89 @@
+.grid {
+  width: 1000px;
+  height: 300px;
+}
+ 
+.header-filtered {
+  color: blue;
+}
+
+.ui-grid-cell.row-dirty {
+  background-color: yellow !important;
+}
+
+.ui-grid-header-viewport{ background-color: #009; }
+.cBlue{ color: #009; }
+.cGray{ color: #ddd; }
+.cGreen{ color: #006837; }
+.cOrange{ color: #ff4500; }
+.cRed{ color: #900; }
+.cYellow { color: #e0a02d; }
+
+.bBlue{ 
+  background-color: #009; 
+  color: white; 
+  font-weight: normal; 
+}
+.bGray{ 
+  background-color: #ddd; 
+  color: white; 
+  font-weight: normal; 
+}
+.bGreen{ 
+  background-color: #006837; 
+  color: white; 
+  font-weight: normal; 
+}
+.bOrange{ 
+  background-color: #ff4500; 
+  color: white; 
+  font-weight: normal; 
+}
+.bRed{ 
+  background-color: #900; 
+  color: white; 
+  font-weight: normal; 
+}
+.bYellow { 
+  background-color: #e0a02d; 
+  color: white; 
+  font-weight: normal; 
+}
+
+.pendicon{ padding: 7px 0; cursor: pointer; }
+.headicon{ text-align: center; padding: 7px 0; cursor: pointer;}
+
+.text-left{ text-align:left; }
+.text-center{ text-align:center; }
+.text-right{ text-align:right; }
+
+.padd{ padding: 5px; }
+.centered{ text-align:center; vertical-align: bottom; }
+
+.border-whiteNoWidth {
+  border-right: 0px !important;
+}
+
+.grid-tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.grid-tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100px;
+    background-color: white;
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.grid-tooltip:hover .tooltiptext {
+    visibility: visible;
+}

@@ -57,4 +57,9 @@ PipelineVentilator.prototype.SaveInvoice = function(json) {
 	sender.send("WDTU" + json);
 };
 
+PipelineVentilator.prototype.SendTradeReport = function(id, json) {
+	logger.info("SendTradeReport... " + id + ',' + json);
+	sender.send("TOTR" + id + ',' + json);
+};
+
 module.exports = PipelineVentilator;

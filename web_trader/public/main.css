@@ -20,3 +20,10 @@ body {
   -ms-user-select: none;
   user-select: none;
 }
+
+.k-grid tbody .k-button {
+    min-width: 12px;
+    width: 18px;
+}
+
+i.pointer {padding: 8px 16px; cursor: pointer;}
