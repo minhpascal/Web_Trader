@@ -1,0 +1,124 @@
+
+.myGrid {
+   width: 600px;  
+/*  height: 500px; */ 
+}
+
+.header-filtered {
+  color: blue;
+}
+
+.table-border-none {
+	text-align: center;
+	font-size: 100%;
+}
+
+.table-border-left {
+	border-left: 1px solid #000;
+	text-align: center;
+	font-size: 100%;
+}
+
+.table-border-right {
+	border-right: 1px solid #000;
+	text-align: center;
+	font-size: 100%;
+}
+ 
+.ui-grid-header-cell {
+    height: 30px !important;
+} 
+
+
+.ui-grid-cell.row-paid {
+  background-color: #32CD32 !important;
+}
+.ui-grid-cell.row-3m {
+
+  background-color: #CD5C5C !important;
+}
+.ui-grid-cell.row-2m {
+  background-color: orange !important;
+}
+
+.pendicon{ padding: 7px 0; cursor: pointer; }
+.headicon{ text-align: center; padding: 7px 0; cursor: pointer;}
+
+.text-left{ text-align:left; }
+.text-center{ text-align:center; }
+.text-right{ text-align:right; }
+
+.padd{ padding: 5px; }
+.centered{ text-align:center; vertical-align: bottom; }
+
+.border-whiteNoWidth {
+  border-right: 0px !important;
+}
+
+.modalGrid {
+  width: 100px;
+  height: 200px;
+}
+.modal-dialog {
+  width: 150px;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+}
+
+select::-ms-expand {
+    display: none;
+}
+
+/* fallback */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Material Icons'), local('MaterialIcons-Regular'), url(https://fonts.gstatic.com/s/materialicons/v19/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+ .md-padding {
+  /* NOTE: Check the demo's HTML to see some additional RTL support CSS */
+  /* Setup animations similar to the ng-messages */ }
+  .md-padding .hint {
+    /* Position the hint */
+    position: absolute;
+    left: 2px;
+    right: auto;
+    bottom: 7px;
+    /* Copy styles from ng-messages */
+    font-size: 12px;
+    line-height: 14px;
+    transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
+    /* Set our own color */
+    color: grey; }
+  .md-padding .hint.ng-hide,
+  .md-padding .hint.ng-enter,
+  .md-padding .hint.ng-leave.ng-leave-active {
+    bottom: 26px;
+    opacity: 0; }
+  .md-padding .hint.ng-leave,
+  .md-padding .hint.ng-enter.ng-enter-active {
+    bottom: 7px;
+    opacity: 1; }

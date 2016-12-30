@@ -1,0 +1,76 @@
+<md-dialog aria-label="Crossing">
+	<md-toolbar>
+		<div class="md-toolbar-tools">
+			<h2>Cross Detail</h2>
+			<span flex></span>
+			<md-button class="md-icon-button" ng-click="cancel()"> <md-icon
+				class="material-icons" aria-label="Close dialog"></md-icon> </md-button>
+		</div>
+	</md-toolbar> 
+	<md-card-content layout-padding>
+	<div layout-gt-sm="row">
+		<md-input-container class="md-block"> 
+			<label>Delta%</label> 
+			<input ng-model="myDelta" required>
+
+			<div ng-messages="userForm.delta.$error" role="alert">			
+	            <div ng-message-exp="['required']">
+	              required field
+	            </div>
+          	</div>
+		</md-input-container>
+
+		<md-input-container class="md-block"> <label>Future
+			Term</label> <md-select ng-model="myFutExp"> <md-option>
+		<em></em></md-option> <md-option ng-repeat="n in fut_exp" ng-value="n">{{n}}</md-option>
+		</md-select> </md-input-container>
+
+		<md-button class="md-primary md-raised"
+			ng-click="createLegs($event, myDelta, myFutExp)"> Show
+		Legs </md-button>
+	</div>
+	</md-card-content>
+	<md-content layout-padding>
+	<div class="row-fluid span12">
+		<table class="table table-hover table-condensed table-striped">
+			<thead>
+				<tr>
+					<th>UL</th>
+					<th>Strategy</th>
+					<th>Qty</th>
+					<th>Side</th>
+					<th>Strike</th>
+					<th>Leg Multiplier</th>
+					<th>Expiry</th>
+					<th>Delta %</th>
+					<th>Future Term</th>
+				</tr>
+			</thead>
+			<tbody data-ng-repeat="leg in myParam | orderBy:'-id' ">
+				<tr id="leg.id" class="clickableRow"
+					title="Click to toggle collapse/expand legs"
+					data-ng-click="tradeConfo.isShowLegs=!tradeConfo.isShowLegs">
+					<td>{{leg.ul}}</td>
+					<td>{{leg.strategy}}</td>
+					<td>{{leg.qty}}</td>
+					<td>{{leg.side}}</td>
+					<td>{{leg.strike}}</td>
+					<td>{{leg.multiplier}}</td>
+					<td>{{leg.expiry}}</td>
+					<td>{{leg.delta}}</td>
+					<td>{{leg.fut_expiry}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</md-content> 
+	<md-content layout-padding>
+	<div id="grid" ui-grid="gridOptions" class="myGrid"
+		ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
+		ui-grid-edit ui-grid-cellNav></div>
+	</md-content>
+	<md-card-content layout-padding> <md-button
+		class="md-primary md-raised md-warn"
+		ng-click="sendTradeReport($event)"> Send </md-button> 
+	</md-card-content> 
+</md-dialog>
