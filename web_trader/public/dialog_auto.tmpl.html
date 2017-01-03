@@ -1,4 +1,5 @@
 <md-dialog aria-label="Crossing">
+<!-- 
 	<md-toolbar>
 		<div class="md-toolbar-tools">
 			<h2>Cross Detail</h2>
@@ -25,11 +26,20 @@
 		<em></em></md-option> <md-option ng-repeat="n in fut_exp" ng-value="n">{{n}}</md-option>
 		</md-select> </md-input-container>
 
+				<md-input-container class="md-block" >
+					<label>Qty</label> 
+					<input ng-model="myQty" required>
+					<div ng-messages="userForm.qty.$error" role="alert">
+     						<div ng-message="required"">This is required</div>
+   					</div>  
+				</md-input-container>
+
 		<md-button class="md-primary md-raised"
 			ng-click="createLegs($event, myDelta, myFutExp)"> Show
 		Legs </md-button>
 	</div>
 	</md-card-content>
+	-->
 	<md-content layout-padding>
 	<div class="row-fluid span12">
 		<table class="table table-hover table-condensed table-striped">
@@ -37,15 +47,31 @@
 				<tr>
 					<th>UL</th>
 					<th>Strategy</th>
-					<th>Qty</th>
-					<th>Side</th>
-					<th>Strike</th>
-					<th>Leg Multiplier</th>
 					<th>Expiry</th>
+					<th>Strike</th>
+					<th>Leg Multiplier</th>		
+					<th>Qty</th>
+					<th>Premium</th>
 					<th>Delta %</th>
-					<th>Future Term</th>
+					<th>Fut Maturity</th>
+					<th>Ref</th>
 				</tr>
 			</thead>
+			<tbody ">
+				<tr class="clickableRow">
+					<td>{{myInstr}}</td>
+					<td>{{myStrat}}</td>
+					<td>{{myExpiry}}</td>
+					<td>{{myStrike}}</td>
+					<td>{{myMultiplier}}</td>
+					<td>{{myQty}}</td>
+					<td>{{myPremium}}</td>
+					<td>{{myDelta}}</td>
+					<td>{{myFutExp}}</td>
+					<td>{{myRef}}</td>
+				</tr>
+			</tbody>
+			<!-- 
 			<tbody data-ng-repeat="leg in myParam | orderBy:'-id' ">
 				<tr id="leg.id" class="clickableRow"
 					title="Click to toggle collapse/expand legs"
@@ -61,9 +87,15 @@
 					<td>{{leg.fut_expiry}}</td>
 				</tr>
 			</tbody>
+			 -->
 		</table>
 	</div>
 	</md-content> 
+	<md-content layout-padding>
+	<div id="grid" ui-grid="paramGridOptions" class="myParamGrid" external-scopes="myExternalScope"
+		ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
+		ui-grid-edit ui-grid-cellNav></div>
+	</md-content>
 	<md-content layout-padding>
 	<div id="grid" ui-grid="gridOptions" class="myGrid"
 		ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns

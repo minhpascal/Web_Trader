@@ -22,7 +22,7 @@ var app = angular.module('app', [
 	'ui.grid.cellNav',
 	'ui.grid.autoResize',
 	'ui.grid.resizeColumns',
-	'ngAnimate' 
+	'ngAnimate' ,
 	]);
 //	'ngMaterial', 'ngMessages', 'ngAnimate', 'ngTouch'
 //app.config(function($momentProvider){
@@ -35,86 +35,101 @@ var app = angular.module('app', [
 //		.controller('TradeconfoCtrl', TradeconfoCtrl)
 
 function DialogController($scope, $mdDialog, locals) {
-  $scope.myPrice = locals.myPrice;
-//  $scope.myRefPrice = "";
-  $scope.myDelta = locals.myDelta;
-  $scope.myCpCompany = locals.myCpCompany;
-  $scope.myPremium = 0;
-  $scope.mySide = locals.mySide;
-  $scope.myQty = locals.myQty;
-  $scope.mySymbol = locals.mySymbol;
-  
-//	$scope.status = '  ';
-//	$scope.customFullscreen = false;
+	$scope.myPrice = locals.myPrice;
+	// $scope.myRefPrice = "";
+	$scope.myDelta = locals.myDelta;
+	$scope.myCpCompany = locals.myCpCompany;
+	$scope.myPremium = 0;
+	$scope.mySide = locals.mySide;
+	$scope.myQty = locals.myQty;
+	$scope.mySymbol = locals.mySymbol;
 
-  $scope.myFutExp = "DEC16";
-  $scope.fut_exp = [
-  	'DEC16',
-  	'MAR17',
-  	'JUN17',
-  	];
-  
-  $scope.myData1 = [
-      {
-             "Instrument": "C",
-             "UL": "HSI",
-             "Price": "439",
-             "Qty": "100",
-             "Side": "Buy",
-             "Strike": "10000",
-             "Expiry": "DEC17",
-     }];
-  $scope.myData = [];
-  
+	// $scope.status = ' ';
+	// $scope.customFullscreen = false;
+
+	$scope.myFutExp = "DEC16";
+	$scope.fut_exp = [ 'DEC16', 'MAR17', 'JUN17', ];
+
+	$scope.myData = [];
+
 	$scope.gridOptions = {
-			data: 'myData',
-			rowEditWaitInterval: -1,			
-			enableSorting : false,
-			enableColumnResizing: true,
-			enableFiltering: false,
-			showGridFooter: false,
-			showColumnFooter: false,
-			columnDefs : [
-				{field : 'Instrument', width: '120', enableCellEdit: false },
-				{field : 'UL', displayName: 'UL', width: '100', enableCellEdit: false},  
-				{field : 'Qty', displayName: 'Qty', width: '60'},  
-				{field : 'Side', displayName: 'Side', width: '60'},  
-				{field : 'Strike', displayName: 'Strike', width: '80'},  
-				{field : 'Expiry', displayName: 'Expiry', width: '80'},
-				{field : 'Price', displayName: 'Price', width: '*', enableCellEdit: true, cellFilter: 'number: 2'},  
-				{field : 'Multiplier', displayName: 'Multiplier', width: '*', enableCellEdit: true, visible:false},  
-			],
-			
-//		    enableGridMenu: true,
-//		    enableSelectAll: true,
-//		    enableRowSelection: true,
-		    exporterMenuPdf: false,
-//		    exporterCsvFilename: 'invoice_summary.csv',
-//		    exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
-		};
-  
+		data : 'myData',
+		rowEditWaitInterval : -1,
+		enableSorting : false,
+		enableColumnResizing : true,
+		enableFiltering : false,
+		showGridFooter : false,
+		showColumnFooter : false,
+		columnDefs : [ {
+			field : 'Instrument',
+			width : '120',
+			enableCellEdit : false
+		}, {
+			field : 'UL',
+			displayName : 'UL',
+			width : '100',
+			enableCellEdit : false
+		}, {
+			field : 'Qty',
+			displayName : 'Qty',
+			width : '60'
+		}, {
+			field : 'Side',
+			displayName : 'Side',
+			width : '60'
+		}, {
+			field : 'Strike',
+			displayName : 'Strike',
+			width : '80'
+		}, {
+			field : 'Expiry',
+			displayName : 'Expiry',
+			width : '80'
+		}, {
+			field : 'Price',
+			displayName : 'Price',
+			width : '*',
+			enableCellEdit : true,
+			cellFilter : 'number: 2'
+		}, {
+			field : 'Multiplier',
+			displayName : 'Multiplier',
+			width : '*',
+			enableCellEdit : true,
+			visible : false
+		}, ],
+
+		// enableGridMenu: true,
+		// enableSelectAll: true,
+		// enableRowSelection: true,
+		exporterMenuPdf : false,
+	// exporterCsvFilename: 'invoice_summary.csv',
+	// exporterCsvLinkElement:
+	// angular.element(document.querySelectorAll(".custom-csv-link-location")),
+	};
+
 	$scope.gridOptions.onRegisterApi = function(gridApi) {
 		$scope.gridApi = gridApi;
 		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEdit);
-	}	
+	}
 	$scope.hide = function() {
 		$mdDialog.hide();
 	};
 
 	$scope.cancel = function() {
-//		$scope.myData = [];
+		// $scope.myData = [];
 		$mdDialog.cancel();
 	};
 
 	$scope.answer = function(answer) {
 		$mdDialog.hide(answer);
 	};
-	
+
 	$scope.gridOptions.onRegisterApi = function(gridApi) {
 		$scope.gridApi = gridApi;
 		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEdit);
 	}
-	
+
 	$scope.afterCellEdit = function(rowEntity, coldef, newValue, oldValue) {
 		var nMissLeg = 0;
 		params = [];
@@ -122,528 +137,1135 @@ function DialogController($scope, $mdDialog, locals) {
 		var myPremium = $scope.myPremium;
 		var mySide = 0;
 		var myId = -1;
-		for (i=0; i<$scope.myData.length; i++) {
-//			if ($scope.myData[i].UL.indexOf('Future') > 0) 
-//				continue;
-			
+		for (i = 0; i < $scope.myData.length; i++) {
+			// if ($scope.myData[i].UL.indexOf('Future') > 0)
+			// continue;
+
 			if ($scope.myData[i].Price) {
 				params.push({
-					'side' : $scope.myData[i].Side, 
-					'multiplier' : $scope.myData[i].Multiplier, 
-					'price' : $scope.myData[i].Price}
-				);
-			}
-			else {
+					'side' : $scope.myData[i].Side,
+					'multiplier' : $scope.myData[i].Multiplier,
+					'price' : $scope.myData[i].Price
+				});
+			} else {
 				nMissLeg++;
 				mySide = $scope.myData[i].Side;
 				myMultiplier = $scope.myData[i].Multiplier;
 				myId = i;
 			}
-//			$scope.myData[i];
-//			var sign = params[i].side === 'Sell' ? -1 : 1; 
-//			sum += Number(params[i].price) * sign * Number(params[i].multiplier);
 		}
 		if (nMissLeg === 1) {
 			var price = calRemainPrice(params, myMultiplier, mySide, myPremium);
-	//		calRemainPrice(params, myMultiplier, myPrice, mySide);
+			// calRemainPrice(params, myMultiplier, myPrice, mySide);
 			$scope.myData[myId].Price = price;
 		}
 	}
-	
-    $scope.createLegs = function(ev, myDelta, myFutExp) 
-    {
-    	var mySide = $scope.mySide;
-    	var mySymbol = $scope.mySymbol;
-    	var myDelta = $scope.myDelta;
-    	var myQty = $scope.myQty;
-    	var myCpCompany = $scope.myCpCompany;
-    	var tokens = parseSymbol($scope.mySymbol);
-    	// ["HSCEI", "JUN17", "9000/7000", "1X1.5", "PS", "191", "9850", "28"]
-    	$scope.myParam = [];
-    	var data = [];	// clear legs
-    	type = tokens[4];
-    	var qty = [];
+
+	$scope.createLegs = function(ev, myDelta, myFutExp) {
+		var mySide = $scope.mySide;
+		var mySymbol = $scope.mySymbol;
+		var myDelta = $scope.myDelta;
+		var myQty = $scope.myQty;
+		var myCpCompany = $scope.myCpCompany;
+		var tokens = parseSymbol($scope.mySymbol);
+		// ["HSCEI", "JUN17", "9000/7000", "1X1.5", "PS", "191", "9850", "28"]
+		$scope.myParam = [];
+		var data = []; // clear legs
+		type = tokens[4];
+		var qty = [];
 		var ul = [];
-		
+
 		var instr = tokens[0];
 		var expiry = tokens[1];
 		var strike = tokens[2];
 		var multiplier = tokens[3];
 		var instrument = tokens[4];
 		$scope.myPremium = Number(tokens[5]);
-		var ref = Number(tokens[6].replace(',',''));
-    	
-    	switch (type)
-    	{
-    	case 'C': { //'EC - European Call':
-    		$scope.myParam[0] = {'ul' : instr, 'type':'Call', 'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : premium, 'ref' : ref, 
-					'delta' : myDelta, 'future' : myFutExp };
-    		
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : premium, 'ref' : ref, 
-					'delta' : myDelta, 'future' : myFutExp };
-    		break;
-    	}
-    	case 'CB': { //'ECB - European Call Butterfly':
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 3, '1X2X1');
-    		var legs = [];
-    		if (tokens.length < 5) {
-    			var thisSide = mySide;
-    			var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		else {
-    			var oppSide = mySide;
-    			var thisSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(multi[0]) * Number(myQty), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(multi[1]) * Number(myQty), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(multi[2]) * Number(myQty), 'side': thisSide};
-    		
-    		$scope.myParam[0] = {'ul' : instr, 'type':'Call', 'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : premium, 'ref' : ref, 
-					'delta' : myDelta, 'fut_expiry' : myFutExp };
-    		break;
-    	}
-    	case 'CC': { // 'ECC - European Call Condor':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 4, '1X1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(multi[0]) * Number(myQty), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(multi[1]) * Number(myQty), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(multi[2]) * Number(myQty), 'side': oppSide};
-    		$scope.myData[3] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[3], 'qty': Number(multi[3]) * Number(myQty), 'side': thisSide};
-    		
-    		$scope.myParam[0] = {'ul' : instr, 'type':'Call', 'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : premium, 'ref' : ref, 
-					'delta' : myDelta, 'fut_expiry' : myFutExp };
-    		break;
-    	}
-    	case 'CS': { //'ECDIAG - European Call Diagonal':
-    		var instr = tokens[0];
-    		var expiries = tokens[1].split('/');
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		if (tokens.length > 4) {
-    			var thisSide = mySide;
-    			var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		else {
-    			var oppSide = mySide;
-    			var thisSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiries[0], 'strike':strikes[0], 'qty': Number(multi[0]) * Number(myQty), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiries[1], 'strike':strikes[1], 'qty': Number(multi[1]) * Number(myQty), 'side': oppSide};
-    		
-    		$scope.myParam[0] = {'ul' : instr, 'type':'Call', 'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : premium, 'ref' : ref, 
-					'delta' : myDelta, 'future' : myFuture };
-    		break;
-    	}
-    	case 'CL' : { // 'ECL - European Call Ladder':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(multi[0]) * Number(myQty), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(multi[1]) * Number(myQty), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(multi[2]) * Number(myQty), 'side': oppSide};
-    		break;
-    	}
-    	case 'CR': //'ECR - European Call Ratio':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		
-    		
-//    		var es = exchangeSymbol(instr, 'C', strike, myFutExp);
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(multiplier, 2, '1X1');
-    		ul[0] = exchangeSymbol(instr, 'P', strikes[0], myFutExp);
-    		ul[1] = exchangeSymbol(instr, 'P', strikes[1], myFutExp);
-    		ul[2] = exchangeSymbol(instr, 'F', '', myFutExp);
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		qty[0] = Number(myQty) * Number(multi[0]);
-    		qty[1] = Number(myQty) * Number(multi[1]);
-    		var list = [
-    			{'side':thisSide, option:'Call', qty:qty[0]},
-    			{'side':oppSide, option:'Call', qty:qty[1]}
-    		];
-    		var futSide = hedgeSide(list);
-    		$scope.myData[0] = {'UL' : instr + ' Call', 'Instrument': ul[0], 'Expiry':expiry, 'Strike':strikes[0], 
-    				'Qty': qty[0], 'Side': thisSide, 'Multiplier': Number(multi[0])};
-    		$scope.myData[1] = {'UL' : instr + ' Call', 'Instrument': ul[1], 'Expiry':expiry, 'Strike':strikes[1], 
-    				'Qty': qty[1], 'Side': oppSide, 'Multiplier' : Number(multi[1])};
-    		$scope.myData[2] = {'UL' : instr + ' Future', 'Instrument': ul[2], 'Expiry':myFutExp, 'Strike':'', 
-    				'Qty': Number(myQty) * Number(myDelta) * 0.01, 'Side': futSide, 'Price' : ref, 'Multiplier': 0};
-//    		$scope.gridOptions.data = $scope.myData;
-//    		gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
-//            if (!$scope.$$phase) {
-//                $scope.$apply();
-//            }
-    		$scope.myParam[0] = {'ul' : instr, 'strategy':'European Put Spread', 
-    				'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : $scope.myPremium, 'ref' : ref, 
-					'delta' : myDelta, 'fut_expiry' : myFutExp};
-    		break;
-    	case 'ECS - European Call Spread':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		break;
-    	case 'ECTB - European Call Time Butterfly':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 3, '1X2X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry[2], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': thisSide};
-    		break;
-    	case 'ECTC - European Call Time Condor':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 4, '1X1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry[2], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		$scope.myData[3] = {'ul' : instr, 'type':'Call', 'expiry':expiry[3], 'strike':strikes, 'qty': Number(myQty) * Number(multi[3]), 'side': thisSide};
-    		break;
-    	case 'ECTL - European Call Time Ladder':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 3, '1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry[2], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		break;
-    	case 'ECTR - European Call Time Ratio':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		break;
-    	case 'ECTS - European Call Time Spread':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		break;
-    	case 'EIF - European Iron Fly':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 3, '1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[3] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		break;
-    	case 'EIFR - European Iron Fly Ratio':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 3, '1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[3] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		break;
-    		
-    		// put strategy
-    	case 'EP - European Put':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strike = tokens[2];
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strike, 'qty': myQty, 'side': mySide};
-    		break;
-    	case 'EPB - European Put Butterfly':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 3, '1X2X1');
-    		var legs = [];
-    		if (tokens.length < 5) {
-    			var thisSide = mySide;
-    			var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		else {
-    			var oppSide = mySide;
-    			var thisSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(myQty) * Number(multi[2]), 'side': thisSide};
-    		break;
-    	case 'EPC - European Put Condor':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 4, '1X1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		$scope.myData[3] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[3], 'qty': Number(myQty) * Number(multi[3]), 'side': thisSide};
-    		break;
-    	case 'EPDIAG - European Put Diagonal':
-    		var instr = tokens[0];
-    		var expiries = tokens[1].split('/');
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		if (tokens.length > 4) {
-    			var thisSide = mySide;
-    			var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		else {
-    			var oppSide = mySide;
-    			var thisSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiries[0], 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiries[1], 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		break;
-    	case 'EPL - European Put Ladder':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 3, '1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[2], 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		break;
-    	case 'EPR - European Put Ratio':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		break;
-    	case 'PS': {//'EPS - European Put Spread':
-//    		var es = exchangeSymbol(instr, 'P', strike, myFutExp);
-//    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(multiplier, 2, '1X1');
-    		ul[0] = exchangeSymbol(instr, 'P', strikes[0], myFutExp);
-    		ul[1] = exchangeSymbol(instr, 'P', strikes[1], myFutExp);
-    		ul[2] = exchangeSymbol(instr, 'F', '', myFutExp);
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		qty[0] = Number(myQty) * Number(multi[0]);
-    		qty[1] = Number(myQty) * Number(multi[1]);
-    		var list = [
-    			{'side':thisSide, option:'Put', qty:qty[0]},
-    			{'side':oppSide, option:'Put', qty:qty[1]}
-    		];
-    		var futSide = hedgeSide(list);
-    		$scope.myData[0] = {'UL' : instr + ' Put', 'Instrument': ul[0], 'Expiry':expiry, 'Strike':strikes[0], 'Qty': qty[0], 'Side': thisSide, 'Multiplier': Number(multi[0])};
-    		$scope.myData[1] = {'UL' : instr + ' Put', 'Instrument': ul[1], 'Expiry':expiry, 'Strike':strikes[1], 'Qty': qty[1], 'Side': oppSide, 'Multiplier' : Number(multi[1])};
-    		$scope.myData[2] = {'UL' : instr + ' Future', 'Instrument': ul[2], 'Expiry':myFutExp, 'Strike':'', 'Qty': Number(myQty) * Number(myDelta) * 0.01, 'Side': futSide, 'Price' : ref, 'Multiplier': 0};
-//    		$scope.gridOptions.data = $scope.myData;
-//    		gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
-//            if (!$scope.$$phase) {
-//                $scope.$apply();
-//            }
-    		$scope.myParam[0] = {'ul' : instr, 'strategy':'European Put Spread', 
-    				'expiry': expiry, 'strike':strike, 'qty': myQty, 'side': mySide, 
-					'multiplier' : multiplier, 'instrument' : instrument, 'premium' : $scope.myPremium, 'ref' : ref, 
-					'delta' : myDelta, 'fut_expiry' : myFutExp
-					};
-    		break;
-    	}
-    	case 'EPTB - European Put Time Butterfly':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 3, '1X2X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry[2], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': thisSide};
-    		break;
-    	case 'EPTC - European Put Time Condor':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 4, '1X1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry[2], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		$scope.myData[3] = {'ul' : instr, 'type':'Put', 'expiry':expiry[3], 'strike':strikes, 'qty': Number(myQty) * Number(multi[3]), 'side': thisSide};
-    		break;
-    	case 'EPTL - European Put Time Ladder':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var multi = getMultiple(tokens[3], 3, '1X1X1');
-    		var strikes = tokens[2];
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Put', 'expiry':expiry[2], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': oppSide};
-    		break;
-    	case 'EPTR - European Put Time Ratio':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var multi = tokens[3].split('x');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		break;
-    	case 'EPTS - European Put Time Spread':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		break;
-    	case 'ERR - European Risk Reversal':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		if (tokens.length > 4) {
-    			var oppSide = mySide;
-    			var thisSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		else {
-    			var thisSide = mySide;
-    			var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		}
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		break;
-    	case 'ES - European Synthetic Call Over':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		break;
-    	case 'ESPO - European Synthetic Put Over':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		break;
-    	case 'ESD - European Straddle':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		break;
-    	case 'ESDTS - European Straddle Time Spread':
-    		var instr = tokens[0];
-    		var expiry = tokens[1].split('/');
-    		var strikes = tokens[2];
-    		var multi = getMultiple(tokens[3], 4, '1X1X1X1');
-    		var thisSide = mySide;
-    		var oppSide = mySide === 'Buy'? 'Sell' : 'Buy';
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[0]), 'side': oppSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[1]), 'side': oppSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Put', 'expiry':expiry[0], 'strike':strikes, 'qty': Number(myQty) * Number(multi[2]), 'side': thisSide};
-    		$scope.myData[2] = {'ul' : instr, 'type':'Call', 'expiry':expiry[1], 'strike':strikes, 'qty': Number(myQty) * Number(multi[3]), 'side': thisSide};
-    		break;
-    	case 'ESG - European Strangle':
-    		var instr = tokens[0];
-    		var expiry = tokens[1];
-    		var strikes = tokens[2].split('/');
-    		var multi = getMultiple(tokens[3], 2, '1X1');
-    		var thisSide = mySide;
-    		$scope.myData[0] = {'ul' : instr, 'type':'Put', 'expiry':expiry, 'strike':strikes[0], 'qty': Number(myQty) * Number(multi[0]), 'side': thisSide};
-    		$scope.myData[1] = {'ul' : instr, 'type':'Call', 'expiry':expiry, 'strike':strikes[1], 'qty': Number(myQty) * Number(multi[1]), 'side': thisSide};
-    		break;
-    		
-//		'ESGAC - European Strangle VS Call',
-//		'ESGAP - European Strangle VS Put',
-//		'ESGTS - European Strangle Time Spread',
-//		'ETRR - European Time Risk Reversal',
-//		'ECSAC - European Call Spread VS Call',
-//		'ECSAP - European Call Spread Against Put',
-//		'ECSAPR - European Call Spread VS Put (Ratio',
-//		'ECSAPPO - European Call Spread VS Put - Put Over',
-//		'ECSPS - European Call Spread VS Put Spread',
-//		'ECSTR - European Call Spread Time Ratio',
-//		'ECSTS - European Call Spread Time Spread',
-//		'ECTSAP - European Call Time Spread Against Put',
-//		'EPSAC - European Put Spread Against Call',
-//		'EPSACR - European Put Spread VS Call (Ratio',
-//		'EPSACCO - European Put Spread VS Call - Call Over',
-//		'EPSAP - European Put Spread VS Put',
-//		'EPSTUP - European Put Stupid',
-//		'EPTSAC - European Put Time Spread Against Call',
-//		'ESDAC - European Straddle VS Call',
-//		'ESDAP - European Straddle VS Put',
-//		'FWDB - Forward Butterfly',
-    	case 'SPRD - Spread':
-    		alert('SPRD - Spread');
-    		break;
-    	default:
-    		alert('no matching');
-    	break;
-    	}
-    };
+		var ref = Number(tokens[6].replace(',', ''));
+
+		switch (type) {
+		case 'C': { // 'EC - European Call':
+			$scope.myParam[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide,
+				'multiplier' : multiplier,
+				'instrument' : instrument,
+				'premium' : premium,
+				'ref' : ref,
+				'delta' : myDelta,
+				'future' : myFutExp
+			};
+
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide,
+				'multiplier' : multiplier,
+				'instrument' : instrument,
+				'premium' : premium,
+				'ref' : ref,
+				'delta' : myDelta,
+				'future' : myFutExp
+			};
+			break;
+		}
+		case 'CB': { // 'ECB - European Call Butterfly':
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 3, '1X2X1');
+			var legs = [];
+			if (tokens.length < 5) {
+				var thisSide = mySide;
+				var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			} else {
+				var oppSide = mySide;
+				var thisSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			}
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(multi[0]) * Number(myQty),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(multi[1]) * Number(myQty),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(multi[2]) * Number(myQty),
+				'side' : thisSide
+			};
+
+			$scope.myParam[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide,
+				'multiplier' : multiplier,
+				'instrument' : instrument,
+				'premium' : premium,
+				'ref' : ref,
+				'delta' : myDelta,
+				'fut_expiry' : myFutExp
+			};
+			break;
+		}
+		case 'CC': { // 'ECC - European Call Condor':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 4, '1X1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(multi[0]) * Number(myQty),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(multi[1]) * Number(myQty),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(multi[2]) * Number(myQty),
+				'side' : oppSide
+			};
+			$scope.myData[3] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[3],
+				'qty' : Number(multi[3]) * Number(myQty),
+				'side' : thisSide
+			};
+
+			$scope.myParam[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide,
+				'multiplier' : multiplier,
+				'instrument' : instrument,
+				'premium' : premium,
+				'ref' : ref,
+				'delta' : myDelta,
+				'fut_expiry' : myFutExp
+			};
+			break;
+		}
+		case 'CS': { // 'ECDIAG - European Call Diagonal':
+			var instr = tokens[0];
+			var expiries = tokens[1].split('/');
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			if (tokens.length > 4) {
+				var thisSide = mySide;
+				var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			} else {
+				var oppSide = mySide;
+				var thisSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			}
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiries[0],
+				'strike' : strikes[0],
+				'qty' : Number(multi[0]) * Number(myQty),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiries[1],
+				'strike' : strikes[1],
+				'qty' : Number(multi[1]) * Number(myQty),
+				'side' : oppSide
+			};
+
+			$scope.myParam[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide,
+				'multiplier' : multiplier,
+				'instrument' : instrument,
+				'premium' : premium,
+				'ref' : ref,
+				'delta' : myDelta,
+				'future' : myFuture
+			};
+			break;
+		}
+		case 'CL': { // 'ECL - European Call Ladder':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(multi[0]) * Number(myQty),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(multi[1]) * Number(myQty),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(multi[2]) * Number(myQty),
+				'side' : oppSide
+			};
+			break;
+		}
+		case 'CR': { // 'ECR - European Call Ratio':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry, 'strike' : strikes[0], 'qty' : Number(myQty) * Number(multi[0]), 'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry, 'strike' : strikes[1], 'qty' : Number(myQty) * Number(multi[1]), 'side' : oppSide
+			};
+
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(multiplier, 2, '1X1');
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], myFutExp);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], myFutExp);
+			ul[2] = exchangeSymbol(instr, 'F', '', myFutExp);
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			qty[0] = Number(myQty) * Number(multi[0]);
+			qty[1] = Number(myQty) * Number(multi[1]);
+			var list = [ {
+				'side' : thisSide, option : 'Call', qty : qty[0]
+			}, {'side' : oppSide, option : 'Call', qty : qty[1]
+			} ];
+			var futSide = hedgeSide(list);
+			$scope.myData[0] = {
+				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : expiry, 'Strike' : strikes[0], 'Qty' : qty[0], 'Side' : thisSide, 'Multiplier' : Number(multi[0])
+			};
+			$scope.myData[1] = {
+				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : expiry, 'Strike' : strikes[1], 'Qty' : qty[1], 'Side' : oppSide, 'Multiplier' : Number(multi[1])
+			};
+			$scope.myData[2] = {
+				'UL' : instr + ' Future', 'Instrument' : ul[2], 'Expiry' : myFutExp, 'Strike' : '', 'Qty' : Number(myQty) * Number(myDelta) * 0.01,
+				'Side' : futSide, 'Price' : ref, 'Multiplier' : 0
+			};
+			$scope.myParam[0] = {
+				'ul' : instr, 'strategy' : 'European Put Spread', 'expiry' : expiry, 'strike' : strike, 'qty' : myQty, 'side' : mySide,
+				'multiplier' : multiplier, 'instrument' : instrument, 'premium' : $scope.myPremium, 'ref' : ref, 'delta' : myDelta, 'fut_expiry' : myFutExp
+			};
+			break;
+		}
+		case 'ECS - European Call Spread':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry, 'strike' : strikes[0], 'qty' : Number(myQty) * Number(multi[0]), 'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry, 'strike' : strikes[1], 'qty' : Number(myQty) * Number(multi[1]), 'side' : oppSide
+			};
+			break;
+		case 'ECTB - European Call Time Butterfly':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 3, '1X2X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry[0], 'strike' : strikes, 'qty' : Number(myQty) * Number(multi[0]), 'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry[1], 'strike' : strikes, 'qty' : Number(myQty) * Number(multi[1]), 'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr, 'type' : 'Call', 'expiry' : expiry[2], 'strike' : strikes, 'qty' : Number(myQty) * Number(multi[2]), 'side' : thisSide
+			};
+			break;
+		case 'ECTC - European Call Time Condor':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 4, '1X1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[2],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			$scope.myData[3] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[3],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[3]),
+				'side' : thisSide
+			};
+			break;
+		case 'ECTL - European Call Time Ladder':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 3, '1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[2],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			break;
+		case 'ECTR - European Call Time Ratio':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			break;
+		case 'ECTS - European Call Time Spread':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			break;
+		case 'EIF - European Iron Fly':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 3, '1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[3] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			break;
+		case 'EIFR - European Iron Fly Ratio':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 3, '1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[3] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			break;
+
+		// put strategy
+		case 'EP - European Put':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strike = tokens[2];
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide
+			};
+			break;
+		case 'EPB - European Put Butterfly':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 3, '1X2X1');
+			var legs = [];
+			if (tokens.length < 5) {
+				var thisSide = mySide;
+				var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			} else {
+				var oppSide = mySide;
+				var thisSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			}
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : thisSide
+			};
+			break;
+		case 'EPC - European Put Condor':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 4, '1X1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			$scope.myData[3] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[3],
+				'qty' : Number(myQty) * Number(multi[3]),
+				'side' : thisSide
+			};
+			break;
+		case 'EPDIAG - European Put Diagonal':
+			var instr = tokens[0];
+			var expiries = tokens[1].split('/');
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			if (tokens.length > 4) {
+				var thisSide = mySide;
+				var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			} else {
+				var oppSide = mySide;
+				var thisSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			}
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiries[0],
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiries[1],
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			break;
+		case 'EPL - European Put Ladder':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 3, '1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[2],
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			break;
+		case 'EPR - European Put Ratio':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			break;
+		case 'PS': { // 'EPS - European Put Spread':
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(multiplier, 2, '1X1');
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], myFutExp);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], myFutExp);
+			ul[2] = exchangeSymbol(instr, 'F', '', myFutExp);
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			qty[0] = Number(myQty) * Number(multi[0]);
+			qty[1] = Number(myQty) * Number(multi[1]);
+			var list = [ {
+				'side' : thisSide, option : 'Put', qty : qty[0]
+			}, {
+				'side' : oppSide, option : 'Put', qty : qty[1]
+			} ];
+			var futSide = hedgeSide(list);
+			$scope.myData[0] = {
+				'UL' : instr + ' Put',
+				'Instrument' : ul[0],
+				'Expiry' : expiry,
+				'Strike' : strikes[0],
+				'Qty' : qty[0],
+				'Side' : thisSide,
+				'Multiplier' : Number(multi[0])
+			};
+			$scope.myData[1] = {
+				'UL' : instr + ' Put',
+				'Instrument' : ul[1],
+				'Expiry' : expiry,
+				'Strike' : strikes[1],
+				'Qty' : qty[1],
+				'Side' : oppSide,
+				'Multiplier' : Number(multi[1])
+			};
+			$scope.myData[2] = {
+				'UL' : instr + ' Future',
+				'Instrument' : ul[2],
+				'Expiry' : myFutExp,
+				'Strike' : '',
+				'Qty' : Number(myQty) * Number(myDelta) * 0.01,
+				'Side' : futSide,
+				'Price' : ref,
+				'Multiplier' : 0
+			};
+			// $scope.gridOptions.data = $scope.myData;
+			// gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+			// if (!$scope.$$phase) {
+			// $scope.$apply();
+			// }
+			$scope.myParam[0] = {
+				'ul' : instr,
+				'strategy' : 'European Put Spread',
+				'expiry' : expiry,
+				'strike' : strike,
+				'qty' : myQty,
+				'side' : mySide,
+				'multiplier' : multiplier,
+				'instrument' : instrument,
+				'premium' : $scope.myPremium,
+				'ref' : ref,
+				'delta' : myDelta,
+				'fut_expiry' : myFutExp
+			};
+			break;
+		}
+		case 'EPTB - European Put Time Butterfly':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 3, '1X2X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[2],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : thisSide
+			};
+			break;
+		case 'EPTC - European Put Time Condor':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 4, '1X1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[2],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			$scope.myData[3] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[3],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[3]),
+				'side' : thisSide
+			};
+			break;
+		case 'EPTL - European Put Time Ladder':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var multi = getMultiple(tokens[3], 3, '1X1X1');
+			var strikes = tokens[2];
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[2],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : oppSide
+			};
+			break;
+		case 'EPTR - European Put Time Ratio':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var multi = tokens[3].split('x');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			break;
+		case 'EPTS - European Put Time Spread':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			break;
+		case 'ERR - European Risk Reversal':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			if (tokens.length > 4) {
+				var oppSide = mySide;
+				var thisSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			} else {
+				var thisSide = mySide;
+				var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			}
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			break;
+		case 'ES - European Synthetic Call Over':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			break;
+		case 'ESPO - European Synthetic Put Over':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			break;
+		case 'ESD - European Straddle':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			break;
+		case 'ESDTS - European Straddle Time Spread':
+			var instr = tokens[0];
+			var expiry = tokens[1].split('/');
+			var strikes = tokens[2];
+			var multi = getMultiple(tokens[3], 4, '1X1X1X1');
+			var thisSide = mySide;
+			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : oppSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : oppSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry[0],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[2]),
+				'side' : thisSide
+			};
+			$scope.myData[2] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry[1],
+				'strike' : strikes,
+				'qty' : Number(myQty) * Number(multi[3]),
+				'side' : thisSide
+			};
+			break;
+		case 'ESG - European Strangle':
+			var instr = tokens[0];
+			var expiry = tokens[1];
+			var strikes = tokens[2].split('/');
+			var multi = getMultiple(tokens[3], 2, '1X1');
+			var thisSide = mySide;
+			$scope.myData[0] = {
+				'ul' : instr,
+				'type' : 'Put',
+				'expiry' : expiry,
+				'strike' : strikes[0],
+				'qty' : Number(myQty) * Number(multi[0]),
+				'side' : thisSide
+			};
+			$scope.myData[1] = {
+				'ul' : instr,
+				'type' : 'Call',
+				'expiry' : expiry,
+				'strike' : strikes[1],
+				'qty' : Number(myQty) * Number(multi[1]),
+				'side' : thisSide
+			};
+			break;
+
+		//		'ESGAC - European Strangle VS Call',
+		//		'ESGAP - European Strangle VS Put',
+		//		'ESGTS - European Strangle Time Spread',
+		//		'ETRR - European Time Risk Reversal',
+		//		'ECSAC - European Call Spread VS Call',
+		//		'ECSAP - European Call Spread Against Put',
+		//		'ECSAPR - European Call Spread VS Put (Ratio',
+		//		'ECSAPPO - European Call Spread VS Put - Put Over',
+		//		'ECSPS - European Call Spread VS Put Spread',
+		//		'ECSTR - European Call Spread Time Ratio',
+		//		'ECSTS - European Call Spread Time Spread',
+		//		'ECTSAP - European Call Time Spread Against Put',
+		//		'EPSAC - European Put Spread Against Call',
+		//		'EPSACR - European Put Spread VS Call (Ratio',
+		//		'EPSACCO - European Put Spread VS Call - Call Over',
+		//		'EPSAP - European Put Spread VS Put',
+		//		'EPSTUP - European Put Stupid',
+		//		'EPTSAC - European Put Time Spread Against Call',
+		//		'ESDAC - European Straddle VS Call',
+		//		'ESDAP - European Straddle VS Put',
+		//		'FWDB - Forward Butterfly',
+		case 'SPRD - Spread':
+			alert('SPRD - Spread');
+			break;
+		default:
+			alert('no matching');
+			break;
+		}
+	};
 
 };
 

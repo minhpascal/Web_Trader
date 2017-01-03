@@ -4,6 +4,11 @@
 /*  height: 500px; */ 
 }
 
+.myParamGrid {
+   width: 800px;  
+  height: 100px;  
+}
+
 .header-filtered {
   color: blue;
 }
@@ -122,3 +127,15 @@ select::-ms-expand {
   .md-padding .hint.ng-enter.ng-enter-active {
     bottom: 7px;
     opacity: 1; }
+    
+.bGreen{ 
+/*  background-color: #006837; */ 
+  background-color: #00FF00; 
+  color: white; 
+  font-weight: normal; 
+}
+
+.missing {
+ background-color: red !important
+}
+
