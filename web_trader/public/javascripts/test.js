@@ -24,15 +24,6 @@ var app = angular.module('app', [
 	'ui.grid.resizeColumns',
 	'ngAnimate' ,
 	]);
-//	'ngMaterial', 'ngMessages', 'ngAnimate', 'ngTouch'
-//app.config(function($momentProvider){
-//    $momentProvider
-//    .asyncLoading(false)
-//    .scriptUrl('//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js');
-
-//app.controller('AppCtrl', AppCtrl, moment).controller('AutoCompleteCtrl', AutoCompleteCtrl);
-//		.controller('DatepickerCtrl', DatepickerCtrl)
-//		.controller('TradeconfoCtrl', TradeconfoCtrl)
 
 function DialogController($scope, $mdDialog, locals, uiGridConstants) 
 {
@@ -58,8 +49,6 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 	// $scope.customFullscreen = false;
 
 	$scope.myFutMat = '';
-//	$scope.fut_exp = [ '', 'DEC16', 'MAR17', 'JUN17', ];
-//	$scope.futExpTypes = [ 'DEC16', 'MAR17', 'JUN17', ];
 	$scope.futMatTypes = [{ID: 1, type: 'DEC16' },
 		{ID: 2, type: 'MAR17' },
 		{ID: 3, type: 'JUN17' },
@@ -70,7 +59,7 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		{'UL': $scope.myUl, 'Strategy': $scope.myStrat, 'Expiry': $scope.myExpiry,
 		'Strike': $scope.myStrike, 'Multiplier': $scope.myMultiplier, 'Qty': $scope.myQty, 
 		'Premium': $scope.myPremium, 'Delta': $scope.myDelta, 'FutMat': '', 
-		'Ref': $scope.myRef}
+		'Ref': $scope.myRef},
 	];
 	
 	$scope.hide = function() {
@@ -78,7 +67,6 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 	};
 	
 	$scope.cancel = function() {
-		// $scope.myData = [];
 		$mdDialog.cancel();
 	};
 	
@@ -86,16 +74,13 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		$mdDialog.hide(answer);
 	};
 	
-	  $scope.genderTypes = [{ID: 1, type: 'female' },
-		  {ID: 2, type: 'female' },
-		  {ID: 3, type: 'both' },
-		  {ID: 4, type: 'none' },
-		  ];
-	
-	  $scope.cellInputEditableTemplate = '<div><input ng-class="\'colt\' + col.index" ng-input="Delta" ng-model="myDelta" ng-blur="updateEntity(row)" /></div>';
+//	  $scope.cellInputEditableTemplate = '<div><input ng-class="\'colt\' + col.index" ng-input="Delta" ng-model="myDelta" ng-blur="updateEntity(row)" /></div>';
   
-	  
+	createLegs('', '', '');
+	
 	$scope.paramGridOptions = {
+			enableHorizontalScrollbar: false, 
+			enableVerticalScrollbar: false,
 //			rowEditWaitInterval : -1,
 			enableSorting : false,
 			enableColumnResizing : true,
@@ -104,46 +89,27 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 			showColumnFooter : false,
 		    enableCellEditOnFocus: true,
 			columnDefs : [ 
-				{field : 'UL', width : '60', enableCellEdit : false}, 
-				{field : 'Strategy',displayName:'Strat',width : '60',enableCellEdit : false}, 
-				{field : 'Expiry',width : '80',enableCellEdit : false}, 
-				{field : 'Strike',width : '*',enableCellEdit : false}, 
-				{field : 'Multiplier',width : '*',enableCellEdit : false}, 
-				{field : 'Qty',width : '60',enableCellEdit : true,
+				{field : 'UL', headerCellClass: 'blue-header', width : '60', enableCellEdit : false}, 
+				{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '60',enableCellEdit : false}, 
+				{field : 'Expiry', headerCellClass: 'blue-header',width : '80',enableCellEdit : false}, 
+				{field : 'Strike', headerCellClass: 'blue-header',width : '150',enableCellEdit : false}, 
+				{field : 'Multiplier', headerCellClass: 'blue-header',width : '100',enableCellEdit : false}, 
+				{field : 'Qty', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
 //					editableCellTemplate: '<div><input type="number" class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
 //			        cellTemplate: 'prompt.html',
 			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="row.entity.Qty === \'\'">error_outline</i><input class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
 				}, 
-				{field : 'Premium',width : '60',enableCellEdit : false}, 
-				{field : 'Delta',width : '60',enableCellEdit : true,
+				{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '60',enableCellEdit : false}, 
+				{field : 'Delta', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
 //					enableCellEditOnFocus: true,
 //			          editableCellTemplate: $scope.cellInputEditableTemplate,
 			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="row.entity.Delta === \'\'">error_outline</i><input class="form-control" ng-input="row.entity.Delta" ng-model="row.entity.Delta" /></div>',
-//				      cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-//				    	  $scope.myDelta = Number(grid.getCellValue(row, col));
-//				          if (grid.getCellValue(row ,col).toLowerCase() === '') {
-//				              return 'missing';
-//				          }
-//				          return '';
-//				      }
 				}, 
-//				{field : 'FutMat',
-//					enableCellEdit : true,
-//					editType: 'dropdown', 
-//					width : '80',
-//					editableCellTemplate: 'ui-grid/dropdownEditor',
-////			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="grid.appScope.myFutMat === \'\'">error_outline</i><div>{{myFutMat}}" /></div>',
-//			        editDropdownValueLabel: 'type', 
-//			        editDropdownOptionsArray: [
-//			          {ID: 1, type: 'DEC16' },
-//			  		  {ID: 2, type: 'MAR17' },
-//					  {ID: 3, type: 'JUN17' },
-//					  ]
-//				},
 			      { 
 					field: 'FutMat',
+					headerCellClass: 'blue-header',
 			        name: 'FutMat', 
-			        displayName: 'Future Maturity', 
+			        displayName: 'Fut Mat', 
 			        editableCellTemplate: 'ui-grid/dropdownEditor', 
 			        width: '80',
 //			        cellFilter: 'mapGender', 
@@ -155,36 +121,11 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 			        { id: 'JUN17', type: 'JUN17' }
 			        ] 
 			      },
-//				{field : 'FutMat',  width : '80',enableCellEdit : true,
-//					cellTemplate: 'fut_mat.html',
-////					cellTemplate: 'prompt.html',
-//				},
-				{field : 'Ref', width : '80',enableCellEdit : false}
+				{field : 'Ref', width : '80',enableCellEdit: false, visible: false}
 			 ],
-			
-			// enableGridMenu: true,
-			// enableSelectAll: true,
-			// enableRowSelection: true,
 			exporterMenuPdf : false,
-			// exporterCsvFilename: 'invoice_summary.csv',
-			// exporterCsvLinkElement:
-			// angular.element(document.querySelectorAll(".custom-csv-link-location")),
 	};
 	
-	  $scope.onDropdownChange = function(row) {
-//		  console.log(row);
-		if (row.entity.FutMat.type !== '') {
-//			$scope.myData[0].Qty = rowEntity.Qty;
-//			$scope.myData[1].Qty = rowEntity.Qty;
-//		
-//			if (rowEntity.Delta !== '') {
-				$scope.myData[2].Expiry = row.entity.FutMat.type;	
-//			}
-				$scope.myFutMat = row.entity.FutMat.type;
-		}
-	  };
-	
-
 	$scope.paramGridOptions.data = $scope.myParam;
 	
 	$scope.paramGridOptions.onRegisterApi = function(gridApi) {
@@ -193,125 +134,110 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 	}
 	
 	$scope.afterCellEditParamGrid = function(rowEntity, colDef, newValue, oldValue) {
-//		var nMissLeg = 0;
-//		params = [];
-//		var myMultiplier = 0;
-//		var myPremium = $scope.myPremium;
-//		var mySide = 0;
-//		var myId = -1;
-//	    colDef.cellClass = function(row, col, rowRenderIndex, colRenderIndex) {
-//	          
-//	          if (/*rowEntity.id === row.entity.id &&*/ newValue !== oldValue) {
-//	            return "test" ;
-//	          }
-//	          return "";
-//	        };
 		if (rowEntity.Qty !== '') {
-			$scope.myData[0].Qty = rowEntity.Qty;
-			$scope.myData[1].Qty = rowEntity.Qty;
+			var tokens = rowEntity.Multiplier.split('X');
+			var params = [];
+			for (i=0; i<tokens.length; i++) {
+				$scope.myData[i].Qty = rowEntity.Qty * Number(tokens[i]);
+				params.push({side : $scope.myData[i].Side, option: $scope.myData[i].UL.split(' ')[1], qty: $scope.myData[i].Qty});
+			}
+//			// update future sell leg
+			var side = hedgeSide(params);
+			$scope.myData[$scope.myData.length - 1].Side = side;
+
 			$scope.myQty = Number(rowEntity.Qty);
+			
 			if (rowEntity.Delta !== '') {
-				$scope.myData[2].Qty = Number(rowEntity.Qty) * Number(rowEntity.Delta) * 0.01;	
+				var len = $scope.myData.length;
+				$scope.myData[len - 1].Qty = Number(rowEntity.Qty) * Number(rowEntity.Delta) * 0.01;	
 				$scope.myDelta = Number(rowEntity.Delta);
 			}
 		}
 		if (rowEntity.FutMat !== '') {
 			$scope.myFutMat = rowEntity.FutMat;
 			$scope.myData[2].Expiry = rowEntity.FutMat;
+			$scope.myData[2].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat);
 		}
 //	    $scope.paramGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+		 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+		 if (!$scope.$$phase) {
+			 $scope.$apply();
+		 }
 	}
-//	$scope.afterCellEditParamGrid = function(rowEntity, coldef, newValue, oldValue) {
-//		var nMissLeg = 0;
-//		params = [];
-//		var myMultiplier = 0;
-//		var myPremium = $scope.myPremium;
-//		var mySide = 0;
-//		var myId = -1;
-////		for (i = 0; i < $scope.myData.length; i++) {
-////			// if ($scope.myData[i].UL.indexOf('Future') > 0)
-////			// continue;
-////			
-////			if ($scope.myData[i].Price) {
-////				params.push({
-////					'side' : $scope.myData[i].Side,
-////					'multiplier' : $scope.myData[i].Multiplier,
-////					'price' : $scope.myData[i].Price
-////				});
-////			} else {
-////				nMissLeg++;
-////				mySide = $scope.myData[i].Side;
-////				myMultiplier = $scope.myData[i].Multiplier;
-////				myId = i;
-////			}
-////		}
-////		if (nMissLeg === 1) {
-////			var price = calRemainPrice(params, myMultiplier, mySide, myPremium);
-////			// calRemainPrice(params, myMultiplier, myPrice, mySide);
-////			$scope.myData[myId].Price = price;
-////		}
-//	}
 	
 	$scope.gridOptions = {
 		data : 'myData',
-		rowEditWaitInterval : -1,
+//		rowEditWaitInterval : -1,
 		enableSorting : false,
 		enableColumnResizing : true,
 		enableFiltering : false,
 		showGridFooter : false,
 		showColumnFooter : false,
-		columnDefs : [ {
-			field : 'Instrument',
-			width : '120',
-			enableCellEdit : false
-		}, {
-			field : 'UL',
-			displayName : 'UL',
-			width : '100',
-			enableCellEdit : false
-		}, {
-			field : 'Qty',
-			displayName : 'Qty',
-			width : '60',
-			enableCellEdit : false,
-		}, {
-			field : 'Side',
-			displayName : 'Side',
-			width : '60',
-			enableCellEdit : false,
-		}, {
-			field : 'Strike',
-			displayName : 'Strike',
-			width : '80',
-			enableCellEdit : false,
-		}, {
-			field : 'Expiry',
-			displayName : 'Expiry',
-			width : '80',
-			enableCellEdit : false,
-		}, {
-			field : 'Price',
-			displayName : 'Price',
-			width : '*',
-			enableCellEdit : true,
-			cellFilter : 'number: 2'
-		}, {
-			field : 'Multiplier',
-			displayName : 'Multiplier',
-			width : '*',
-			enableCellEdit : false,
-			visible : false
-		}, ],
-
-		// enableGridMenu: true,
-		// enableSelectAll: true,
-		// enableRowSelection: true,
-		exporterMenuPdf : false,
-	// exporterCsvFilename: 'invoice_summary.csv',
-	// exporterCsvLinkElement:
-	// angular.element(document.querySelectorAll(".custom-csv-link-location")),
+//	    enableCellEditOnFocus: true,
+		columnDefs : [ 
+			{field : 'Instrument', 
+				headerCellClass: 'brown-header', 
+				width : '120', enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val)
+						return '';
+					return 'missing';
+				}
+			}, 
+			{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '100', enableCellEdit : false	}, 
+			{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '60', enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (!isNaN(val) && val > 0)
+						 return '';
+					return 'missing';
+				}
+			}, 
+			{field : 'Side', headerCellClass: 'brown-header', displayName : 'Side',width : '60',enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val)
+						return '';
+					return 'missing';
+				}
+			}, 
+			{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '80',enableCellEdit : false,}, 
+			{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '80', enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val)
+						return '';
+					return 'missing';
+				}
+			}, 
+			{field : 'Price', headerCellClass: 'brown-header', displayName : 'Price', width : '*', enableCellEdit : true, cellFilter : 'number: 2',
+				cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
+					+ '<input ng-if="row.entity.isValidate" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
+					+ '<input ng-if="!row.entity.isValidate" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
+					+ '</div>',
+			},
+            {field : 'noPrice', headerCellClass: 'brown-header', displayName : 'noPrice', enableCellEdit : false, visible : false},
+            {field : 'isValidate', headerCellClass: 'brown-header', displayName : 'isValidate', enableCellEdit : false, visible : false},
+            {field : 'Multiplier', headerCellClass: 'brown-header', displayName : 'Multiplier',width : '*', enableCellEdit : false, visible : false},
+		],
+//		rowTemplate: '<div><div style="height: 100%; {\'background-color\': \'\'}" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }" ui-grid-cell></div></div>',
+//		exporterMenuPdf : false,
 	};
 
+	$scope.getUnitCountCellColor = function(val){
+	    console.log(val);
+//	    return {red: col == 0};
+	    
+	    
+		var val = grid.getCellValue(row, col);
+		if (!isNaN(val))
+			if (val > 0)
+				 if (val % 1 != 0)
+					 return {red: true};
+		return {red: false};
+	};
+	
 	$scope.gridOptions.onRegisterApi = function(gridApi) {
 		$scope.gridApi = gridApi;
 		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEdit);
@@ -320,41 +246,59 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 	$scope.afterCellEdit = function(rowEntity, coldef, newValue, oldValue) {
 		var nMissLeg = 0;
 		params = [];
-		var myMultiplier = 0;
-		var myPremium = $scope.myPremium;
-		var mySide = 0;
-		var myId = -1;
-		for (i = 0; i < $scope.myData.length; i++) {
-			// if ($scope.myData[i].UL.indexOf('Future') > 0)
-			// continue;
-
-			if ($scope.myData[i].Price) {
+		var multi = 0;
+		var premium = $scope.myPremium;
+		var side = 0;
+		rowEntity.noPrice = false;
+		
+		for (i = 0; i < $scope.myData.length; i++) 
+		{
+			if (isNaN($scope.myData[i].Price)) {
+				nMissLeg++;
+			}
+		}
+		if (nMissLeg > 1)
+			return;
+		
+		for (i = 0; i < $scope.myData.length - 2; i++) 
+		{
+			if (!isNaN($scope.myData[i].Price)) {
 				params.push({
 					'side' : $scope.myData[i].Side,
 					'multiplier' : $scope.myData[i].Multiplier,
-					'price' : $scope.myData[i].Price
+					'price' : $scope.myData[i].Price,
+					'option' : $scope.myData[i].UL.split(' ')[1],
+					'qty' : $scope.myData[i].Qty
 				});
-			} else {
-				nMissLeg++;
-				mySide = $scope.myData[i].Side;
-				myMultiplier = $scope.myData[i].Multiplier;
-				myId = i;
-			}
+			} 
 		}
-		if (nMissLeg === 1) {
-			var price = calRemainPrice(params, myMultiplier, mySide, myPremium);
-			// calRemainPrice(params, myMultiplier, myPrice, mySide);
-			$scope.myData[myId].Price = price;
+		var iCal = $scope.myData.length - 2;
+		side = $scope.myData[iCal].Side;
+		multi = $scope.myData[iCal].Multiplier;
+		var price = calRemainPrice(params, multi, side, premium);
+		// calRemainPrice(params, myMultiplier, myPrice, mySide);
+		$scope.myData[iCal].Price = price;
+		$scope.myData[iCal].noPrice = false;
+		
+		if (!isNaN(price) && price > 0 && (price % 1 != 0)) {	// has decimal
+			$scope.myData[iCal].isValidate = true;
 		}
-	}
+		else {
+			$scope.myData[iCal].isValidate = false;
+		}
+//		$scope.apply;
+		 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+		 if (!$scope.$$phase) {
+			 $scope.$apply();
+		 }
+	};
 
-	createLegs('', '', '');
 //  	$scope.createLegs = function(ev, qty, delta, myFutExp) {
 	function createLegs(qty, delta, futExp) {
 		var myQty = qty;
 		var tokens = parseSymbol($scope.mySymbol);
 		// ["HSCEI", "JUN17", "9000/7000", "1X1.5", "PS", "191", "9850", "28"]
-		$scope.myParam = [];
+		$scope.myData = [];
 		var data = []; // clear legs
 		type = tokens[4];
 		var qty = [];
@@ -364,11 +308,11 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		var expiry = $scope.myExpiry;
 		var strike = $scope.myStrike;
 		var multiplier = $scope.myMultiplier;
-		var instrument = $scope.myInstr;
+//		var instrument = $scope.myInstr;
 		$scope.myPremium = Number($scope.myPremium);
 //		var ref = Number(tokens[6].replace(',', ''));
 		var ref = Number($scope.myRef);
-		var mySide = 'Buy';
+		var mySide = $scope.mySide;
 		
 		switch (type) {
 		case 'C': { // 'EC - European Call':
@@ -591,41 +535,40 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		}
 		case 'CR': { // 'ECR - European Call Ratio':
 			var instr = tokens[0];
+			$scope.myInstr = instr;
 			var expiry = tokens[1];
 			var strikes = tokens[2].split('/');
 			var multi = getMultiple(tokens[3], 2, '1X1');
 			var thisSide = mySide;
 			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
-			$scope.myData[0] = {
-				'ul' : instr, 'type' : 'Call', 'expiry' : expiry, 'strike' : strikes[0], 'qty' : Number(myQty) * Number(multi[0]), 'side' : thisSide
-			};
-			$scope.myData[1] = {
-				'ul' : instr, 'type' : 'Call', 'expiry' : expiry, 'strike' : strikes[1], 'qty' : Number(myQty) * Number(multi[1]), 'side' : oppSide
-			};
 
 			var strikes = tokens[2].split('/');
 			var multi = getMultiple(multiplier, 2, '1X1');
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], $scope.myExpiry);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], $scope.myExpiry);
-			ul[2] = exchangeSymbol(instr, 'F', '', futExp);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], $scope.myExpiry);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], $scope.myExpiry);
+//			ul[2] = exchangeSymbol(instr, 'F', '', futExp);
+			ul[2] = '';
 			var thisSide = mySide;
 			var oppSide = mySide === 'Buy' ? 'Sell' : 'Buy';
-			qty[0] = Number(myQty) * Number(multi[0]);
-			qty[1] = Number(myQty) * Number(multi[1]);
+//			qty[0] = Number(myQty) * Number(multi[0]);
+//			qty[1] = Number(myQty) * Number(multi[1]);
 			var list = [ {
 				'side' : thisSide, option : 'Call', qty : qty[0]
 			}, {'side' : oppSide, option : 'Call', qty : qty[1]
 			} ];
-			var futSide = hedgeSide(list);
+//			var futSide = hedgeSide(list);
 			$scope.myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : expiry, 'Strike' : strikes[0], 'Qty' : qty[0], 'Side' : thisSide, 'Multiplier' : Number(multi[0])
+				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : expiry, 'Strike' : strikes[0], 'Qty' : '', 'Side' : thisSide, 'Multiplier' : Number(multi[0]),
+				'noPrice' : true, 'isValidate' : false
 			};
 			$scope.myData[1] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : expiry, 'Strike' : strikes[1], 'Qty' : qty[1], 'Side' : oppSide, 'Multiplier' : Number(multi[1])
+				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : expiry, 'Strike' : strikes[1], 'Qty' : '', 'Side' : oppSide, 'Multiplier' : Number(multi[1]),
+				'noPrice' : true, 'isValidate' : true
 			};
 			$scope.myData[2] = {
-				'UL' : instr + ' Future', 'Instrument' : ul[2], 'Expiry' : futExp, 'Strike' : '', 'Qty' : Number(qty) * Number(delta) * 0.01,
-				'Side' : futSide, 'Price' : ref, 'Multiplier' : 0
+				'UL' : instr + ' Future', 'Instrument' : ul[2], 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+//				'UL' : instr + ' Future', 'Instrument' : ul[2], 'Expiry' : futExp, 'Strike' : '', 'Qty' : Number(qty) * Number(delta) * 0.01,
+				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false
 			};
 //			$scope.myParam[0] = {
 //				'ul' : instr, 'strategy' : 'European Call Ratio', 'expiry' : expiry, 'strike' : strike, 'qty' : myQty, 'side' : mySide,
