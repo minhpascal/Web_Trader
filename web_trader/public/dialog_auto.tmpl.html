@@ -35,22 +35,28 @@
 	</div>
 	</md-content> 
 	-->
-		<md-content layout-padding>
-		<div id="grid" ui-grid="paramGridOptions" class="myParamGrid" external-scopes="myExternalScope"
-			ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
-			ui-grid-edit ui-grid-cellNav></div>
-		</md-content>
-		<md-content layout-padding>
-		<div id="grid" ui-grid="gridOptions" class="myGrid"
-			ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
-			ui-grid-edit ui-grid-cellNav></div>
-		</md-content>
-		
-		<md-card-content ng-show="isShowSendBtn" layout-padding > <md-button
-			class="md-primary md-raised md-warn"
-			ng-click="sendTradeReport($event)"> Send </md-button> 
-		</md-card-content> 
-		<!-- 
-		<p>isShowSend : {{isShowSendBtn}}</p>
-		 -->
+	<!-- 
+        <md-toolbar flex layout="row" layout-align="center">
+        </md-toolbar>
+         -->
+			<md-content layout-padding>
+			<div id="grid" ui-grid="paramGridOptions" class="myParamGrid"  
+				ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
+				ui-grid-edit ui-grid-cellNav></div>
+			</md-content>
+			<md-content layout-padding>
+			<div id="grid" ui-grid="gridOptions" class="myGrid" 
+				ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
+				ui-grid-edit ui-grid-cellNav></div>
+			</md-content>
+			
+			<md-card-content layout-padding > 
+				<md-button class="md-primary md-raised"
+				ng-click="cancel($event)"> Cancel </md-button>  
+				<md-button class="md-primary md-raised md-warn" ng-show="param_isShowSendBtn" 
+				ng-click="sendTradeReport($event)"> Send </md-button>
+			</md-card-content> 
+			<!--  
+			<p>isShowSend : {{isShowSendBtn}}</p>
+			 -->
 </md-dialog>

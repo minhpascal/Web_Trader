@@ -25,6 +25,131 @@ var app = angular.module('app', [
 	'ngAnimate' ,
 	]);
 
+app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
+//	'uiGridConstants', 
+	function($scope, $http
+			, $mdDialog 
+//		,uiGridConstants
+		) {
+	var date = new Date();
+	$scope.myStartDate = new Date(date.getFullYear(), date.getMonth(), 1);
+	$scope.myEndDate = date;
+	$scope.myEndDate.setHours(23);
+	$scope.myEndDate.setMinutes(59);
+	$scope.myEndDate.setSeconds(59, 999);
+	
+	$scope.status = '  ';
+	$scope.customFullscreen = false;
+
+	$scope.myTotal;
+
+//    $scope.clients = {};
+    $scope.sides = ['Buy', 'Sell'];
+//    $scope.mySide = "Buy";
+
+    $scope.myQty = '100';
+//    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 PS 191 TRADES REF 9850 DELTA 28';
+    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
+//    $scope.mySymbol = 'HSCEI DEC17 22000/24000/26000 1x1.25X1 CL 10 TRADES REF 22,825';
+//    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 CS 191 TRADES REF 9850';
+//    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 CDOR 191 TRADES REF 9850';
+//    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 PDOR 191 TRADES REF 9850';
+    
+    
+//    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS (MAR17) 191 TRADES REF 9850';		// CDIAG (not implement)
+//    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850';		// CDIAG
+//    $scope.mySymbol = 'HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850';	// CR
+//    $scope.mySymbol = 'HSI DEC17 12000/13800 CS 191 TRADES REF 9850';	// CS
+//    $scope.mySymbol = 'HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850';	// CTR
+//    $scope.mySymbol = 'HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850';	// CTS
+//    $scope.mySymbol = 'HSCEI MAR17 9000/10000/11000 CFLY (10000) 191 TRADES REF 9850';	// CFLY (incomplete)
+//    $scope.mySymbol = 'HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850';	// CFLY
+//    $scope.mySymbol = 'HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850';	// CFLY
+    
+//    $scope.myType = 'EC - European Call';
+    
+    $scope.trTypes = [
+    	'T1 - Internal Trade Report',
+    	'T2 - Combo Trade Report',
+    	'T4 - Interbank Trade Report',
+    	];
+    $scope.myTrType = 'T1 - Internal Trade Report';
+    
+    $scope.myPrice = '439';
+//    $scope.myRefPrice = "";
+    $scope.myDelta = '28';
+    $scope.myCpCompany = 'HKCEL';
+    
+    $scope.mySummary = {};
+	
+    $scope.utsSummary = {};
+    $scope.myPremium = 0;
+    
+//	$scope.status = '  ';
+//	$scope.customFullscreen = false;
+
+    $scope.myData = [];
+    
+	$scope.showCrossDetail = function(ev, myTrType, mySide, mySymbol, myCpCompany) 
+	{
+		var tokens = parseSymbol($scope.mySymbol);
+		var instr = tokens[0];
+		var expiry = tokens[1];
+		var strike = tokens[2];
+		var multiplier = tokens[3];
+		var strat = tokens[4];
+		var premium = Number(tokens[5]);
+		var ref = Number(tokens[6].replace(',', ''));
+		
+		if (!mySide)
+			mySide = 'Buy';
+		
+		$mdDialog.show({
+			controller : DialogController,
+			templateUrl : 'dialog_auto.tmpl.html',
+			parent : angular.element(document.body),
+			targetEvent: ev,
+			clickOutsideToClose: true,
+			fullscreen : false,
+			locals: {
+				'myTrType': myTrType,
+				'mySide': mySide,
+				'mySymbol': mySymbol,
+				'myCpCompany': myCpCompany,
+				'myInstr': instr,
+				'myExpiry': expiry,
+				'myStrike': strike,
+				'myMultiplier': multiplier,
+				'myStrat': strat,
+				'myPremium': premium,
+				'myRef': ref,
+			}
+			
+		// Only for -xs, -sm breakpoints.
+		})
+		.then(function(answer) {	// either OK / Cancel -> succ
+			if (answer === 'Cancel') {
+				$scope.status = 'cancelled';	
+			}
+			else {
+				$scope.status = 'Trade Report sent ' + answer;
+			}
+//			$http.post('api/emailInvoice', {
+//				client : answer,
+//				start : $scope.myStartDate.getTime(),
+//				end : $scope.myEndDate.getTime()
+//			}).then(function(result) {
+////			$http.post('api/emailInvoice', answer).then(function(result) {
+//				console.log(result);
+//				//    	vm.myData = result.data.data;
+////				$scope.myData = result.data.data;
+//			});
+		}, function() { // fail , press outside or close dialog box
+			$scope.status = 'close ';
+		});
+	};
+}]);
+
 function DialogController($scope, $mdDialog, locals, uiGridConstants) 
 {
 	$scope.myExternalScope = $scope;
@@ -60,22 +185,41 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		{'UL': $scope.myUl, 'Strategy': $scope.myStrat, 'Expiry': $scope.myExpiry,
 		'Strike': $scope.myStrike, 'Multiplier': $scope.myMultiplier, 'Qty': $scope.myQty, 
 		'Premium': $scope.myPremium, 'Delta': $scope.myDelta, 'FutMat': '', 
-		'Ref': $scope.myRef},
+		'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false},
 	];
 	
-	$scope.hide = function() {
-		$mdDialog.hide();
-	};
+	$scope.isShowSendBtn = false;	// display send button
+	$scope.isQtyValid = false;
+	$scope.isDeltaValid = false;
+	$scope.isFutMatValid = false;
+	$scope.isLastLegPriceValid = false;
 	
-	$scope.cancel = function() {
-		$mdDialog.cancel();
-	};
-	
-	$scope.answer = function(answer) {
-		$mdDialog.hide(answer);
-	};
+//	$scope.hide = function() {
+//		$mdDialog.hide();
+//	};
+//	
+//	$scope.cancel = function() {
+//		$mdDialog.cancel();
+//	};
+//	
+//	$scope.answer = function(answer) {
+//		$mdDialog.hide(answer);
+//	};
 	
 	createLegs('', '', '');
+	
+	
+	$scope.sendTradeReport = function(ev) {
+		$mdDialog.hide();
+//		var msg = '';
+//		if ($scope.myQty === '')
+//			msg += 'Qty [undefined]\n';
+//		if ($scope.myDelta === '')
+//			msg += 'Delta [undefined]\n';
+		
+//		alert('error: ' + msg);
+//		return;
+	};
 	
 	$scope.paramGridOptions = {
 			enableHorizontalScrollbar: false, 
@@ -96,14 +240,16 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 				{field : 'Qty', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
 //					editableCellTemplate: '<div><input type="number" class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
 //			        cellTemplate: 'prompt.html',
-			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="row.entity.Qty === \'\'">error_outline</i><input class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
+			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="!grid.appScope.isQtyValid">error_outline</i><input class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
 				}, 
+				{field : 'isQtyValid', visible: false},
 				{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '60',enableCellEdit : false}, 
 				{field : 'Delta', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
 //					enableCellEditOnFocus: true,
 //			          editableCellTemplate: $scope.cellInputEditableTemplate,
-			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="row.entity.Delta === \'\'">error_outline</i><input class="form-control" ng-input="row.entity.Delta" ng-model="row.entity.Delta" /></div>',
-				}, 
+			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!grid.appScope.isDeltaValid">error_outline</i><input class="form-control" ng-input="row.entity.Delta" ng-model="row.entity.Delta" /></div>',
+				},
+				{field : 'isDeltaValid', visible: false},
 			      { 
 					field: 'FutMat',
 					headerCellClass: 'blue-header',
@@ -112,7 +258,7 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 			        editableCellTemplate: 'ui-grid/dropdownEditor', 
 			        width: '80',
 //			        cellFilter: 'mapGender', 
-			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="grid.appScope.myFutMat === \'\'">error_outline</i>{{grid.appScope.myFutMat}}</div>',
+			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!grid.appScope.isFutMatValid">error_outline</i>{{grid.appScope.myFutMat}}</div>',
 			        editDropdownValueLabel: 'type',
 			        editDropdownOptionsArray: $scope.futMatTypes 
 //			        	[
@@ -137,9 +283,22 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		if (rowEntity.Qty !== '') {
 			var tokens = rowEntity.Multiplier.split('X');
 			var params = [];
+			
+			// update legs qty
+			var hasDecimal = false;
 			for (i=0; i<tokens.length; i++) {
-				$scope.myData[i].Qty = rowEntity.Qty * Math.abs(Number(tokens[i]));
+				var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
+				$scope.myData[i].Qty = legQty;
+				if ((legQty % 1 !== 0)) {
+					hasDecimal = true;
+				}
 				params.push({side : $scope.myData[i].Side, option: $scope.myData[i].UL.split(' ')[1], qty: $scope.myData[i].Qty});
+			}
+			if (!hasDecimal) {
+				$scope.isQtyValid = true;
+			}
+			else {
+				$scope.isQtyValid = false;
 			}
 //			// update future sell leg
 			var side = hedgeSide(params);
@@ -149,15 +308,34 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 			
 			if (rowEntity.Delta !== '') {
 				var len = $scope.myData.length;
-				$scope.myData[len - 1].Qty = Number(rowEntity.Qty) * Number(rowEntity.Delta) * 0.01;	
+				var futQty = Number(rowEntity.Qty) * Number(rowEntity.Delta) * 0.01;
+				$scope.myData[len - 1].Qty = futQty;
 				$scope.myDelta = Number(rowEntity.Delta);
+				
+				if (futQty % 1 === 0) {
+					$scope.isDeltaValid = true;
+				}
+			}
+			else {
+				$scope.isDeltaValid = false;
 			}
 		}
+		else {
+			$scope.isQtyValid = false;
+		}
+		
 		if (rowEntity.FutMat !== '') {
 			$scope.myFutMat = rowEntity.FutMat;
 			$scope.myData[$scope.myData.length - 1].Expiry = rowEntity.FutMat;
 			$scope.myData[$scope.myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat);
+			$scope.isFutMatValid = true;
 		}
+		else {
+			$scope.isFutMatValid = false;
+		}
+		
+		$scope.isShowSendBtn = ($scope.isQtyValid && $scope.isDeltaValid && $scope.isFutMatValid &&	$scope.isLastLegPriceValid);
+		
 //	    $scope.paramGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
 		 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
 		 if (!$scope.$$phase) {
@@ -285,10 +463,15 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 		
 		if (isNaN(price) || price < 0 || (price % 1 != 0)) {	// has decimal
 			$scope.myData[iCal].isValidate = true;
+			$scope.isLastLegPriceValid = false;
 		}
 		else {
 			$scope.myData[iCal].isValidate = false;
+			$scope.isLastLegPriceValid = true;
 		}
+		
+		$scope.isShowSendBtn = ($scope.isQtyValid && $scope.isDeltaValid && $scope.isFutMatValid && $scope.isLastLegPriceValid);
+		
 		 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
 		 if (!$scope.$$phase) {
 			 $scope.$apply();
@@ -624,282 +807,116 @@ function DialogController($scope, $mdDialog, locals, uiGridConstants)
 	};
 };
 
-app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-//	'uiGridConstants', 
-	function($scope, $http
-			, $mdDialog 
-//		,uiGridConstants
-		) {
-	var date = new Date();
-	$scope.myStartDate = new Date(date.getFullYear(), date.getMonth(), 1);
-	$scope.myEndDate = date;
-	$scope.myEndDate.setHours(23);
-	$scope.myEndDate.setMinutes(59);
-	$scope.myEndDate.setSeconds(59, 999);
-	
-	$scope.status = '  ';
-	$scope.customFullscreen = false;
+app.controller('SecondCtrl', ['$scope', '$http', '$log', function ($scope, $http, $log) {
+    $scope.gridOptions = {
+      enableRowSelection: true,
+      expandableRowTemplate: 'expandableRowTemplate.html',
+      expandableRowHeight: 150
+    }
 
-	$scope.myTotal;
+    $scope.gridOptions.columnDefs = [
+      { name: 'id', pinnedLeft:true },
+      { name: 'name'},
+      { name: 'age'},
+      { name: 'address.city'}
+    ];
 
-//    $scope.clients = {};
-    $scope.sides = ['Buy', 'Sell'];
-//    $scope.mySide = "Buy";
+    $http.get('/data/500_complex.json')
+      .success(function(data) {
+        for(i = 0; i < data.length; i++){
+          data[i].subGridOptions = {
+            columnDefs: [ {name:"Id", field:"id"},{name:"Name", field:"name"} ],
+            data: data[i].friends
+          }
+        }
+        $scope.gridOptions.data = data;
+      });
+  }]);
 
-    $scope.myQty = '100';
-//    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 PS 191 TRADES REF 9850 DELTA 28';
-    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-//    $scope.mySymbol = 'HSCEI DEC17 22000/24000/26000 1x1.25X1 CL 10 TRADES REF 22,825';
-//    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 CS 191 TRADES REF 9850';
-//    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 CDOR 191 TRADES REF 9850';
-//    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 PDOR 191 TRADES REF 9850';
-    
-    
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS (MAR17) 191 TRADES REF 9850';		// CDIAG (not implement)
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850';		// CDIAG
-//    $scope.mySymbol = 'HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850';	// CR
-//    $scope.mySymbol = 'HSI DEC17 12000/13800 CS 191 TRADES REF 9850';	// CS
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850';	// CTR
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850';	// CTS
-//    $scope.mySymbol = 'HSCEI MAR17 9000/10000/11000 CFLY (10000) 191 TRADES REF 9850';	// CFLY (incomplete)
-//    $scope.mySymbol = 'HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850';	// CFLY
-//    $scope.mySymbol = 'HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850';	// CFLY
-    
-    
-//    $scope.instruments = [
-////    	'HKD', 'KRW,JPY,USD',
-////    	];
-//	'EC - European Call',
-//	'ECB - European Call Butterfly',
-//	'ECC - European Call Condor',
-//	'ECDIAG - European Call Diagonal',
-//	'ECL - European Call Ladder',
-//	'ECR - European Call Ratio',
-//	'ECS - European Call Spread',
-//	'ECTB - European Call Time Butterfly',
-//	'ECTC - European Call Time Condor',
-//	'ECTL - European Call Time Ladder',
-//	'ECTR - European Call Time Ratio',
-//	'ECTS - European Call Time Spread',
-//	'EIF - European Iron Fly',
-//	'EIFR - European Iron Fly Ratio',
-//	'EP - European Put',
-//	'EPB - European Put Butterfly',
-//	'EPC - European Put Condor',
-//	'EPDIAG - European Put Diagonal',
-//	'EPL - European Put Ladder',
-//	'EPR - European Put Ratio',
-//	'EPS - European Put Spread',
-//	'EPTB - European Put Time Butterfly',
-//	'EPTC - European Put Time Condor',
-//	'EPTL - European Put Time Ladder',
-//	'EPTR - European Put Time Ratio',
-//	'EPTS - European Put Time Spread',
-//	'ERR - European Risk Reversal',
-//	'ES - European Synthetic Call Over',
-//	'ESPO - European Synthetic Put Over',
-//	'ESD - European Straddle',
-//	'ESDTS - European Straddle Time Spread',
-//	'ESG - European Strangle',
-//	'ESGAC - European Strangle VS Call',
-//	'ESGAP - European Strangle VS Put',
-//	'ESGTS - European Strangle Time Spread',
-//	'ETRR - European Time Risk Reversal',
-//	'ECSAC - European Call Spread VS Call',
-//	'ECSAP - European Call Spread Against Put',
-//	'ECSAPR - European Call Spread VS Put (Ratio',
-//	'ECSAPPO - European Call Spread VS Put - Put Over',
-//	'ECSPS - European Call Spread VS Put Spread',
-//	'ECSTR - European Call Spread Time Ratio',
-//	'ECSTS - European Call Spread Time Spread',
-//	'ECTSAP - European Call Time Spread Against Put',
-//	'EPSAC - European Put Spread Against Call',
-//	'EPSACR - European Put Spread VS Call (Ratio',
-//	'EPSACCO - European Put Spread VS Call - Call Over',
-//	'EPSAP - European Put Spread VS Put',
-//	'EPSTUP - European Put Stupid',
-//	'EPTSAC - European Put Time Spread Against Call',
-//	'ESDAC - European Straddle VS Call',
-//	'ESDAP - European Straddle VS Put',
-//	'FWDB - Forward Butterfly',
-//	'SPRD - Spread',
-//	];
-    $scope.myType = 'EC - European Call';
-    
-    $scope.trTypes = [
-    	'T1 - Internal Trade Report',
-    	'T2 - Combo Trade Report',
-    	'T4 - Interbank Trade Report',
-    	];
-    $scope.myTrType = 'T1 - Internal Trade Report';
-    
-    $scope.myPrice = '439';
-//    $scope.myRefPrice = "";
-    $scope.myDelta = '28';
-    $scope.myCpCompany = 'HKCEL';
-    
-    $scope.mySummary = {};
-	
-    $scope.utsSummary = {};
-    $scope.myPremium = 0;
-    
-//	$scope.status = '  ';
-//	$scope.customFullscreen = false;
-
-    $scope.myData = [];
-    
-	$scope.showCrossDetail = function(ev, myTrType, mySide, mySymbol, myCpCompany) 
-	{
-		var tokens = parseSymbol($scope.mySymbol);
-		var instr = tokens[0];
-		var expiry = tokens[1];
-		var strike = tokens[2];
-		var multiplier = tokens[3];
-		var strat = tokens[4];
-		var premium = Number(tokens[5]);
-		var ref = Number(tokens[6].replace(',', ''));
-		
-		if (!mySide)
-			mySide = 'Buy';
-		
-		$mdDialog.show({
-			controller : DialogController,
-			templateUrl : 'dialog_auto.tmpl.html',
-			parent : angular.element(document.body),
-			targetEvent: ev,
-			clickOutsideToClose: true,
-			fullscreen : false,
-			locals: {
-				'myTrType': myTrType,
-				'mySide': mySide,
-				'mySymbol': mySymbol,
-				'myCpCompany': myCpCompany,
-				'myInstr': instr,
-				'myExpiry': expiry,
-				'myStrike': strike,
-				'myMultiplier': multiplier,
-				'myStrat': strat,
-				'myPremium': premium,
-				'myRef': ref,
-			}
-			
-		// Only for -xs, -sm breakpoints.
-		})
-		.then(function(answer) {	// either OK / Cancel -> succ
-			if (answer === 'Cancel') {
-				$scope.status = 'cancelled';	
-			}
-			else {
-				$scope.status = 'Invoice sent to ' + answer;
-			}
-//			$http.post('api/emailInvoice', {
-//				client : answer,
-//				start : $scope.myStartDate.getTime(),
-//				end : $scope.myEndDate.getTime()
-//			}).then(function(result) {
-////			$http.post('api/emailInvoice', answer).then(function(result) {
-//				console.log(result);
-//				//    	vm.myData = result.data.data;
-////				$scope.myData = result.data.data;
-//			});
-		}, function() { // fail , press outside or close dialog box
-//			$scope.status = 'You cancelled the dialog.';
-		});
-	};
-}]);
-
-// .controller('AppCtrl', function($scope) {
-// var date = new Date();
-// $scope.myStartDate = new Date(date.getFullYear(), date
-// .getMonth(), 1);
-// $scope.myEndDate = new Date();
+//function AutoCompleteCtrl($timeout, $q, $log) {
+//	var self = this;
 //
-// });
-
-function AutoCompleteCtrl($timeout, $q, $log) {
-	var self = this;
-
-//	AppCtrl.apply(self, arguments);
-//	self.parentStartDate = $scope.pc.myStartDate;
-//	self.parentEndDate = $scope.pc.myEndDate;
-	
-	self.simulateQuery = false;
-	self.isDisabled = false;
-
-	// list of `state` value/display objects
-	self.states = loadAll();
-	self.querySearch = querySearch;
-	self.selectedItemChange = selectedItemChange;
-	self.searchTextChange = searchTextChange;
-
-	self.newState = newState;
-
-	function newState(state) {
-		alert("Sorry! You'll need to create a Constitution for " + state
-				+ " first!");
-	}
-
-	// ******************************
-	// Internal methods
-	// ******************************
-
-	/**
-	 * Search for states... use $timeout to simulate remote dataservice call.
-	 */
-	function querySearch(query) {
-		var results = query ? self.states.filter(createFilterFor(query))
-				: self.states, deferred;
-		if (self.simulateQuery) {
-			deferred = $q.defer();
-			$timeout(function() {
-				deferred.resolve(results);
-			}, Math.random() * 1000, false);
-			return deferred.promise;
-		} else {
-			return results;
-		}
-	}
-
-	function searchTextChange(text) {
-		$log.info('Text changed to ' + text);
-	}
-
-	function selectedItemChange(item) {
-		$log.info('Item changed to ' + JSON.stringify(item));
-	}
-
-	/**
-	 * Build `states` list of key/value pairs
-	 */
-	function loadAll() {
-		var allStates = 'Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware,\
-              Florida, Georgia, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana,\
-              Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana,\
-              Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina,\
-              North Dakota, Ohio, Oklahoma, Oregon, Pennsylvania, Rhode Island, South Carolina,\
-              South Dakota, Tennessee, Texas, Utah, Vermont, Virginia, Washington, West Virginia,\
-              Wisconsin, Wyoming';
-
-		return allStates.split(/, +/g).map(function(state) {
-			return {
-				value : state.toLowerCase(),
-				display : state
-			};
-		});
-	}
-
-	/**
-	 * Create filter function for a query string
-	 */
-	function createFilterFor(query) {
-		var lowercaseQuery = angular.lowercase(query);
-
-		return function filterFn(state) {
-			return (state.value.indexOf(lowercaseQuery) === 0);
-		};
-
-	}
-};
+////	AppCtrl.apply(self, arguments);
+////	self.parentStartDate = $scope.pc.myStartDate;
+////	self.parentEndDate = $scope.pc.myEndDate;
+//	
+//	self.simulateQuery = false;
+//	self.isDisabled = false;
+//
+//	// list of `state` value/display objects
+//	self.states = loadAll();
+//	self.querySearch = querySearch;
+//	self.selectedItemChange = selectedItemChange;
+//	self.searchTextChange = searchTextChange;
+//
+//	self.newState = newState;
+//
+//	function newState(state) {
+//		alert("Sorry! You'll need to create a Constitution for " + state
+//				+ " first!");
+//	}
+//
+//	// ******************************
+//	// Internal methods
+//	// ******************************
+//
+//	/**
+//	 * Search for states... use $timeout to simulate remote dataservice call.
+//	 */
+//	function querySearch(query) {
+//		var results = query ? self.states.filter(createFilterFor(query))
+//				: self.states, deferred;
+//		if (self.simulateQuery) {
+//			deferred = $q.defer();
+//			$timeout(function() {
+//				deferred.resolve(results);
+//			}, Math.random() * 1000, false);
+//			return deferred.promise;
+//		} else {
+//			return results;
+//		}
+//	}
+//
+//	function searchTextChange(text) {
+//		$log.info('Text changed to ' + text);
+//	}
+//
+//	function selectedItemChange(item) {
+//		$log.info('Item changed to ' + JSON.stringify(item));
+//	}
+//
+//	/**
+//	 * Build `states` list of key/value pairs
+//	 */
+//	function loadAll() {
+//		var allStates = 'Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware,\
+//              Florida, Georgia, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana,\
+//              Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana,\
+//              Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina,\
+//              North Dakota, Ohio, Oklahoma, Oregon, Pennsylvania, Rhode Island, South Carolina,\
+//              South Dakota, Tennessee, Texas, Utah, Vermont, Virginia, Washington, West Virginia,\
+//              Wisconsin, Wyoming';
+//
+//		return allStates.split(/, +/g).map(function(state) {
+//			return {
+//				value : state.toLowerCase(),
+//				display : state
+//			};
+//		});
+//	}
+//
+//	/**
+//	 * Create filter function for a query string
+//	 */
+//	function createFilterFor(query) {
+//		var lowercaseQuery = angular.lowercase(query);
+//
+//		return function filterFn(state) {
+//			return (state.value.indexOf(lowercaseQuery) === 0);
+//		};
+//
+//	}
+//};
 
 function calRemainPrice(params, myMultiplier, myPremium) {
 	sum = 0;
