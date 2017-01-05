@@ -1,11 +1,11 @@
 
 .myGrid {
    width: 700px;  
-  height: 300px;  
+  height: 250px;  
 }
 
 .myParamGrid {
-   width: 750px;  
+   width: 730px;  
   height: 100px;  
 }
 
@@ -136,8 +136,8 @@ select::-ms-expand {
 }
 
 .missing {
-  background-color: red !important
- /*  color: #00ff00; */ 
+  background-color: red !important;
+  color: white;  
 }
 
 

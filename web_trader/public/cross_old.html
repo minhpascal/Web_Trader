@@ -12,7 +12,6 @@
 <link rel="stylesheet" type="text/css" href="stylesheets/dialog.css" />
 <link rel="stylesheet" type="text/css" href="stylesheets/tradeconfo.css" />
 <link rel="stylesheet" type="text/css" href="stylesheets/invoice.css" />
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <!--
     Your HTML content here
   -->
@@ -75,14 +74,22 @@
 				</md-input-container>
 
 				
-				<md-input-container class="md-block" > <label>Side</label> 
-				<md-select ng-model="mySide" ng-disabled="myTrType !== 'T4 - Interbank Trade Report'">
-				<md-option><em></em></md-option> 
-				<md-option ng-repeat="n in sides" ng-value="n">{{n}}</md-option>
+				<md-input-container class="md-block" > <label>Side</label> <md-select
+					ng-model="mySide"> <md-option>
+				<em></em></md-option> <md-option ng-repeat="n in sides" ng-value="n">{{n}}</md-option>
 				</md-select> </md-input-container>
 	
 				<md-input-container class="md-block" >
+					<label>Qty</label> 
+					<input ng-model="myQty" required>
+					<div ng-messages="userForm.qty.$error" role="alert">
+     						<div ng-message="required"">This is required</div>
+   					</div>  
+				</md-input-container>
+	
+				<md-input-container class="md-block" >
 				<label>Counter Party</label> <input ng-model="myCpCompany" ng-disabled="myTrType !== 'T4 - Interbank Trade Report'"> </md-input-container>
+				
 				
 			<!--
 			<md-button class="md-primary md-raised"
@@ -92,7 +99,7 @@
 					ng-click="showCrossDialog($event)" >
 				Create legs </md-button>
 				
-			<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myType, mySide, mySymbol, myCpCompany)">
+			<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myType, mySide, myQty, mySymbol, myCpCompany)">
     					Cross Detail</md-button>
 
 			</div>

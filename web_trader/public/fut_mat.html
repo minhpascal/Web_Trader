@@ -4,7 +4,7 @@
         <option value="" selected disabled>Choose Gender</option>
     </select>
     <i class="material-icons" style="color:red" ng-show="grid.appScope.myFutMat === ''">error_outline</i>    -->
-<div ng-click="grid.appScope.onDropdownChange(row)">
+	<div ng-click="grid.appScope.onDropdownChange(row)">
      <select ng-model="row.entity.FutMat" data-ng-options="d as d.type for d in grid.appScope.futMatTypes" >
         <option value="" selected disabled></option>
     </select>
