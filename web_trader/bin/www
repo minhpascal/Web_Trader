@@ -9,6 +9,10 @@ var debug = require('debug')('web_trader:server');
 var http = require('http');
 var pjson = require('../package.json');
 
+//import object
+var BroadcastService = require('../controllers/BroadcastService');
+var nClients = 0;
+
 /**
  * Get port from environment and store in Express.
  */
@@ -22,6 +26,8 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = require('socket.io')(server);
+app.set('broadcastService', new BroadcastService(io));
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -38,6 +44,31 @@ server.on('listening', onListening);
 ////	socket.emit('serverMessage', 'Got a message!');
 ////	socket.emit('data', {data: app.get('map').values()});
 //});
+
+server.on('connection', function(socket) {
+//  socket.on("getSomeData", function(name,fn) {
+//      fn({data: "some random data"});
+//  });
+	nClients++;
+	app.set('nClients', nClients);
+	console.log('client connect');
+//	app.onConnect();
+	socket.emit('someEvent', 'Got a message!');
+	
+//	socket.emit('data', {data: app.get('map').values()});
+});
+
+server.on('disconnect', function(socket) {
+//  socket.on("getSomeData", function(name,fn) {
+//      fn({data: "some random data"});
+//  });
+	nClients--;
+	app.set('nClients', nClients);
+	console.log('client disconnect');
+//	app.onDisconnect();
+//	socket.emit('serverMessage', 'Got a message!');
+//	socket.emit('data', {data: app.get('map').values()});
+});
 
 /**
  * Normalize a port into a number, string, or false.

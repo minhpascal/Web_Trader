@@ -4,11 +4,14 @@
   "private": true,
   "port": 4058,
   "pipeline_ip": "127.0.0.1",
-  "pipeline_port": 11051,
+  "pipeline_port": 11101,
+  "sink_ip": "127.0.0.1",
+  "sink_port": 11102,
   "scripts": {
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "angular-socket-io": "^0.7.0",
     "angular-touch": "^1.5.9",
     "body-parser": "~1.15.1",
     "cookie-parser": "~1.4.3",

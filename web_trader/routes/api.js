@@ -21,15 +21,15 @@ function updateTradeConfo(key, myData)
 }
 
 /* GET users listing. */
-//router.get('/getTradeConfo', function(req, res, next) {
-//	
-//	var list = req.app.get('list');
-//	res.send({data:list});
-//	console.log('api/getTradeConfo ' + {data:list});
-//});
+router.get('/getBlockTradeReport', function(req, res, next) {
+	
+	var list = req.app.get('map_blockTr').values();
+	res.send({data:list});
+	console.log('api/getBlockTradeReport ' + {data:list});
+});
 
 router.post('/sendTradeReport', function(req, res, next) {
-	console.log('api/sendTradeReport... ' + JSON.stringify(req.body.trList));
+	console.log('api/sendTradeReport ' + req.body.trType + ',' + req.body.cp + ',' + req.body.legs);
 	
 	if (req.url === '/favicon.ico') {
 	   res.writeHead(200, {'Content-Type': 'image/x-icon'} );
@@ -38,21 +38,29 @@ router.post('/sendTradeReport', function(req, res, next) {
 	   return;
 	}
 	
-	var map_block = req.app.get('map_block');
-	var id = Object.keys(map_block).length + 1;
-	var block = new BlockTradeReport();
-	var list = req.body.trList.tradeReports;
-	
-	var n = list.length;
-	for (i=0; i<n; i++) {
-		var j = list[i];
-		var tr = new TradeReport(j);
-		block.add(tr);
-	}
-	map_block[id] = block;
+//	var map_block = req.app.get('map_block');
+//	var id = Object.keys(map_block).length + 1;
+//	var block = new BlockTradeReport();
+//	var list = req.body.trList.tradeReports;
+//	
+//	var n = list.length;
+//	for (i=0; i<n; i++) {
+//		var j = list[i];
+//		var tr = new TradeReport(j);
+//		block.add(tr);
+//	}
+//	map_block[id] = block;
 	
 	var plVent = req.app.get('plVent');
-	plVent.SendTradeReport(id, JSON.stringify(req.body.trList));
+	var oms = req.app.get('oms');
+	var refId = oms.getOrderId();
+	
+	plVent.SendTradeReport(refId, req.body.trType, req.body.symbol,
+			req.body.qty, req.body.delta, req.body.price,  
+			req.body.strat, req.body.futMat, req.body.cp,  
+			'PENDING_SENT', req.body.legs);
+	
+	res.sendStatus(refId);
 });
 
 

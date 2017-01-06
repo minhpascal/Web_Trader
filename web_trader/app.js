@@ -11,17 +11,24 @@ var r_test = require('./routes/test');
 var r_api = require('./routes/api');
 
 var PipelineVentilator = require('./controllers/PipelineVentilator');
+var PipelineSink = require('./controllers/PipelineSink');
+var OMS = require('./controllers/OMS');
 
 var app = express();
 var plVent = new PipelineVentilator(app);
+var plSink = new PipelineSink(app);
+var oms = new OMS(app);
+var broadcastService;
 
-var map_block = {};
+var map_blockTr = {};
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.set('plVent', plVent);
-app.set('map_block', map_block);
+app.set('plSink', plSink);
+app.set('map_blockTr', map_blockTr);
+app.set('oms', oms);
 
 
 // uncomment after placing your favicon in /public
@@ -70,5 +77,11 @@ app.use(function(err, req, res, next) {
 
 // program start
 plVent.Bind();
+//plSink.Bind();
+
+//setTimeout(function() {
+//	plVent.CreateInvoice("id");
+//	console.log(new Date());
+//  }, 1);
 
 module.exports = app;

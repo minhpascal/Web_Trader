@@ -22,39 +22,34 @@ var app = angular.module('app', [
 	'ui.grid.cellNav',
 	'ui.grid.autoResize',
 	'ui.grid.resizeColumns',
+	'ui.grid.expandable',
+	'ui.grid.pinning',
 	'ngAnimate' ,
+	'btford.socket-io',
 	]);
 
+app.factory('socket', function (socketFactory) {
+	 return socketFactory();
+	}).
+	value('version', '0.1');
+
 app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-	'uiGridConstants', 
+	'uiGridConstants', 'socket',
 	function($scope, $http
 			, $mdDialog 
-		,uiGridConstants
+		,uiGridConstants, socket
 		) {
-	var date = new Date();
-	$scope.myStartDate = new Date(date.getFullYear(), date.getMonth(), 1);
-	$scope.myEndDate = date;
-	$scope.myEndDate.setHours(23);
-	$scope.myEndDate.setMinutes(59);
-	$scope.myEndDate.setSeconds(59, 999);
 	
-	$scope.status = '  ';
-	$scope.customFullscreen = false;
-
-	$scope.myCpCompany = 'HKCEL';
-
 //    $scope.clients = {};
-    $scope.sides = ['Buy', 'Sell'];
+
 //    $scope.mySide = "Buy";
 
 //    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 PS 191 TRADES REF 9850 DELTA 28';
-    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
+//    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
 //    $scope.mySymbol = 'HSCEI DEC17 22000/24000/26000 1x1.25X1 CL 10 TRADES REF 22,825';
 //    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 CS 191 TRADES REF 9850';
 //    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 CDOR 191 TRADES REF 9850';
 //    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 PDOR 191 TRADES REF 9850';
-    
-    
 //    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS (MAR17) 191 TRADES REF 9850';		// CDIAG (not implement)
 //    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850';		// CDIAG
 //    $scope.mySymbol = 'HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850';	// CR
@@ -67,22 +62,43 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
     
 //    $scope.myType = 'EC - European Call';
     
-    
-    // cross detail scope data
-    $scope.trTypes = [
-    	'T1 - Internal Trade Report',
-    	'T2 - Combo Trade Report',
-    	'T4 - Interbank Trade Report',
-    	];
-    $scope.myTrType = 'T1 - Internal Trade Report';
-    
-	$scope.param_isShowSendBtn = false;	// display send button
-	$scope.param_isQtyValid = false;
-	$scope.param_isDeltaValid = false;
-	$scope.param_isFutMatValid = false;
-	$scope.param_isLastLegPriceValid = false;
-    
-	$scope.cancel = function($event) {
+//    // RESET when enter controller
+//	$scope.param_isShowSendBtn = false;	// display send button
+//	$scope.param_isQtyValid = false;
+//	$scope.param_isDeltaValid = false;
+//	$scope.param_isFutMatValid = false;
+//	$scope.param_isLastLegPriceValid = false;
+//	$scope.param_myData = [];
+//	$scope.myQty = '';
+//	$scope.myDelta = '';
+//	$scope.myFutMat = '';
+	
+    socket.on('send:message', function (data) {
+        $scope.message = data.message.id + ',' + data.message.refId + ',' + data.message.status;
+        var refId = Number(data.message.refId);
+        var id = Number(data.message.id);
+        for (i=0; i<$scope.myOtData.length; i++) {
+        	if ($scope.myOtData[i].RefId === refId) {
+        		$scope.myOtData[i].ID = id;
+        		$scope.myOtData[i].Status = data.message.status;
+        		break;
+        	}
+        }
+        $scope.otGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+    });
+	
+	if (!$scope.isInit) {
+	    // cross detail scope data
+	    $scope.trTypes = [
+	    	'T1 - Internal Trade Report',
+	    	'T2 - Combo Trade Report',
+	    	'T4 - Interbank Trade Report',
+	    	];
+	    $scope.myTrType = 'T2 - Combo Trade Report',
+	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
+	    
+	    $scope.myOtData = [];
+	    $scope.sides = ['Buy', 'Sell'];
 //		$scope.myInstr = '';
 //		$scope.myExpiry = '';
 //		$scope.myStrike = '';
@@ -91,24 +107,48 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //		$scope.myPremium = '';
 //		$scope.myRef = '';
 //		$scope.myUl  = '';
-		
+	    
+	    
+	    // RESET when enter controller
 		$scope.param_isShowSendBtn = false;	// display send button
 		$scope.param_isQtyValid = false;
 		$scope.param_isDeltaValid = false;
 		$scope.param_isFutMatValid = false;
 		$scope.param_isLastLegPriceValid = false;
-		
+		$scope.param_myData = [];
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
 		
-		$scope.param_myData = [];
+		$scope.status = '  ';
+		$scope.myCpCompany = 'HKCEL';
+		$scope.id = 1;
+	}
+	$scope.isInit = true;
+	
+	$scope.cancel = function($event) {
+		
+//		$scope.param_isShowSendBtn = false;	// display send button
+//		$scope.param_isQtyValid = false;
+//		$scope.param_isDeltaValid = false;
+//		$scope.param_isFutMatValid = false;
+//		$scope.param_isLastLegPriceValid = false;
+//		
+//		$scope.myQty = '';
+//		$scope.myDelta = '';
+//		$scope.myFutMat = '';
+//		
+//		$scope.param_myData = [];
 		
 		$mdDialog.cancel();
 	}
 	
 	$scope.showCrossDetail = function(ev, trType, side, symbol, cpCompany) 
 	{
+		$scope.myDelta = 20;
+		$scope.myQty = 100;
+		$scope.myFutMat = 'MAR17'; 
+		
 		var tokens = parseSymbol(symbol);
 		$scope.myInstr = tokens[0];
 		$scope.myExpiry = tokens[1];
@@ -518,8 +558,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		{id: 'JUN17', type: 'JUN17' },
 	];
 	  
-	$scope.myOtData = [];
-	$scope.myOtData[0] = {'UL': 1, 'Side': 2, 'TrType': 3, 'CP': 4};
+//	$scope.myOtData[0] = {'UL': 1, 'Side': 2, 'TrType': 3, 'CP': 4};
 
 	$scope.hide = function() {
 		$mdDialog.hide();
@@ -532,25 +571,79 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	$scope.sendTradeReport = function(ev) {
 		
 		var order = {};
-		alert($scope.param_myData);
+//		alert($scope.param_myData);
 //		$scope.orders.push();
+		var legs = $scope.param_myData;
+		data = 
+			{
+				'RefId' : $scope.id++,
+				'TrType': $scope.myTrType.substring(0,2), 
+				'UL': $scope.myUl, 
+				'Strategy': $scope.myStrat, 
+				'Expiry': $scope.myExpiry,
+				'Strike': $scope.myStrike,
+				'Multiplier' :$scope.myMultiplier,
+				'Qty': $scope.myQty,
+				'Premium': $scope.myPremium,
+				'Delta' :$scope.myDelta,
+				'CP': $scope.myCpCompany,
+				'Side' :$scope.mySide,  
+				'FutMat': $scope.myFutMat,   
+				'Symbol': $scope.mySymbol,   
+				'Status': 'SENT',   
+				'legs': legs,
+			};
+		data.subGridOptions = {
+				enableSorting : false,
+				enableColumnResizing : true,
+                columnDefs: [ 
+                	{name:"Instrument", field:"Instrument", width: '120'}, 
+                	{name:"Expiry", field:"Expiry", width: '80'},
+                	{name:"Strike", field:"Strike", width: '80'},
+                	{name:"Qty", field:"Qty", width: '80'},
+                	{name:"Price", field:"Price", width: '80'},
+                	{name:"Side", field:"Side", width: '60'},
+                ],
+                data: data.legs
+        }
+		
+		$scope.myOtData.push(data);
+		
+		$http.post('api/sendTradeReport', {
+			'trType' : $scope.myTrType.substring(0,2),
+			'symbol': $scope.mySymbol,
+			'qty': $scope.myQty,
+			'delta': $scope.myDelta,
+			'price': $scope.myPremium,
+			'strat' : $scope.myStrat,
+			'futMat': $scope.myFutMat,
+			'cp': $scope.myCpCompany,
+			'legs' : legs,
+		}).then(function(result) {
+		//$http.post('api/emailInvoice', answer).then(function(result) {
+			alert(result);
+			//    	vm.param_myData = result.data.data;
+		//	$scope.param_myData = result.data.data;
+		});
+		
 		$scope.param_isShowSendBtn = false;	// display send button
 		$scope.param_isQtyValid = false;
 		$scope.param_isDeltaValid = false;
 		$scope.param_isFutMatValid = false;
 		$scope.param_isLastLegPriceValid = false;
-		$scope.myOtData.push(
-			{'UL': $scope.myUl, 'Side' :$scope.mySide, 'TrType': $scope.myTrType, 'CP': $scope.myCpCompany,
-				'legs': $scope.param_myData
-			}
-		);
+		
+		$scope.myQty = '';
+		$scope.myDelta = '';
+		$scope.myFutMat = '';
+		
+		$scope.param_myData = [];
 		
 		$mdDialog.cancel();
 	};
 
 	$scope.otGridOptions = {
-		enableHorizontalScrollbar: false, 
-		enableVerticalScrollbar: false,
+//		enableHorizontalScrollbar: false, 
+//		enableVerticalScrollbar: false,
 //			rowEditWaitInterval : -1,
 		enableSorting : false,
 		enableColumnResizing : true,
@@ -558,15 +651,38 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		showGridFooter : false,
 		showColumnFooter : false,
 	    enableCellEditOnFocus: true,
+	    expandableRowTemplate: 'expandableRowTemplate.html',
+	    expandableRowHeight: 150,
+	    //subGridVariable will be available in subGrid scope
+	    expandableRowScope: {
+	      subGridVariable: 'subGridScopeVariable'
+	    },
+	    data : 'myOtData',
 		columnDefs : [ 
-			{field : 'UL', headerCellClass: 'blue-header', width : '60', enableCellEdit : false}, 
-			{field : 'Side', headerCellClass: 'blue-header', width : '60', enableCellEdit : false}, 
-			{field : 'TrType', headerCellClass: 'blue-header', width : '60', enableCellEdit : false}, 
-			{field : 'CP', headerCellClass: 'blue-header',displayName:'Strat',width : '60',enableCellEdit : false}, 
-//			{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '60',enableCellEdit : false}, 
-//			{field : 'Expiry', headerCellClass: 'blue-header',width : '80',enableCellEdit : false}, 
-//			{field : 'Strike', headerCellClass: 'blue-header',width : '150',enableCellEdit : false}, 
-//			{field : 'Multiplier', headerCellClass: 'blue-header',width : '100',enableCellEdit : false}, 
+			{field : 'ID', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
+			{field : 'Status', headerCellClass: 'green-header', width : '100', enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val === 'SENT')
+						return 'order_in_progress';
+					if (val === 'REJECT')
+						return 'order_reject';
+					return 'order_ok';
+				}
+			}, 
+			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
+//			{field : 'UL', headerCellClass: 'green-header', width : '60', enableCellEdit : false},
+//			{field : 'Strategy', headerCellClass: 'green-header',displayName:'Strat',width : '60',enableCellEdit : false}, 
+//			{field : 'Expiry', headerCellClass: 'green-header',width : '80',enableCellEdit : false}, 
+//			{field : 'Strike', headerCellClass: 'green-header',width : '150',enableCellEdit : false}, 
+//			{field : 'Multiplier', headerCellClass: 'green-header',width : '100',enableCellEdit : false},
+			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
+			{field : 'Qty', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
+//			{field : 'Premium', headerCellClass: 'green-header', displayName: 'Premium', width : '60',enableCellEdit : false},
+			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '60',enableCellEdit : false},
+			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', displayName: 'Price', width : '60',enableCellEdit : false},
+			{field : 'CP', headerCellClass: 'green-header',displayName:'Strat',width : '60',enableCellEdit : false},
+			{field : 'Side', headerCellClass: 'green-header', width : '60', enableCellEdit : false},
 //			{field : 'Qty', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
 ////					editableCellTemplate: '<div><input type="number" class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
 ////			        cellTemplate: 'prompt.html',
@@ -574,7 +690,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //		        cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="grid.appScope.isQtyValid === false">error_outline</i>{{grid.appScope.myQty}}</div>',
 //			}, 
 //			{field : 'isQtyValid', visible: false},
-//			{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '60',enableCellEdit : false}, 
+ 
 //			{field : 'Delta', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
 ////					enableCellEditOnFocus: true,
 ////			          editableCellTemplate: $scope.cellInputEditableTemplate,
@@ -603,7 +719,21 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		 ],
 //		exporterMenuPdf : false,
 	};
-	$scope.otGridOptions.data = $scope.myOtData;
+//	$scope.otGridOptions.data = $scope.myOtData;
+	
+	$scope.otGridOptions.onRegisterApi = function(gridApi) {
+		$scope.otGridApi = gridApi;
+//		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEditParamGrid);
+	}
+	
+    $scope.expandAllRows = function() {
+        $scope.otGridApi.expandable.expandAllRows();
+      }
+   
+      $scope.collapseAllRows = function() {
+        $scope.otGridApi.expandable.collapseAllRows();
+      }
+	
 	
 	$scope.paramGridOptions = {
 			enableHorizontalScrollbar: false, 
@@ -737,6 +867,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		enableFiltering : false,
 		showGridFooter : false,
 		showColumnFooter : false,
+		enableCellEditOnFocus: false,
 		columnDefs : [ 
 			{field : 'Instrument', 
 				headerCellClass: 'brown-header', 
@@ -876,6 +1007,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.param_myData = [];
 		var data = []; // clear legs
 		var strat = tokens[4];
+		$scope.myStrat = strat;
 		var qty = [];
 		var ul = [];
 

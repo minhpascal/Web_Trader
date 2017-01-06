@@ -9,6 +9,11 @@
   height: 100px;  
 }
 
+.myTradesGrid {
+   width: 1000px;  
+ /* height: 100px; */  
+}
+
 .header-filtered {
   color: blue;
 }
@@ -140,9 +145,20 @@ select::-ms-expand {
   color: white;  
 }
 
+.order_reject {
+  color: red;  
+}
+.order_in_progress {
+  color: orange;  
+}
+.order_ok {
+  color: green;  
+}
+
 
 .blue-header { color: white; background-color:rgb(63,81,181) !important;  }
 .brown-header { color: white; background-color:rgb(134, 51, 0) !important;  }
+.green-header { color: white; background-color:rgb(0,100,0) !important;  }
 
 input_hl[type=text] {
     width: 100%;
