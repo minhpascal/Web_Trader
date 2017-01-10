@@ -36,10 +36,6 @@
 <script src="javascripts/angular-ui-grid/ui-grid.js"></script>
 <link rel="stylesheet" type="text/css" href="javascripts/angular-ui-grid/ui-grid.css" />
 
-<!-- socket io -->
-<script src="/socket.io/socket.io.js"></script>
-<script src="bower_components/angular-socket-io/socket.js"></script>  
-
 <script type="text/javascript" src="javascripts/cross.js"></script>
 <!--<script type="text/javascript" src="javascripts/datepicker.js"></script>-->
 
@@ -96,30 +92,16 @@
 					ng-click="showCrossDialog($event)" >
 				Create legs </md-button>
 				
-			<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myTrType, mySide, mySymbol, myCpCompany)">
+			<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myType, mySide, mySymbol, myCpCompany)">
     					Cross Detail</md-button>
 
 			</div>
 		</md-card-content>
 	</md-card>
-	<md-card>
-		<!-- Order Trade Panel -->
-		<md-card-title> 
-			<md-card-title-text>
-				<span class="md-headline">Trade DashBoard</span> 
-			</md-card-title-text> 
-		</md-card-title> 
-		
-  		<md-content layout-padding>
-		<div id="gridOT" ui-grid="otGridOptions" class="myTradesGrid"  
-			ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
-			ui-grid-edit ui-grid-cellNav ui-grid-pinning ui-grid-expandable></div>
-		</md-content>
-		</md-card>
-		
-		<p>{{message}}</p>
 	</div>
-	
-
+	<!-- Order Trade Panel -->
+	<div ng-controller="SecondCtrl">
+       <div ui-grid="gridOptions" ui-grid-pinning ui-grid-expandable ui-grid-selection class="grid"></div>
+    </div>
 </body>
 </html>

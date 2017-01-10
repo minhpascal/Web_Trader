@@ -1,14 +1,21 @@
 
 .myGrid {
-   width: 700px;  
-  height: 250px;  
+   width: 900px;  
+ /* height: 250px; */  
 }
 
 .myParamGrid {
-   width: 730px;  
+   width: 730px;   
+  /* width: 900px; */   
   height: 100px;  
 }
 
+/* 
+.myParamGrid1 {
+   width: 730px;  
+  height: 100px;  
+}
+ */
 .myTradesGrid {
    width: 1000px;  
  /* height: 100px; */  

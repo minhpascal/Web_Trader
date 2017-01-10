@@ -119,7 +119,7 @@ PipelineVentilator.prototype.QueryAllTradeReport = function() {
 }
 		
 PipelineVentilator.prototype.SendTradeReport = function(
-		trType, symbol, qty, delta, price, 
+		refId, trType, symbol, qty, delta, price, 
 		strat, futMat, cp, side, legs) 
 {
 	
@@ -127,8 +127,8 @@ PipelineVentilator.prototype.SendTradeReport = function(
 //			strat  + ',' +  futMat  + ',' +  cp  + ',' +  status  + ',' +  legs);
 	
 	try {
-		var oms = this.app.get('oms');
-		var refId = oms.getOrderId();
+//		var oms = this.app.get('oms');
+//		var refId = oms.getOrderId();
 		
 //	var msg = JSON.stringify({'id': id}) + JSON.stringify({'legs': legs})
 		var msg = JSON.stringify({

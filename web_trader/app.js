@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var r_cross = require('./routes/cross');
 var r_test = require('./routes/test');
+var r_script = require('./routes/script');
 var r_api = require('./routes/api');
 
 var PipelineVentilator = require('./controllers/PipelineVentilator');
@@ -43,6 +44,7 @@ app.use('/', routes);
 app.use('/api', r_api);
 app.use('/cross', r_cross);
 app.use('/test', r_test);
+app.use('/script', r_script);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

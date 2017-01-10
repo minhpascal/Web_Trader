@@ -47,42 +47,17 @@ router.post('/sendTradeReport', function(req, res, next) {
 	   return;
 	}
 	
-//	var map_block = req.app.get('map_block');
-//	var id = Object.keys(map_block).length + 1;
-//	var block = new BlockTradeReport();
-//	var list = req.body.trList.tradeReports;
-//	
-//	var n = list.length;
-//	for (i=0; i<n; i++) {
-//		var j = list[i];
-//		var tr = new TradeReport(j);
-//		block.add(tr);
-//	}
-//	map_block[id] = block;
-	
 	var plVent = req.app.get('plVent');
-//	var oms = req.app.get('oms');
-//	var refId = oms.getOrderId();
-	
-//	plVent.SOD();
 	
 	try {
-//		plVent.SendTradeReport1(refId, req.body.trType, req.body.symbol,
-//				req.body.qty, req.body.delta, req.body.price,  
-//				req.body.strat, req.body.futMat, req.body.cp);
-		plVent.SendTradeReport(req.body.trType, req.body.symbol,
-				req.body.qty, req.body.delta, req.body.price,  
-				req.body.strat, req.body.futMat, req.body.cp,  
-				req.body.side,
+		plVent.SendTradeReport(req.body.refId, req.body.trType,
+				req.body.symbol, req.body.qty, req.body.delta, req.body.price,
+				req.body.strat, req.body.futMat, req.body.cp, req.body.side,
 				req.body.legs);
-		
-//		var block_tr = new BlockTradeReport('', refId, status, trType, symbol, qty, delta, price, strat, cp, legs);
-//		oms.addBlockTradeReport(refId, block_tr);
 	}
 	catch (err) {
 		logger.error(err.message);
 	}
-	
 	
 	res.send('succ');
 //	res.sendStatus(refId);

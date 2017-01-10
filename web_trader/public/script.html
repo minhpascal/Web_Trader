@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <link data-require="bootstrap-css@*" data-semver="3.3.6" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css" />
+    <link rel="stylesheet" href="https://rawgit.com/msrikanth508/uiGridInlineEditPOC/master/Css/ui-grid.css" />
+    <script src="https://rawgit.com/msrikanth508/uiGridInlineEditPOC/master/Js/vendor/angular.js"></script>
+    <script src="https://rawgit.com/msrikanth508/uiGridInlineEditPOC/master/Js/vendor/ui-grid.js"></script>
+    <script src="javascripts/script.js"></script>
+  </head>
+
+  <body ng-app="app" class="container">
+    <div class="row col-lg-12" ng-controller="gridCtrl">
+      <div ui-grid="gridOptions" ui-grid-move-columns="" ui-grid-edit="" ui-grid-row-edit="" ui-grid-selection="" ui-grid-expandable="" class="grid" style="height:800px"></div>
+    </div>
+  </body>
+
+</html>
