@@ -37,6 +37,18 @@ OMS.prototype.addBlockTradeReport = function(id, blockTradeReport) {
 	this.map[id] = blockTradeReport;
 };
 
+OMS.prototype.getAllTradeReport = function() {
+	logger.info("getAllTradeReport");
+	var list = [];
+	for (var key in this.map) {
+	  if (this.map.hasOwnProperty(key)) {
+		  list.push(this.map[key]);
+		  console.log(key + " -> " + this.map[key]);
+	  }
+	}
+	return list;
+};
+
 
 
 module.exports = OMS;

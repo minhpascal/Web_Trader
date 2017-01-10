@@ -11,6 +11,7 @@ angular
     return $window.moment;
 })
 
+var SIDE = {BUY : 'BUY', SELL : 'SELL'};
 
 var app = angular.module('app', [ 
 	'ngMaterial', 
@@ -74,13 +75,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //	$scope.myFutMat = '';
 	
     socket.on('send:message', function (data) {
-        $scope.message = data.message.id + ',' + data.message.refId + ',' + data.message.status;
-        var refId = Number(data.message.refId);
-        var id = Number(data.message.id);
+//        $scope.message = data.id + ',' + data.refId + ',' + data.status;
+        var refId = Number(data.message.RefId);
+        var id = Number(data.message.Id);
         for (i=0; i<$scope.myOtData.length; i++) {
         	if ($scope.myOtData[i].RefId === refId) {
-        		$scope.myOtData[i].ID = id;
-        		$scope.myOtData[i].Status = data.message.status;
+        		$scope.myOtData[i].Id = id;
+        		$scope.myOtData[i].Status = data.message.Status;
         		break;
         	}
         }
@@ -98,7 +99,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
 	    
 	    $scope.myOtData = [];
-	    $scope.sides = ['Buy', 'Sell'];
+	    $scope.sides = [SIDE.BUY, SIDE.SELL];
 //		$scope.myInstr = '';
 //		$scope.myExpiry = '';
 //		$scope.myStrike = '';
@@ -123,6 +124,55 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.status = '  ';
 		$scope.myCpCompany = 'HKCEL';
 		$scope.id = 1;
+		
+		$http.get('api/getTradeReport').then(function(result) {
+//			console.log(result);
+			v = result.data.data;
+			for (i=0; i<v.length; i++) {
+				data = {
+						'Id' : v[i].Id,
+						'RefId' : v[i].RefId,
+						'TrType': v[i].TrType, 
+						'Qty': v[i].Qty,
+						'Delta' : v[i].Delta,
+						'CP': v[i].CP,
+						'Side' : v[i].Side,  
+						'FutMat': v[i].FutMat,   
+						'Symbol': v[i].Symbol,   
+						'Status': v[i].Status,   
+						'Side': v[i].Side,
+						'legs': v[i].legs,
+				};
+//				legs_data = [];
+//				for (j=0; j<v[i].legs.length; j++) {
+//					var l = v[i].legs[j];
+////					var leg = {
+////						'Instrument' : l.Instrument,
+////						'Expiry' : l.Expiry,
+////						'Strike' : l.Strike,
+////						'Qty' : l.Qty,
+////						'Price' : l.Price,
+////						'Side' : l.Side,
+////					};
+//					legs_data.push(l);
+//				}
+				data.subGridOptions = {
+						enableSorting : false,
+						enableColumnResizing : true,
+		                columnDefs: [ 
+		                	{name:"Instrument", field:"Instrument", width: '120'}, 
+		                	{name:"Expiry", field:"Expiry", width: '80'},
+		                	{name:"Strike", field:"Strike", width: '80'},
+		                	{name:"Qty", field:"Qty", width: '80'},
+		                	{name:"Price", field:"Price", width: '80'},
+		                	{name:"Side", field:"Side", width: '60'},
+		                ],
+		                'data': data.legs
+		        }
+				$scope.myOtData.push(data);
+			}
+			
+		});
 	}
 	$scope.isInit = true;
 	
@@ -161,7 +211,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		
 		$scope.mySymbol = symbol;
 		$scope.myTrType = trType;
-		$scope.mySide = !side ? 'Buy' : side;
+		$scope.mySide = !side ? SIDE.BUY : side;
 		$scope.myUl  = $scope.myInstr;
 		
 		$scope.param_isShowSendBtn = false;	// display send button
@@ -590,7 +640,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				'Side' :$scope.mySide,  
 				'FutMat': $scope.myFutMat,   
 				'Symbol': $scope.mySymbol,   
-				'Status': 'SENT',   
+				'Status': 'UNSENT',   
 				'legs': legs,
 			};
 		data.subGridOptions = {
@@ -618,10 +668,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			'strat' : $scope.myStrat,
 			'futMat': $scope.myFutMat,
 			'cp': $scope.myCpCompany,
+			'side': $scope.mySide,
 			'legs' : legs,
 		}).then(function(result) {
 		//$http.post('api/emailInvoice', answer).then(function(result) {
-			alert(result);
+//			alert(result);
 			//    	vm.param_myData = result.data.data;
 		//	$scope.param_myData = result.data.data;
 		});
@@ -659,7 +710,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    },
 	    data : 'myOtData',
 		columnDefs : [ 
-			{field : 'ID', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
+			{field : 'Id', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
 			{field : 'Status', headerCellClass: 'green-header', width : '100', enableCellEdit : false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
@@ -678,44 +729,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			{field : 'Multiplier', headerCellClass: 'green-header',width : '100',enableCellEdit : false},
 			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
 			{field : 'Qty', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
-//			{field : 'Premium', headerCellClass: 'green-header', displayName: 'Premium', width : '60',enableCellEdit : false},
 			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '60',enableCellEdit : false},
-			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', displayName: 'Price', width : '60',enableCellEdit : false},
-			{field : 'CP', headerCellClass: 'green-header',displayName:'Strat',width : '60',enableCellEdit : false},
+			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
+			{field : 'CP', headerCellClass: 'green-header',displayName:'CP',width : '60',enableCellEdit : false},
 			{field : 'Side', headerCellClass: 'green-header', width : '60', enableCellEdit : false},
-//			{field : 'Qty', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
-////					editableCellTemplate: '<div><input type="number" class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
-////			        cellTemplate: 'prompt.html',
-////					cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="!grid.appScope.isQtyValid">error_outline</i>{{isQtyValid}}<input class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
-//		        cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="grid.appScope.isQtyValid === false">error_outline</i>{{grid.appScope.myQty}}</div>',
-//			}, 
-//			{field : 'isQtyValid', visible: false},
- 
-//			{field : 'Delta', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
-////					enableCellEditOnFocus: true,
-////			          editableCellTemplate: $scope.cellInputEditableTemplate,
-////			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!grid.appScope.isDeltaValid">error_outline</i><input class="form-control" ng-input="row.entity.Delta" ng-model="row.entity.Delta" /></div>',
-//		          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="grid.appScope.isDeltaValid === false">error_outline</i>{{grid.appScope.myDelta}}</div>',
-//			},
-//			{field : 'isDeltaValid', visible: false},
-//		      { 
-//				field: 'FutMat',
-//				headerCellClass: 'blue-header',
-//		        name: 'FutMat', 
-//		        displayName: 'Fut Mat', 
-//		        editableCellTemplate: 'ui-grid/dropdownEditor', 
-//		        width: '80',
-////			        cellFilter: 'mapGender', 
-//		        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!grid.appScope.isFutMatValid">error_outline</i>{{grid.appScope.myFutMat}}</div>',
-//		        editDropdownValueLabel: 'type',
-//		        editDropdownOptionsArray: $scope.futMatTypes 
-////			        	[
-////			        { id: 'DEC16', type: 'DEC16' },
-////			        { id: 'MAR17', type: 'MAR17' },
-////			        { id: 'JUN17', type: 'JUN17' }
-////			        ] 
-//		      },
-//			{field : 'Ref', width : '80',enableCellEdit: false, visible: false}
 		 ],
 //		exporterMenuPdf : false,
 	};
@@ -1465,16 +1482,16 @@ function hedgeSide(params) {
 	for (i=0; i<params.length; i++) 
 	{
 		var qty = Number(params[i].qty);
-		if ((params[i].side === 'Buy' && params[i].option === 'Put') ||
-			(params[i].side === 'Sell' && params[i].option === 'Call'))
+		if ((params[i].side === SIDE.BUY && params[i].option === 'Put') ||
+			(params[i].side === SIDE.SELL && params[i].option === 'Call'))
 			sum += -1 * qty;
 		else 
 			sum += qty;
 	}
 	if (sum > 0) {
-		return 'Sell';
+		return SIDE.SELL;
 	}
-	return 'Buy';
+	return SIDE.BUY;
 }
 
 function getMonthFromString(mmmyy){
@@ -1765,7 +1782,7 @@ function getMultiple(signedTerm, strat) {
 
 function getSides(term, thisSide) {
 	var multi = [];
-	var otherSide = thisSide == 'Buy' ? 'Sell' : 'Buy';
+	var otherSide = thisSide == SIDE.BUY ? SIDE.SELL : SIDE.BUY;
 	if (term.indexOf('X') > 0) {
 		var tokens = term.split('X');
 		for (j = 0; j < tokens.length; j++) {

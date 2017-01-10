@@ -79,9 +79,11 @@ app.use(function(err, req, res, next) {
 plVent.Bind();
 //plSink.Bind();
 
-//setTimeout(function() {
-//	plVent.CreateInvoice("id");
-//	console.log(new Date());
-//  }, 1);
+plVent.QueryAllTradeReport();
+
+//setInterval(function() {
+//	plVent.SOD();
+////	console.log(new Date());
+//  }, 1000);
 
 module.exports = app;

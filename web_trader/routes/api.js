@@ -3,6 +3,7 @@ var router = express.Router();
 var path = require('path');
 var BlockTradeReport = require('../models/BlockTradeReport');
 var TradeReport = require('../models/TradeReport');
+var Cmmf = require('../models/Cmmf');
 
 // local variable
 var app = require('../app');
@@ -21,15 +22,23 @@ function updateTradeConfo(key, myData)
 }
 
 /* GET users listing. */
-router.get('/getBlockTradeReport', function(req, res, next) {
+router.get('/getTradeReport', function(req, res, next) {
+	console.log('api/getTradeReport ');	
+	var oms = req.app.get('oms');
+	var v = oms.getAllTradeReport();
+
+	list = [];
+	for (i=0; i<v.length; i++) {
+		data = v[i].json();
+		list.push(data);
+	}
 	
-	var list = req.app.get('map_blockTr').values();
 	res.send({data:list});
-	console.log('api/getBlockTradeReport ' + {data:list});
+	console.log('api/getTradeReport ' + {data:list});
 });
 
 router.post('/sendTradeReport', function(req, res, next) {
-	console.log('api/sendTradeReport ' + req.body.trType + ',' + req.body.cp + ',' + req.body.legs);
+	console.log('api/sendTradeReport ' + req.body.trType + ',' + req.body.cp + ',' + JSON.stringify(req.body.legs));
 	
 	if (req.url === '/favicon.ico') {
 	   res.writeHead(200, {'Content-Type': 'image/x-icon'} );
@@ -52,15 +61,31 @@ router.post('/sendTradeReport', function(req, res, next) {
 //	map_block[id] = block;
 	
 	var plVent = req.app.get('plVent');
-	var oms = req.app.get('oms');
-	var refId = oms.getOrderId();
+//	var oms = req.app.get('oms');
+//	var refId = oms.getOrderId();
 	
-	plVent.SendTradeReport(refId, req.body.trType, req.body.symbol,
-			req.body.qty, req.body.delta, req.body.price,  
-			req.body.strat, req.body.futMat, req.body.cp,  
-			'PENDING_SENT', req.body.legs);
+//	plVent.SOD();
 	
-	res.sendStatus(refId);
+	try {
+//		plVent.SendTradeReport1(refId, req.body.trType, req.body.symbol,
+//				req.body.qty, req.body.delta, req.body.price,  
+//				req.body.strat, req.body.futMat, req.body.cp);
+		plVent.SendTradeReport(req.body.trType, req.body.symbol,
+				req.body.qty, req.body.delta, req.body.price,  
+				req.body.strat, req.body.futMat, req.body.cp,  
+				req.body.side,
+				req.body.legs);
+		
+//		var block_tr = new BlockTradeReport('', refId, status, trType, symbol, qty, delta, price, strat, cp, legs);
+//		oms.addBlockTradeReport(refId, block_tr);
+	}
+	catch (err) {
+		logger.error(err.message);
+	}
+	
+	
+	res.send('succ');
+//	res.sendStatus(refId);
 });
 
 
