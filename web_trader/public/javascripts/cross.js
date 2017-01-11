@@ -234,7 +234,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		var ref = Number($scope.myRef);
 		var sides = getSides($scope.myMultiplier, $scope.mySide);
 		var instr = tokens[0];
-		
+		var futExp = '';
 
 		var multi = getMultiple(multiplier, strat);
 		var strikes = getStrikes(multiplier, tokens[2], strat);
@@ -260,6 +260,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
 			};
+			$scope.param_isLastLegPriceValid = true;
 			break;
 		}
 		// put strategy
@@ -273,6 +274,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
 			};
+			$scope.param_isLastLegPriceValid = true;
 			break;
 		}
 		case 'CL':  // 'ECL - European Call Ladder':
