@@ -120,7 +120,7 @@ PipelineVentilator.prototype.QueryAllTradeReport = function() {
 		
 PipelineVentilator.prototype.SendTradeReport = function(
 		refId, trType, symbol, qty, delta, price, 
-		strat, futMat, cp, side, legs) 
+		strat, futMat, buyer, seller, legs) 
 {
 	
 //	logger.info("SendTradeReport " + refId + ',' + trType  + ',' +  symbol  + ',' +  qty  + ',' +  delta  + ',' +  price  + ',' +  
@@ -134,20 +134,20 @@ PipelineVentilator.prototype.SendTradeReport = function(
 		var msg = JSON.stringify({
 			RefId : refId,
 			TrType : trType,
-			Cp : cp,
+			Buyer : buyer,
+			Seller : seller,
 			Delta : delta,
 			Qty : qty,
 			Price : price,
 			FutMat : futMat,
 			Symbol : symbol,
-			Side : side,
 			Legs : legs
 		});
 	
 		sender.send("TOTR" + msg);
 	
 		oms = this.app.get('oms');
-		var block_tr = new BlockTradeReport('', refId, Command.UNSENT, trType, symbol, qty, delta, price, strat, cp, side, futMat, legs);
+		var block_tr = new BlockTradeReport('', refId, Command.UNSENT, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, legs);
 		oms.addBlockTradeReport(refId, block_tr);
 	}
 	catch (err) {
@@ -190,7 +190,7 @@ PipelineVentilator.prototype.SendTradeReport = function(
 //};
 
 PipelineVentilator.prototype.onTradeReport = function(doc) {
-	logger.info('onTradeReport: ', doc);
+	logger.info('onTradeReport: ' + doc);
 	
 	try {
 		oms = this.app.get('oms');
@@ -213,8 +213,8 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 			var symbol = doc.tradeReport.Symbol;
 			var qty = doc.tradeReport.Qty;
 			var delta = doc.tradeReport.Delta;
-			var cp = doc.tradeReport.Cp;
-			var side = doc.tradeReport.Side;
+			var buyer = doc.tradeReport.Buyer;
+			var seller = doc.tradeReport.Seller;
 			var futMat = doc.tradeReport.FutMat;
 			
 			var legs = [];
@@ -223,16 +223,17 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 				var Instrument = list[i].Instrument;
 				var UL = list[i].UL;
 				var Qty = list[i].Qty;
-				var Side = list[i].Side;
+				var Buyer = list[i].Buyer;
+				var Seller = list[i].Seller;
 				var Strike = list[i].Strike;
 				var Expiry = list[i].Expiry;
 				var Price = list[i].Price;
 				legs.push({'Instrument' : Instrument, 'UL': UL, 'Qty' : Qty,
-					'Side': Side, 'Strike': Strike, 'Expiry': Expiry, 'Price': Price});
+					'Buyer': Buyer, 'Seller': Seller, 'Strike': Strike, 'Expiry': Expiry, 'Price': Price});
 			}
 
 			if (list.length > 0) {
-				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', cp, side, futMat, legs);
+				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, legs);
 				oms.addBlockTradeReport(refId, block_tr);
 			}
 			else {
@@ -240,11 +241,6 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 			}
 		}
 		
-
-
-
-
-
 	//	bdxService.toAll(json);
 
 	} catch (err) {

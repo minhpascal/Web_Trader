@@ -9,7 +9,7 @@ function BlockTradeReport() {
 };
 
 // Constructor
-function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, cp, side, futMat, legs) {
+function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, legs) {
 	this.id = id;
 	this.refId = refId;
 	this.status = status;
@@ -19,18 +19,16 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	this.delta = delta;
 	this.price = price;
 	this.strat = strat;
-	this.cp = cp;
-	this.side = side;
+	this.buyer = buyer;
+	this.seller = seller;
 	this.futMat = futMat;
 	
 	this.legs = [];
 	for (i=0; i<legs.length; i++) 
 	{
 		tr = legs[i];
-		buyer = legs[i].Side === 'BUY' ? 'HKCEL' : cp; 
-		seller = legs[i].Side === 'SELL' ? 'HKCEL' : cp; 
     	this.legs.push(new TradeReport(tr.Instrument, '', 
-    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Side, '', buyer, seller));		
+    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Buyer, tr.Seller));		
 	}
 };
 
@@ -56,11 +54,11 @@ BlockTradeReport.prototype.json = function() {
 		'Qty': 		this.qty,
 		'Delta' : 	this.delta,
 		'CP': 		this.cp,
-		'Side' : 	this.side,  
 		'FutMat': 	this.futMat,   
 		'Symbol': 	this.symbol,   
 		'Status': 	this.status,   
-		'Side': 	this.side,
+		'Buyer': 	this.buyer,
+		'Seller': 	this.seller,
 		'legs': [],
 	};
 	

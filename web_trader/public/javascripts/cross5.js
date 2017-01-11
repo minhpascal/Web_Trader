@@ -125,81 +125,84 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myCompany = 'HKCEL';
 		$scope.myCpCompany = 'HKTOM';
 
-//legs = [{'Instrument': 'HSI'}, {'Instrument': 'HSCEI'}];		
-//data = {
-//'Id' : 1,
-//'RefId' : 123,
-//'TrType': 'T2', 
-//'Qty': 100,
-//'Delta' : 20,
-//'Buyer': 'HKCEL',
-//'Seller' : 'HKTOM',  
-//'FutMat': 'DEC17',   
-//'Symbol': 'SYBMOL',   
-//'Status': 'SENT',   
-//'legs': legs,
-//};
-//data.subGridOptions = {
-//	enableSorting : false,
-//	enableColumnResizing : true,
-////	appScopeProvider: {
-//////	expandableRowScope: {
-////		showRow: function(row) {
-////			return true;
-////		}
-////	},
-//    columnDefs: [ 
-//    	{name:"Instrument", field:"Instrument", width: '120'}, 
-////    	{name:"Expiry", field:"Expiry", width: '80'},
-////    	{name:"Strike", field:"Strike", width: '80'},
-////    	{name:"Qty", field:"Qty", width: '80'},
-////    	{name:"Price", field:"Price", width: '80'},
-////    	{field:"Buyer", width: '60'},
-////    	{field:"Seller", width: '60'},
-//    ],
-//    'data': data.legs
-//}
-//$scope.myOtData.push(data);
+legs = [{'Instrument': 'HSI'}, {'Instrument': 'HSCEI'}];		
+data = {
+'Id' : 1,
+'RefId' : 123,
+'TrType': 'T2', 
+'Qty': 100,
+'Delta' : 20,
+'Buyer': 'HKCEL',
+'Seller' : 'HKTOM',  
+'FutMat': 'DEC17',   
+'Symbol': 'SYBMOL',   
+'Status': 'SENT',   
+'legs': legs,
+};
+
+
+data.subGridOptions = {
+	enableSorting : false,
+	enableColumnResizing : true,
+//	appScopeProvider: {
+////	expandableRowScope: {
+//		showRow: function(row) {
+//			return true;
+//		}
+//	},
+    columnDefs: [ 
+    	{name:"Instrument", field:"Instrument", width: '120'}, 
+//    	{name:"Expiry", field:"Expiry", width: '80'},
+//    	{name:"Strike", field:"Strike", width: '80'},
+//    	{name:"Qty", field:"Qty", width: '80'},
+//    	{name:"Price", field:"Price", width: '80'},
+//    	{field:"Buyer", width: '60'},
+//    	{field:"Seller", width: '60'},
+    ],
+    'data': data.legs
+}
+$scope.myOtData.push(data);
 		
-		$http.get('api/getTradeReport').then(function(result) {
-//			console.log(result);
-			v = result.data.data;
-			for (i=0; i<v.length; i++) {
-				data = {
-						'Id' : v[i].Id,
-						'RefId' : v[i].RefId,
-						'TrType': v[i].TrType, 
-						'Qty': v[i].Qty,
-						'Delta' : v[i].Delta,
-						'Buyer': v[i].Buyer,
-						'Seller' : v[i].Seller,  
-						'FutMat': v[i].FutMat,   
-						'Symbol': v[i].Symbol,   
-						'Status': v[i].Status,   
-						'legs': v[i].legs,
-				};
-				data.subGridOptions = {
-					enableSorting : false,
-					enableColumnResizing : true,
-					appScopeProvider: {
-						showRow: function(row) {
-							return true;
-						}
-					},
-	                columnDefs: [ 
-	                	{name:"Instrument", field:"Instrument", width: '120'}, 
-	                	{name:"Expiry", field:"Expiry", width: '80'},
-	                	{name:"Strike", field:"Strike", width: '80'},
-	                	{name:"Qty", field:"Qty", width: '80'},
-	                	{name:"Price", field:"Price", width: '80'},
-	                	{field:"Buyer", width: '60'},
-	                	{field:"Seller", width: '60'},
-	                ],
-	                'data': data.legs
-		        }
-				$scope.myOtData.push(data);
-			}
-		});
+//		$http.get('api/getTradeReport').then(function(result) {
+////			console.log(result);
+//			v = result.data.data;
+//			for (i=0; i<v.length; i++) {
+//				data = {
+//						'Id' : v[i].Id,
+//						'RefId' : v[i].RefId,
+//						'TrType': v[i].TrType, 
+//						'Qty': v[i].Qty,
+//						'Delta' : v[i].Delta,
+//						'Buyer': v[i].Buyer,
+//						'Seller' : v[i].Seller,  
+//						'FutMat': v[i].FutMat,   
+//						'Symbol': v[i].Symbol,   
+//						'Status': v[i].Status,   
+//						'legs': v[i].legs,
+//				};
+//				data.subGridOptions = {
+//					enableSorting : false,
+//					enableColumnResizing : true,
+////					appScopeProvider: {
+//////					expandableRowScope: {
+////						showRow: function(row) {
+////							return true;
+////						}
+////					},
+//	                columnDefs: [ 
+//	                	{name:"Instrument", field:"Instrument", width: '120'}, 
+////	                	{name:"Expiry", field:"Expiry", width: '80'},
+////	                	{name:"Strike", field:"Strike", width: '80'},
+////	                	{name:"Qty", field:"Qty", width: '80'},
+////	                	{name:"Price", field:"Price", width: '80'},
+////	                	{field:"Buyer", width: '60'},
+////	                	{field:"Seller", width: '60'},
+//	                ],
+//	                'data': data.legs
+//		        }
+//				$scope.myOtData.push(data);
+//			}
+//		});
 	}
 	$scope.isInit = true;
 	
@@ -735,11 +738,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		data.subGridOptions = {
 				enableSorting : false,
 				enableColumnResizing : true,
-				appScopeProvider: {
-					showRow: function(row) {
-						return true;
-					}
-				},
+//				appScopeProvider: {
+//					showRow: function(row) {
+//						return true;
+//					}
+//				},
                 columnDefs: [ 
                 	{name:"Instrument", field:"Instrument", width: '120'}, 
                 	{name:"Expiry", field:"Expiry", width: '80'},
@@ -810,11 +813,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //				}
 //			},
 	    },
-		appScopeProvider: {
-			showRow: function(row) {
-				return true;
-			}
-		},
+//		appScopeProvider: {
+//			showRow: function(row) {
+//				return true;
+//			}
+//		},
 		columnDefs : [ 
 			{field : 'Id', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
 			{field : 'Status', headerCellClass: 'green-header', width : '100', enableCellEdit : false,
@@ -1012,9 +1015,9 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		 }
 	}
 	
-	$templateCache.put('ui-grid/uiGridViewport',
-			"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
-	);
+//	$templateCache.put('ui-grid/uiGridViewport',
+//			"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
+//	);
 	
 	$scope.gridOptions = {
 		appScopeProvider: {

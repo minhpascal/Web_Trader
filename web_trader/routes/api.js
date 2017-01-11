@@ -38,7 +38,7 @@ router.get('/getTradeReport', function(req, res, next) {
 });
 
 router.post('/sendTradeReport', function(req, res, next) {
-	console.log('api/sendTradeReport ' + req.body.trType + ',' + req.body.cp + ',' + JSON.stringify(req.body.legs));
+	console.log('api/sendTradeReport ' + req.body.trType  + ',' + JSON.stringify(req.body.legs));
 	
 	if (req.url === '/favicon.ico') {
 	   res.writeHead(200, {'Content-Type': 'image/x-icon'} );
@@ -52,7 +52,7 @@ router.post('/sendTradeReport', function(req, res, next) {
 	try {
 		plVent.SendTradeReport(req.body.refId, req.body.trType,
 				req.body.symbol, req.body.qty, req.body.delta, req.body.price,
-				req.body.strat, req.body.futMat, req.body.cp, req.body.side,
+				req.body.strat, req.body.futMat, req.body.buyer, req.body.seller,
 				req.body.legs);
 	}
 	catch (err) {
