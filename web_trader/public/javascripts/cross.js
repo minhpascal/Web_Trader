@@ -197,8 +197,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
-		$scope.myDelta = 20;
-		$scope.myQty = 100;
+//		$scope.myDelta = 20;
+//		$scope.myQty = 100;
 //		$scope.myFutMat = 'MAR17'; 
 		
 		var tokens = parseSymbol(symbol);
@@ -926,7 +926,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 ////			        ] 
 //			    },
 				{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
-			    {field : 'test', 
+			    {field : 'FutMat', headerCellClass: 'blue-header', width : '100',
 			    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
 //		    		cellTemplate: '<div isteven-multi-select input-model="row.entity.modernBrowsers"' 
 			    		+ ' output-model="row.entity.outputBrowsers" button-label="icon name" item-label="name" '
