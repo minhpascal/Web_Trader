@@ -16,6 +16,7 @@
 <!--
     Your HTML content here
   -->
+  
 <!-- external tools lib -->
 <script	src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
 
@@ -28,6 +29,10 @@
 
 <!-- Angular Material Library -->
 <script	src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+<!-- angularjs multiselect -->  
+<link rel="stylesheet" href="stylesheets/isteven-multi-select.css">
+<script type="text/javascript" src="javascripts/isteven-multi-select.js"></script>
 
 <!-- uigrid library -->
 <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
@@ -46,6 +51,8 @@
 </head>
 <body ng-app="app">
 	<div ng-controller="AppCtrl as pc" class="md-padding"	id="popupContainer" ng-cloak>
+	
+	<div>Environment: <font class="myEnv_Testing">{{myEnv}}</font></div>
 	<md-card> 
 		<md-card-title> 
 			<md-card-title-text>
@@ -112,7 +119,7 @@
 		<!-- Order Trade Panel -->
 		<md-card-title> 
 			<md-card-title-text>
-				<span class="md-headline">Trade DashBoard</span> 
+				<span class="md-headline">Block Trade DashBoard</span> 
 			</md-card-title-text> 
 		</md-card-title> 
 		

@@ -27,6 +27,7 @@ var app = angular.module('app', [
 	'ui.grid.pinning',
 	'ngAnimate' ,
 	'btford.socket-io',
+	'isteven-multi-select',
 	]);
 
 app.factory('socket', function (socketFactory) {
@@ -89,6 +90,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
     });
 	
 	if (!$scope.isInit) {
+		
+		$scope.iconTemplate = '<i class="material-icons" style="color:red">error_outline</i>';
+//		$scope.iconTemplate = '<i class="material-icons" style="color:red" ng-show="!grid.appScope.param_isFutMatValid">error_outline</i>';
+		
 	    // cross detail scope data
 	    $scope.trTypes = [
 	    	'T1 - Single Trade Report',
@@ -125,41 +130,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myCompany = 'HKCEL';
 		$scope.myCpCompany = 'HKTOM';
 
-//legs = [{'Instrument': 'HSI'}, {'Instrument': 'HSCEI'}];		
-//data = {
-//'Id' : 1,
-//'RefId' : 123,
-//'TrType': 'T2', 
-//'Qty': 100,
-//'Delta' : 20,
-//'Buyer': 'HKCEL',
-//'Seller' : 'HKTOM',  
-//'FutMat': 'DEC17',   
-//'Symbol': 'SYBMOL',   
-//'Status': 'SENT',   
-//'legs': legs,
-//};
-//data.subGridOptions = {
-//	enableSorting : false,
-//	enableColumnResizing : true,
-////	appScopeProvider: {
-//////	expandableRowScope: {
-////		showRow: function(row) {
-////			return true;
-////		}
-////	},
-//    columnDefs: [ 
-//    	{name:"Instrument", field:"Instrument", width: '120'}, 
-////    	{name:"Expiry", field:"Expiry", width: '80'},
-////    	{name:"Strike", field:"Strike", width: '80'},
-////    	{name:"Qty", field:"Qty", width: '80'},
-////    	{name:"Price", field:"Price", width: '80'},
-////    	{field:"Buyer", width: '60'},
-////    	{field:"Seller", width: '60'},
-//    ],
-//    'data': data.legs
-//}
-//$scope.myOtData.push(data);
+		$scope.myEnv = "TESTING";
 		
 		$http.get('api/getTradeReport').then(function(result) {
 //			console.log(result);
@@ -192,12 +163,12 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	                	{name:"Strike", field:"Strike", width: '80'},
 	                	{name:"Qty", field:"Qty", width: '80'},
 	                	{name:"Price", field:"Price", width: '80'},
-	                	{field:"Buyer", width: '60'},
-	                	{field:"Seller", width: '60'},
+	                	{field:"Buyer", width: '80'},
+	                	{field:"Seller", width: '80'},
 	                ],
 	                'data': data.legs
 		        }
-				$scope.myOtData.push(data);
+				$scope.myOtData.unshift(data);
 			}
 		});
 	}
@@ -228,7 +199,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myFutMat = '';
 		$scope.myDelta = 20;
 		$scope.myQty = 100;
-		$scope.myFutMat = 'MAR17'; 
+//		$scope.myFutMat = 'MAR17'; 
 		
 		var tokens = parseSymbol(symbol);
 		$scope.myInstr = tokens[0];
@@ -274,10 +245,33 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		
 		$scope.myParam = [
 			{'UL': $scope.myUl, 'Strategy': $scope.myStrat, 'Expiry': $scope.myExpiry,
-			'Strike': $scope.myStrike, 'Multiplier': $scope.myMultiplier, 'Qty': '', 
-			'Premium': $scope.myPremium, 'Delta': '', 'FutMat': '', 
+			'Strike': $scope.myStrike, 'Multiplier': $scope.myMultiplier, 'Premium': $scope.myPremium, 
+			// TODO : remove from testing
+			'Qty': $scope.myQty, 'Delta': $scope.myDelta, 'FutMat': $scope.myFutMat, 
 			'Buyer': $scope.myCompany, 'Seller': $scope.myCpCompany,
-			'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false},
+			'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false,
+			'modernBrowsers' : [
+			    { icon: '', name: "JAN17", ticked: false  },
+			    { icon: '', name: "FEB17", ticked: false  },
+			    { icon: '', name: "MAR17", ticked: false  },
+			    { icon: '', name: "APR17", ticked: false  },
+			    { icon: '', name: "MAY17", ticked: false  },
+			    { icon: '', name: "JUN17", ticked: false  },
+			    { icon: '', name: "JUL17", ticked: false  },
+			    { icon: '', name: "AUG17", ticked: false  },
+			    { icon: '', name: "SEP17", ticked: false  },
+			    { icon: '', name: "OCT17", ticked: false  },
+			    { icon: '', name: "NOV17", ticked: false  },
+			    { icon: '', name: "DEC17", ticked: false  },
+				{ icon: $scope.iconTemplate, name: 'Choose...', ticked: true , disabled: true },
+//			    { icon: "<img src=[..]/internet_explorer.png.. />",   name: "Internet Explorer",  maker: "(Microsoft)",             ticked: false },
+//			    { icon: '<img src="https://cdn1.iconfinder.com/data/icons/humano2/32x32/apps/firefox-icon.png" />',        
+//			    	name: "Firefox",            maker: "(Mozilla Foundation)",    ticked: false  },
+//			    { icon: "<img src=[..]/safari_browser.png.. />",      name: "Safari",             maker: "(Apple)",                 ticked: false },
+//			    { icon: "<img src=[..]/chrome.png.. />",              name: "Chrome",             maker: "(Google)",                ticked: true  }
+			], 
+			'outputBrowsers' : [],
+			},
 		];
 		
 		switch (strat) {
@@ -752,7 +746,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
                 data: data.legs
         }
 		
-		$scope.myOtData.push(data);
+		$scope.myOtData.unshift(data);
 		
 		$http.post('api/sendTradeReport', {
 			'refId'  : refId,
@@ -832,8 +826,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			{field : 'Qty', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
 			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '60',enableCellEdit : false},
 			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
-			{field : 'Buyer', headerCellClass: 'green-header', width : '60', enableCellEdit : false},
-			{field : 'Seller', headerCellClass: 'green-header', width : '60', enableCellEdit : false},
+			{field : 'Buyer', headerCellClass: 'green-header', width : '80', enableCellEdit : false},
+			{field : 'Seller', headerCellClass: 'green-header', width : '80', enableCellEdit : false},
 		 ],
 //		exporterMenuPdf : false,
 	};
@@ -852,23 +846,43 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
         $scope.otGridApi.expandable.collapseAllRows();
       }
 	
-	
 	$scope.paramGridOptions = {
 		    data : 'myParam',
 			appScopeProvider: {
 				showRow: function(row) {
 					return true;
-				}
+				},
+	
+	fClick: function( rowEntity ) {           
+//	    alert( 'On-item-click' );        
+//	    alert( 'On-item-click - data:' );        
+//	    alert( rowEntity );
+		
+		mb = rowEntity.modernBrowsers;
+		if (!rowEntity.isFutMatValid) {	// first set FutMat
+			last = mb.length - 1;
+			mb.splice(last, 1);	// last one is dummy 'Choose...'
+		}
+		
+		for (i=0; i<mb.length; i++) {
+			if (mb[i].ticked) {
+				rowEntity.FutMat = mb[i].name;
+			}
+			mb[i].icon = '';
+		}
+		
+	    $scope.afterCellEditParamGrid(rowEntity);
+	}  
 			},
 			enableHorizontalScrollbar: false, 
 			enableVerticalScrollbar: false,
-//			rowEditWaitInterval : -1,
+			rowEditWaitInterval : -1,
 			enableSorting : false,
 			enableColumnResizing : true,
 			enableFiltering : false,
 			showGridFooter : false,
 			showColumnFooter : false,
-		    enableCellEditOnFocus: true,
+		    enableCellEditOnFocus: false,
 			columnDefs : [ 
 				{field : 'UL', headerCellClass: 'blue-header', width : '60', enableCellEdit : false}, 
 				{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '60',enableCellEdit : false}, 
@@ -893,26 +907,33 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="grid.appScope.param_isDeltaValid === false">error_outline</i>{{grid.appScope.myDelta}}</div>',
 			          cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-show="row.entity.isDeltaValid === false">error_outline</i>{{row.entity.Delta}}</div>',
 				},
-				{field : 'isDeltaValid', visible: false},
-			      { 
-					field: 'FutMat',
-					headerCellClass: 'blue-header',
-			        name: 'FutMat', 
-			        displayName: 'Fut Mat', 
-			        editableCellTemplate: 'ui-grid/dropdownEditor', 
-			        width: '80',
-//			        cellFilter: 'mapGender', 
-//			        cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!grid.appScope.param_isFutMatValid">error_outline</i>{{grid.appScope.myFutMat}}</div>',
-			        cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-show="!row.entity.isFutMatValid">error_outline</i>{{row.entity.FutMat}}</div>',
-			        editDropdownValueLabel: 'type',
-			        editDropdownOptionsArray: $scope.futMatTypes 
-//			        	[
-//			        { id: 'DEC16', type: 'DEC16' },
-//			        { id: 'MAR17', type: 'MAR17' },
-//			        { id: 'JUN17', type: 'JUN17' }
-//			        ] 
-			      },
-				{field : 'Ref', width : '80',enableCellEdit: false, visible: false}
+//				{field : 'isDeltaValid', visible: false},
+//			    { 
+//					field: 'FutMat',
+//					headerCellClass: 'blue-header',
+//			        name: 'FutMat', 
+//			        displayName: 'Fut Mat', 
+//			        editableCellTemplate: 'ui-grid/dropdownEditor', 
+//			        width: '80',
+////			        cellFilter: 'mapGender', 
+////			        cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-show="!row.entity.isFutMatValid">error_outline</i>{{row.entity.FutMat}}</div>',
+//			        editDropdownValueLabel: 'type',
+//			        editDropdownOptionsArray: $scope.futMatTypes 
+////			        	[
+////			        { id: 'DEC16', type: 'DEC16' },
+////			        { id: 'MAR17', type: 'MAR17' },
+////			        { id: 'JUN17', type: 'JUN17' }
+////			        ] 
+//			    },
+				{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
+			    {field : 'test', 
+			    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
+//		    		cellTemplate: '<div isteven-multi-select input-model="row.entity.modernBrowsers"' 
+			    		+ ' output-model="row.entity.outputBrowsers" button-label="icon name" item-label="name" '
+			    		+ ' tick-property="ticked" disable-property="disabled"'
+//			    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
+			    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
+			    },
 			 ],
 			exporterMenuPdf : false,
 	};
@@ -996,10 +1017,28 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			$scope.param_isFutMatValid = true;
 			rowEntity.isFutMatValid = true;
 			$scope.myFutMat = rowEntity.FutMat;
+			
+			mb = rowEntity.modernBrowsers;
+			for (i=0; i<mb.length; i++) {
+//				if (mb.ticked) {
+//					mb.icon = $scope.iconTemplate;
+//				}
+//				else {
+					mb[i].icon = '';
+//				}
+			}
 		}
 		else {
 			$scope.param_isFutMatValid = false;
 			rowEntity.isFutMatValid = false;
+			for (i=0; i<mb.length; i++) {
+				if (mb.ticked) {
+					mb[i].icon = $scope.iconTemplate;
+				}
+				else {
+					mb[i].icon = '';
+				}
+			}
 		}
 		
 		$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
@@ -1051,7 +1090,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return 'missing';
 				}
 			}, 
-			{field : 'Buyer', headerCellClass: 'brown-header', width : '60',enableCellEdit : false,
+			{field : 'Buyer', headerCellClass: 'brown-header', width : '80',enableCellEdit : false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
 					if (val)
@@ -1059,7 +1098,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return 'missing';
 				}
 			}, 
-			{field : 'Seller', headerCellClass: 'brown-header', width : '60',enableCellEdit : false,
+			{field : 'Seller', headerCellClass: 'brown-header', width : '80',enableCellEdit : false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
 					if (val)
