@@ -124,8 +124,8 @@ select::-ms-expand {
 
  .md-padding {
  
- /*   display: -moz-inline-stack; 
-    display: inline-block; 
+    display: -moz-inline-stack; 
+  /*  display: inline-block; 
  */   
   /* NOTE: Check the demo's HTML to see some additional RTL support CSS */
   /* Setup animations similar to the ng-messages */ }

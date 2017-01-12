@@ -96,11 +96,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		
 	    // cross detail scope data
 	    $scope.trTypes = [
-	    	'T1 - Single Trade Report',
-	    	'T2 - Combo Trade Report',
-	    	'T4 - Interbank Trade Report',
+	    	'T1 - Single',
+	    	'T2 - Combo',
+	    	'T4 - Interbank',
 	    	];
-	    $scope.myTrType = 'T2 - Combo Trade Report',
+	    $scope.myTrType = 'T2 - Combo',
 	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
 	    
 	    $scope.myOtData = [];
@@ -193,7 +193,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
-
+try {
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
@@ -263,7 +263,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			    { icon: '', name: "OCT17", ticked: false  },
 			    { icon: '', name: "NOV17", ticked: false  },
 			    { icon: '', name: "DEC17", ticked: false  },
-				{ icon: $scope.iconTemplate, name: 'Choose...', ticked: true , disabled: true },
+				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
 //			    { icon: "<img src=[..]/internet_explorer.png.. />",   name: "Internet Explorer",  maker: "(Microsoft)",             ticked: false },
 //			    { icon: '<img src="https://cdn1.iconfinder.com/data/icons/humano2/32x32/apps/firefox-icon.png" />',        
 //			    	name: "Firefox",            maker: "(Mozilla Foundation)",    ticked: false  },
@@ -462,6 +462,30 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			};
 			break;
 		}
+//		case 'CDIAG_Reverse': { // 'ECTS - European Call Time Spread':
+//			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
+//			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+//			$scope.param_myData[0] = {
+//					'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
+//					'Buyer': sides[0][0], 'Seller': sides[0][1],
+//					'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+//			};
+//			$scope.param_myData[1] = {
+//					'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
+//					'Buyer': sides[1][0], 'Seller': sides[1][1],
+//					'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+//			};
+//			$scope.param_myData[2] = {
+//					'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
+////				'Buyer': sides[0][0], 'Seller': sides[0][1],
+////				'Buyer': sides[1][0], 'Seller': sides[1][1],
+////				'Buyer': sides[2][0], 'Seller': sides[2][1],
+////				'Buyer': sides[3][0], 'Seller': sides[3][1],
+//					'Buyer': '', 'Seller': '',
+//					'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+//			};
+//			break;
+//		}
 		case 'PS':  // 'EPS - European Put Spread':
 		case 'PDIAG':  // 'EPS - European Put Spread':
 		case 'PR':  // 'ECR - European Put Ratio':
@@ -542,18 +566,38 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			};
 			break;
 		}
+//		case 'RR_Reverse' :  {// - European Risk Reversal' Reverse:
+//			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
+//			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
+//			$scope.param_myData[0] = {
+//					'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
+//					'Buyer': sides[0][0], 'Seller': sides[0][1],
+//					'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+//			};
+//			$scope.param_myData[1] = {
+//					'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
+//					'Buyer': sides[1][0], 'Seller': sides[1][1],
+//					'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+//			};
+//			$scope.param_myData[2] = {
+//					'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+//					'Buyer': '', 'Seller': '', 
+//					'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+//			};
+//			break;
+//		}
+		case 'S' : // - European Synthetic Call Over': 
 		case 'SD':  //} - European Straddle':
-		case 'S' :  // - European Synthetic Call Over':
 		case 'SPO': { // - European Synthetic Put Over':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
 			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
+				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1],
 				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
+				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1],
 				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
 			};
@@ -669,6 +713,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			$scope.status = 'close ';
 //		  $mdDialog.destroy();
 //		});
+}
+catch (err) {
+	alert('parse symbol error: ' + err.essage);
+}
 	};
 //}]);
 
@@ -810,8 +858,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			}
 		},
 		columnDefs : [ 
-			{field : 'Id', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
-			{field : 'Status', headerCellClass: 'green-header', width : '100', enableCellEdit : false,
+			{field : 'Id', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
+			{field : 'Status', headerCellClass: 'green-header', width : '*', enableCellEdit : false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
 					if (val === 'SENT')
@@ -821,13 +869,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return 'order_ok';
 				}
 			}, 
-			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '60', enableCellEdit : false}, 
+			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
 			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
-			{field : 'Qty', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
-			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '60',enableCellEdit : false},
-			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '60',enableCellEdit : false},
-			{field : 'Buyer', headerCellClass: 'green-header', width : '80', enableCellEdit : false},
-			{field : 'Seller', headerCellClass: 'green-header', width : '80', enableCellEdit : false},
+			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
+			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false},
+			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
+			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
+			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
 		 ],
 //		exporterMenuPdf : false,
 	};
@@ -852,27 +900,24 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				showRow: function(row) {
 					return true;
 				},
-	
-	fClick: function( rowEntity ) {           
+				fClick: function( rowEntity ) {           
 //	    alert( 'On-item-click' );        
 //	    alert( 'On-item-click - data:' );        
 //	    alert( rowEntity );
-		
-		mb = rowEntity.modernBrowsers;
-		if (!rowEntity.isFutMatValid) {	// first set FutMat
-			last = mb.length - 1;
-			mb.splice(last, 1);	// last one is dummy 'Choose...'
-		}
-		
-		for (i=0; i<mb.length; i++) {
-			if (mb[i].ticked) {
-				rowEntity.FutMat = mb[i].name;
-			}
-			mb[i].icon = '';
-		}
-		
-	    $scope.afterCellEditParamGrid(rowEntity);
-	}  
+					mb = rowEntity.modernBrowsers;
+					if (!rowEntity.isFutMatValid) {	// first set FutMat
+						last = mb.length - 1;
+						mb.splice(last, 1);	// last one is dummy 'Choose...'
+					}
+					
+					for (i=0; i<mb.length; i++) {
+						if (mb[i].ticked) {
+							rowEntity.FutMat = mb[i].name;
+						}
+						mb[i].icon = '';
+					}
+				    $scope.afterCellEditParamGrid(rowEntity);
+				}
 			},
 			enableHorizontalScrollbar: false, 
 			enableVerticalScrollbar: false,
@@ -884,14 +929,12 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			showColumnFooter : false,
 		    enableCellEditOnFocus: false,
 			columnDefs : [ 
-				{field : 'UL', headerCellClass: 'blue-header', width : '60', enableCellEdit : false}, 
-				{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '60',enableCellEdit : false}, 
-			    {field : 'Buyer', headerCellClass: 'blue-header', width : '80', enableCellEdit: false }, 
-			    {field : 'Seller', headerCellClass: 'blue-header', width : '80', enableCellEdit: false },
-				{field : 'Expiry', headerCellClass: 'blue-header',width : '80',enableCellEdit : false}, 
-				{field : 'Strike', headerCellClass: 'blue-header',width : '150',enableCellEdit : false}, 
-				{field : 'Multiplier', headerCellClass: 'blue-header',width : '100',enableCellEdit : false}, 
-				{field : 'Qty', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
+				{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit : false}, 
+				{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit : false}, 
+				{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
+				{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
+				{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
+				{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
 //					editableCellTemplate: '<div><input type="number" class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
 //			        cellTemplate: 'prompt.html',
 			        cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="row.entity.isQtyValid === false">error_outline</i>' 
@@ -900,8 +943,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //		        		+ '{{grid.appScope.myQty}}</div>',
 				}, 
 				{field : 'isQtyValid', visible: false},
-				{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '60',enableCellEdit : false}, 
-				{field : 'Delta', headerCellClass: 'blue-header',width : '60',enableCellEdit : true,
+				{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '*',enableCellEdit : false}, 
+				{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
 //					enableCellEditOnFocus: true,
 //			          editableCellTemplate: $scope.cellInputEditableTemplate,
 //			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="grid.appScope.param_isDeltaValid === false">error_outline</i>{{grid.appScope.myDelta}}</div>',
@@ -926,7 +969,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 ////			        ] 
 //			    },
 				{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
-			    {field : 'FutMat', headerCellClass: 'blue-header', width : '100',
+			    {field : 'FutMat', headerCellClass: 'blue-header', width : '*',
 			    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
 //		    		cellTemplate: '<div isteven-multi-select input-model="row.entity.modernBrowsers"' 
 			    		+ ' output-model="row.entity.outputBrowsers" button-label="icon name" item-label="name" '
@@ -934,6 +977,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
 			    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
 			    },
+			    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false }, 
+			    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false },
 			 ],
 			exporterMenuPdf : false,
 	};
@@ -1017,28 +1062,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			$scope.param_isFutMatValid = true;
 			rowEntity.isFutMatValid = true;
 			$scope.myFutMat = rowEntity.FutMat;
-			
-			mb = rowEntity.modernBrowsers;
-			for (i=0; i<mb.length; i++) {
-//				if (mb.ticked) {
-//					mb.icon = $scope.iconTemplate;
-//				}
-//				else {
-					mb[i].icon = '';
-//				}
-			}
 		}
 		else {
 			$scope.param_isFutMatValid = false;
 			rowEntity.isFutMatValid = false;
-			for (i=0; i<mb.length; i++) {
-				if (mb.ticked) {
-					mb[i].icon = $scope.iconTemplate;
-				}
-				else {
-					mb[i].icon = '';
-				}
-			}
 		}
 		
 		$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
@@ -1081,8 +1108,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return 'missing';
 				}
 			}, 
-			{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '100', enableCellEdit : false	}, 
-			{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '60', enableCellEdit : false,
+			{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '*', enableCellEdit : false	}, 
+			{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
 					if (!isNaN(val) && val > 0 && (val % 1 === 0))	// decimal
@@ -1090,24 +1117,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return 'missing';
 				}
 			}, 
-			{field : 'Buyer', headerCellClass: 'brown-header', width : '80',enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val)
-						return '';
-					return 'missing';
-				}
-			}, 
-			{field : 'Seller', headerCellClass: 'brown-header', width : '80',enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val)
-						return '';
-					return 'missing';
-				}
-			}, 
-			{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '80',enableCellEdit : false,}, 
-			{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '80', enableCellEdit : false,
+			{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '*',enableCellEdit : false,}, 
+			{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '*', enableCellEdit : false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
 					if (val)
@@ -1140,6 +1151,22 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
             {field : 'isValidate', headerCellClass: 'brown-header', displayName : 'isValidate', enableCellEdit : false, visible : false},
             {field : 'isEditable', headerCellClass: 'brown-header', displayName : 'isEditable', enableCellEdit : false, visible : false},
             {field : 'Multiplier', headerCellClass: 'brown-header', displayName : 'Multiplier',width : '*', enableCellEdit : false, visible : false},
+			{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val)
+						return '';
+					return 'missing';
+				}
+			}, 
+			{field : 'Seller', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val)
+						return '';
+					return 'missing';
+				}
+			},
 		],
 //		rowTemplate: '<div><div style="height: 100%; {\'background-color\': \'\'}" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }" ui-grid-cell></div></div>',
 //		exporterMenuPdf : false,
@@ -1209,332 +1236,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		 }
 	};
 
-//  	$scope.createLegs = function(ev, qty, delta, myFutExp) {
-	function createLegs(qty, delta, futExp) {
-		var myQty = qty;
-		var tokens = parseSymbol($scope.mySymbol);
-		// ["HSCEI", "JUN17", "9000/7000", "1X1.5", "PS", "191", "9850", "28"]
-		$scope.param_myData = [];
-		var data = []; // clear legs
-		var strat = tokens[4];
-		$scope.myStrat = strat;
-		var qty = [];
-		var ul = [];
-
-//		var expiry = $scope.myExpiry;
-		var strike = $scope.myStrike;
-		var multiplier = $scope.myMultiplier;
-		var ref = Number($scope.myRef);
-		var sides = getSides($scope.myMultiplier, $scope.mySide);
-		var instr = tokens[0];
-		
-
-		var multi = getMultiple(multiplier, strat);
-//		var strikes = tokens[2].split('/');
-		var strikes = getStrikes(multiplier, tokens[2], strat);
-		
-//		var expiry = tokens[1];
-		var maturities = getMaturities(multiplier, tokens[1], strat);
-		
-		switch (strat) {
-		case 'C': { // 'EC - European Call':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : false
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		// put strategy
-		case 'P' : { // - European Put': {
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : false
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'CL':  // 'ECL - European Call Ladder':
-		case 'CTL' : // - European Call Time Ladder':
-		case 'CFLY':  // butterfly
-		case 'CB':  // 'ECB - European Call Butterfly':
-		case 'CTB': { // 'ECTB - European Call Time Butterfly':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Side' : sides[2], 'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[3] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;			
-		}
-		case 'PL':  //'EPL - European Put Ladder':
-		case 'PTL' : // - European Put Time Ladder':
-		case 'PFLY':  // butterfly
-		case 'PB':  // 'EPB - European Put Butterfly':
-		case 'PTB': { // 'EPTB - European Put Time Butterfly':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Side' : sides[2], 'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[3] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;			
-		}
-		case 'CDOR':  // 'ECC - European Call Condor':
-		case 'CC':  // 'ECC - European Call Condor':
-		case 'CTC': { // 'ECC - European Call Time Condor':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Side' : sides[2], 'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false,  'isEditable' : true
-			};
-			$scope.param_myData[3] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Side' : sides[3], 'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[4] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'PC': 
-		case 'PDOR': //'EPC - European Put Condor':
-		case 'PTC': {//'EPC - European Put Time Condor':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'P', strikes[3], maturities[3]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Side' : sides[2], 'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[3] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Side' : sides[3], 'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[4] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'CS':  // 'ECDIAG - European Call Diagonal':
-		case 'CDIAG':  // 'ECDIAG - European Call Diagonal':
-		case 'CR':  // 'ECR - European Call Ratio':
-		case 'CTR':  // 'ECTR - European Call Time Ratio':
-		case 'CTS': { // 'ECTS - European Call Time Spread':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'PS':  // 'EPS - European Put Spread':
-		case 'PDIAG':  // 'EPS - European Put Spread':
-		case 'PR':  // 'ECR - European Put Ratio':
-		case 'PTR':  // 'ECTR - European Put Time Ratio':
-		case 'PTS': { // 'ECTS - European Put Time Spread':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-
-		case 'IF':  // - European Iron Fly': 
-		case 'IFR' :  // - European Iron Fly Ratio':
-		case 'SDTS' : {// - European Straddle Time Spread'
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Side' : sides[2], 'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[3] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Side' : sides[3], 'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[4] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'SG' :  //} - European Strangle':
-		case 'RR' :  {// - European Risk Reversal':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'SD':  //} - European Straddle':
-		case 'S' :  // - European Synthetic Call Over':
-		case 'SPO': { // - European Synthetic Put Over':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		case 'SPRD' : { // - Spread'
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
-			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Side' : sides[0], 'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[1] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Side' : sides[1], 'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[2] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Side' : sides[2], 'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-			};
-			$scope.param_myData[3] = {
-				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Side' : sides[3], 'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-			};
-			$scope.param_myData[4] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Side' : '', 'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-			};
-			break;
-		}
-		//		'ESGAC - European Strangle VS Call',
-		//		'ESGAP - European Strangle VS Put',
-		//		'ESGTS - European Strangle Time Spread',
-		//		'ETRR - European Time Risk Reversal',
-		//		'ECSAC - European Call Spread VS Call',
-		//		'ECSAP - European Call Spread Against Put',
-		//		'ECSAPR - European Call Spread VS Put (Ratio',
-		//		'ECSAPPO - European Call Spread VS Put - Put Over',
-		//		'ECSPS - European Call Spread VS Put Spread',
-		//		'ECSTR - European Call Spread Time Ratio',
-		//		'ECSTS - European Call Spread Time Spread',
-		//		'ECTSAP - European Call Time Spread Against Put',
-		//		'EPSAC - European Put Spread Against Call',
-		//		'EPSACR - European Put Spread VS Call (Ratio',
-		//		'EPSACCO - European Put Spread VS Call - Call Over',
-		//		'EPSAP - European Put Spread VS Put',
-		//		'EPSTUP - European Put Stupid',
-		//		'EPTSAC - European Put Time Spread Against Call',
-		//		'ESDAC - European Straddle VS Call',
-		//		'ESDAP - European Straddle VS Put',
-		//		'FWDB - Forward Butterfly',
-
-		default:
-			alert('no matching');
-			break;
-		}
-	};
 }]);
 
 
@@ -1705,11 +1406,9 @@ function getDefaultMultiplier(deriv) {
 	case 'IFR': // - European Iron Fly Ratio':
 		return '-1X1X1X-1';
 	case 'RR': // - European Risk Reversal':
-		return '1X-1';
 	case 'S':// - European Synthetic Call Over':
-		return '1X-1';
 	case 'SPO':// - European Synthetic Put Over':
-		return '-1X1';
+		return '1X-1';
 	case 'SD': // - European Straddle':
 		return '1X1';
 	case 'SDTS': // - European Straddle Time Spread':
@@ -2117,20 +1816,26 @@ function parseSymbol(mySymbol)
 	multi[0] = ul;
 	multi[1] = expiry;
 	multi[2] = strike;
-	multi[4] = strat;
 
 	j = 5;
 	while (j < MAX) {
 		value = tokens[i++];
 		if (value === 'TRADES' || value === 'REF' || value === 'DELTA') {
 		} else if ((value.indexOf('(') >=0) && (value.indexOf(')') > 0)) {
-			multiplier = reverse(multiplier);
+			// idea is correct, but display is confusing
+//			if (strat === 'CB') {
+				multiplier = reverse(multiplier);
+//			}
+//			else {
+//				strat += '_Reverse';
+//			}
 		}
 		else {
 			multi[j++] = value;
 		}
 	}
 	multi[3] = multiplier;
+	multi[4] = strat;
 	
 	return multi;
 }

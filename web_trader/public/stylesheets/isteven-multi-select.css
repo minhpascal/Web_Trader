@@ -73,7 +73,7 @@
 /* labels on the button */
 .multiSelect .buttonLabel {
     display: inline-block;
-    padding: 0px 0px 0px 0px; 
+    padding: 2px 0px 0px 0px; 
 }
 
 /* downward pointing arrow */
