@@ -193,80 +193,383 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	
 	$scope.showCrossDetail_test = function(ev, trType, symbol, company, cpCompany) {
 		var str = [];
-		str.push('HSCEI MAR17/JUN17 9800 ROLL 191 TRADES REF 9850');
-		str.push('HSCEI DEC17 10400 C 191 TRADES REF 9850');
-		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (10000)');
-		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850');
-		str.push('HSCEI JUN17 8000/9000/10000/11000 CDOR 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (MAR17)');
-		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850');
-		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850');
-		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850');
-		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850');
-		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850');
-		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850');
-		str.push('HSI JUN17 19000 P 191 TRADES REF 9850');
-		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850');
-		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850');
-		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850');
-		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850');
-		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850');
-		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850');
-		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850');
-		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850');
-		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850');
-		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (C)');
-		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (C)');
-		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850');
-		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850');
+//		// P
+//		str.push('HSI JUN17 19000 P 191 TRADES REF 9850');
+//		// PB
+//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (11000)');
+//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850');
+//		// PC
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (1100)');
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (8000)');
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850');
+//		// PDIAG
+//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (7000)');
+//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850');
+//		// PR
+//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (C)');
+//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850');
+//		// PS
+//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (8600)');
+//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850');
+//		// PTB
+//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (7800)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850');
+//		// PTC
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (8000)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850');
+//		// PL
+//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (8000)');
+//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850');
+//		// PTL
+//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (9200)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850');
+//		// PTR
+//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (DEC18)');
+//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (20000)');
+//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (C)');
+//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850');
+//		// PTS
+//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (JUN19)');
+//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850');
+//		
+//		
+//		// SPRD
+//		str.push('HSCEI MAR17/JUN17 9800 ROLL 191 TRADES REF 9850');
+//		str.push('HSCEI DEC17 10400 C 191 TRADES REF 9850');
+//		
+//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (11000)');
+//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850');
+//		
+//		str.push('HSCEI JUN17 8000/9000/10000/11000 CDOR 191 TRADES REF 9850');
+//		// CDIAG
+//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (12000)');
+//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (12600)');
+//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850');
+//		// CR
+//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (13000)');
+//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (12000)');
+//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850');
+//		// CS
+//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (13800)');
+//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (12000)');
+//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850');
+//		// CTB
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (10600)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850');
+//		// CTC
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850');
+//		// CL
+//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (11000)');
+//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (9000)');
+//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850');
+//		// CTL
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (JUN17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (10600)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850');
+//		// CTR
+//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850');
+//		// CTS
+//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (MAR17)');
+//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (10400)');
+//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850');
+//		// IF
+//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (8000)');
+//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (12000)');
+//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850');
+//		// IFR
+//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (8000)');
+//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (12000)');
+//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (10000)');
+//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850');
+//		// RR
+//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850');
+//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (SEP17)');
+//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (19000)');
+//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (C)');
+//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (25000)');
+//		// SYNTH
+//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (C)');
+//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (DEC17)');
+//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (9800)');
+//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850');
+//		// SD
+//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (DEC18)');
+//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (23000)');
+//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (C)');
+//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850');
+		// SDTS
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (MAR17)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (DEC17)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (10000)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (C)');
 		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850');
+		// SG
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (DEC17)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (8000)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (12000)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (C)');
 		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850');
 		
 		
 		var res = [];
-		res.push(['HSCEI','MAR17/JUN17','9800','-1X1X1X-1','SPRD',191,9850]);
-		res.push(['HSCEI','DEC17','10400','1','C',191,9850]);
-		res.push(['HSCEI','MAR17','9000/10000/11000','-1X2X-1','CB',191,9850]);
-		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
-		res.push(['HSCEI','JUN17','8000/9000/10000/11000','1X-1X-1X1','CC',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
-		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
-		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
-		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
-		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
-		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
-		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
-		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
-		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
-		res.push(['HSI','JUN17','19000','1','P',191,9850]);
-		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
-		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
-		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
-		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
-		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
-		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
-		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
-		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
-		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
-		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
-		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
-		res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
-		res.push(['HSCEI','DEC17','9800','-1X1','S',191,9850]);
-		res.push(['HSCEI','DEC17','9800','1X-1','SPO',191,9850]);
-		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+//		res.push(['HSI','JUN17','19000','1','P',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17','11000/10000/9000','-1X2X-1','PB',191,9850]);
+//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+//		
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','-1X1X1X-1','PC',191,9850]);
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','-1X1X1X-1','PC',191,9850]);
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/DEC17','7000/9000','1X-1','PDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','7000/9000','1X-1','PDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+//		
+//		res.push(['HSCEI','DEC17','10000/9000','-1X1.5','PR',191,9850]);
+//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+//		
+//		res.push(['HSCEI','DEC17','9000/8600','-1X1','PS',191,9850]);
+//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','-1X2X-1','PTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','-1X1X1X-1','PTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','-1X1X1X-1','PTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+//		
+//		res.push(['HSCEI','SEP17','10000/9000/8000','-1X1X1','PL',191,9850]);
+//		res.push(['HSCEI','SEP17','10000/9000/8000','-1X1X1','PL',191,9850]);
+//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','1X1X-1','PTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','1X1X-1','PTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+//		
+//		res.push(['HSI','DEC17/DEC18','20000','2X-1','PTR',191,9850]);
+//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+//		
+//		res.push(['HSCEI','JUN17/JUN19','9000','1X-1','PTS',191,9850]);
+//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17','9800','-1X1X1X-1','SPRD',191,9850]);
+//		res.push(['HSCEI','DEC17','10400','1','C',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17','9000/10000/11000','-1X2X-1','CB',191,9850]);
+//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+//		
+//		res.push(['HSCEI','JUN17','8000/9000/10000/11000','1X-1X-1X1','CC',191,9850]);
+//
+//		res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+//		
+//		res.push(['HSI','SEP17','12000/13000','-1X2','CR',191,9850]);
+//		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+//		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+//		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+//		
+//		res.push(['HSI','DEC17','12000/13800','-1X1','CS',191,9850]);
+//		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+//		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+//		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X2X-1','CTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','-1X1X1X-1','CTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','-1X1X1X-1','CTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+//		
+//		res.push(['HSCEI','SEP17','9000/10000/11000','-1X1X1','CL',191,9850]);
+//		res.push(['HSCEI','SEP17','9000/10000/11000','-1X1X1','CL',191,9850]);
+//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X1X-1','CTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X1X-1','CTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/DEC17','10000','2X-1','CTR',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+//		
+//		res.push(['HSCEI','MAR17/DEC17','10400','1X-1','CTS',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+//		
+//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1X-1X1','IF',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1X-1X1','IF',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+//		
+//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1.5X-1.5X1','IFR',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1.5X-1.5X1','IFR',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+//		
+//		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+//		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+//		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+//		res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
+//		res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
+//		
+//		res.push(['HSCEI','DEC17','9800','-1X1','SYNTH',191,9850]);
+//		res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
+//		res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
+//		res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
+//		
+//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+		
+		res.push(['HSCEI','MAR17/DEC17','10000','1X1X-1X-1','SDTS',191,9850]);
 		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
 		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
 
 
@@ -287,22 +590,22 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				alert(s + ',' + myInstr + ',' + val[0]);
 			}
 			else if (val[1] !== myExpiry) {
-				alert('myExpiry' + ',' + s + ',' + myExpiry + ',' + val[1]);
+				alert(s + ',myExpiry=' + myExpiry + ',' + val[1]);
 			}
 			else if (val[2] !== myStrike) {
-				alert('myStrike' + ',' + s + ',' + myStrike + ',' + val[2]);
+				alert(s + ',myStrike=' + myStrike + ',' + val[2]);
 			}
 			else if (val[3] !== myMultiplier) {
-				alert('myMultiplier' + ',' + s + ',' + myMultiplier + ',' + val[3]);
+				alert(s + ',myMultiplier=' + myMultiplier + ',' + val[3]);
 			}
 			else if (val[4] !== myStrat) {
-				alert('myStrat' + ',' + s + ',' + myStrat + ',' + val[4]);
+				alert(s + ',myStrat=' + myStrat + ',' + val[4]);
 			}
 			else if (val[5] !== myPremium) {
-				alert('myPremium' + ',' + s + ',' + myPremium + ',' + val[5]);
+				alert(s + ',myPremium=' + myPremium + ',' + val[5]);
 			}
 			else if (val[6] !== myRef) {
-				alert('myRef' + ',' + s + ',' + myRef + ',' + val[6]);
+				alert(s + ',myRef=' + myRef + ',' + val[6]);
 			}
 			else {
 //				alert(s + 'OK');
@@ -710,9 +1013,10 @@ try {
 //			};
 //			break;
 //		}
-		case 'S' : // - European Synthetic Call Over': 
+//		case 'S' : // - European Synthetic Call Over': 
 		case 'SD':  //} - European Straddle':
-		case 'SPO': { // - European Synthetic Put Over':
+//		case 'SPO':  // - European Synthetic Put Over':
+		case 'SYNTH': { // - European Synthetic Put Over':
 			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
 			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
 			$scope.param_myData[0] = {
@@ -1530,8 +1834,9 @@ function getDefaultMultiplier(deriv) {
 	case 'IFR': // - European Iron Fly Ratio':
 		return '-1X1X1X-1';
 	case 'RR': // - European Risk Reversal':
-	case 'S':// - European Synthetic Call Over':	// special reverse of 'SPO' -> S   
-	case 'SPO':// - European Synthetic Put Over':
+//	case 'S':// - European Synthetic Call Over':	// special reverse of 'SPO' -> S   
+//	case 'SPO':// - European Synthetic Put Over':
+	case 'SYNTH':
 		return '1X-1';
 	case 'SD': // - European Straddle':
 		return '1X1';
@@ -1595,7 +1900,8 @@ function getMultiplier(unsignedTerm, strat) {
 	case 'PR': // - European Put Ratio':
 	case 'PS': // put spread
 	case 'RR': // - European Risk Reversal':
-	case 'SPO':// - European Synthetic Put Over':
+//	case 'SPO':// - European Synthetic Put Over':
+	case 'SYNTH':// - European Synthetic Put Over':
 		return tokens[0] + 'X-' + tokens[1];
 	case 'CTR' : // European Call Time Ratio':
 	case 'CTS': // - European Call Time Spread':
@@ -1603,7 +1909,7 @@ function getMultiplier(unsignedTerm, strat) {
 	case 'PTR' : // - European Put Time Ratio':
 	case 'PTS': // - European Put Time Spread':
 	case 'PDIAG':
-	case 'S':// - European Synthetic Call Over':
+//	case 'S':// - European Synthetic Call Over':
 		return '-' + tokens[0] + 'X' + tokens[1];
 	case 'CTB': // - European Call Time Butterfly':
 	case 'CFLY':  // butterfly
@@ -1859,12 +2165,12 @@ function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, ha
 		else 
 			return 'IF';
 	}
-	case 'SYNTH' : {
-		if (hasReverse)
-			return 'S';
-		else 
-			return 'SPO';
-	}
+//	case 'SYNTH' : {
+//		if (hasReverse)
+//			return 'S';
+//		else 
+//			return 'SPO';
+//	}
 	case 'STRD' : {
 		if (is_n_expiry)
 			return 'SDTS';
@@ -1882,58 +2188,84 @@ function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, ha
 	}
 }
 
+function isLegNegative(items, multipliers, sReverse) {
+	if (items.length <= 1)
+		return false;
+	
+	for (var i=0; i<items.length; i++) {
+		if (sReverse === items[i] && Number(multipliers[i]) < 0)
+			return true;
+	}
+	return false;
+}
+
 function deduceReverse(common_strat, expiry, strike, multiplier, sReverse) {
 	try {
 		switch (common_strat) {
+		case 'CDOR' : 
+		case 'CFLY' : 
+		case 'CLDR' :
 		case 'CS' :
-		case 'PS' : 
+		case 'PDOR' : 
+		case 'PFLY' : 
+		case 'PLDR' : 
+		case 'PS' :
+		case 'ROLL' : 
 		case 'STRG' : 
-		case 'ROLL' : {
+//		{
+//			var strikes = strike.split('/');
+//			var multipliers = multiplier.split('X');
+//			var isReverse = isLegNegative(strikes, multipliers, sReverse);
+//			if (isReverse)
+//				return true;
+//			var expiries = expiry.split('/');
+//			var isReverse = isLegNegative(expiries, multipliers, sReverse);
+//			if (isReverse)
+//				return true;
+//			break;
+//		}
+		{
 			var strikes = strike.split('/');
-			if (strikes.length > 1 && sReverse === strikes[0])
+			var multipliers = multiplier.split('X');
+			var isNeg = isLegNegative(strikes, multipliers, sReverse);
+			if (isNeg)
 				return true;
 			var expiries = expiry.split('/');
+			var isNeg = isLegNegative(expiries, multipliers, sReverse);
+			if (isNeg)
+				return true;
+			break;
+		}
+		case 'STRD' : {
+			var expiries = expiry.split('/');
+			// negative legs
 			if (expiries.length > 1 && sReverse === expiries[0])
 				return true;
 			break;
 		}
-		case 'CFLY' : 
-		case 'PFLY' : 
-		case 'CLDR' : 
-		case 'PLDR' : 
 		case 'IFLY' : {
 			var strikes = strike.split('/');
-			if (strikes.length > 1 && sReverse === strikes[1])
-				return true;
-			var expiries = expiry.split('/');
-			if (expiries.length > 1 && sReverse === expiries[1])
+			// negative legs
+			if (sReverse === strikes[0] || sReverse === strikes[2])
 				return true;
 			break;
 		}
-		case 'CDIAG' : {
-			var expiries = expiry.split('/');
+		case 'RR' :
+		case 'SYNTH': 
+		{
 			var strikes = strike.split('/');
-			if (sReverse === expiries[0] || sReverse === strikes[0])
+			var multipliers = multiplier.split('X');
+			var isNeg = isLegNegative(strikes, multipliers, sReverse);
+			if (isNeg)
 				return true;
-		}
-		case 'SYNTH' : 
-		case 'RR' : {
-			return true;
-		}
-		case 'STRD' : {
 			var expiries = expiry.split('/');
-			if (expiries.length > 1) {	// SDTS
-				if (sReverse === expiries[0])
-					return true;
-			}
-			else {	// SD
+			var isNeg = isLegNegative(expiries, multipliers, sReverse);
+			if (isNeg)
 				return true;
-			}
+			if (sReverse === 'C')
+				return true;
 			break;
 		}
-		// no reverse
-		case 'CDOR' : 
-		case 'PDOR' : 
 		default: {
 			return false;
 		}
@@ -2014,7 +2346,7 @@ function parseSymbol(mySymbol)
 		if (value === 'TRADES' || value === 'REF' || value === 'DELTA') {
 		} 
 		else if ((value.indexOf('(') >=0) && (value.indexOf(')') > 0)) {
-			var sReverse = value.replace('(','').replace(')','');
+			var sReverse = value.replace('(','').replace(')','').toUpperCase();
 			isReverse = deduceReverse(common_strat, expiry, strike, multiplier, sReverse);
 		}
 		else {
@@ -2041,3 +2373,62 @@ function reverse(multiplier) {
 	s = str.substring(0, str.length-1);
 	return s;
 }
+
+//function getDefaultLegs(common_strat) {
+//	try {
+//		switch (common_strat) {
+//		case 'CS' :
+//			return 'CXC';
+//		case 'PS' : 
+//			return 'PXP';
+//		case 'CFLY' :
+//		case 'CLDR' : 
+//			return 'CXCXC';
+//		case 'PFLY' : 
+//		case 'PLDR' : 
+//			return 'PXPXP';
+//			
+//		case 'IFLY' : {	//no
+//			return 'PXPXCXC';
+//			
+//		case 'STRG' : 
+//		case 'ROLL' : 	// no
+//			return 'CXPXCXP';
+//
+//
+//		case 'CDIAG' : {
+//			var expiries = expiry.split('/');
+//			var strikes = strike.split('/');
+//			if (sReverse === expiries[0] || sReverse === strikes[0])
+//				return true;
+//		}
+//		case 'SYNTH' : 
+//		case 'RR' : {
+//			return true;
+//		}
+//		case 'STRD' : {
+//			var expiries = expiry.split('/');
+//			if (expiries.length > 1) {	// SDTS
+//				if (sReverse === expiries[0])
+//					return true;
+//			}
+//			else {	// SD
+//				return true;
+//			}
+//			break;
+//		}
+//		// no reverse
+//		case 'CDOR' : 
+//			return 'CXCXCXC';
+//		case 'PDOR' : 
+//			return 'PXPXPXP';
+//		default: {
+//			return false;
+//		}
+//	}
+//	}
+//	catch (err) {
+//		alert('deduceReverse error: ' + err.message);
+//	}
+//	return false;
+//}
