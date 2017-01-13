@@ -79,7 +79,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //        $scope.message = data.id + ',' + data.refId + ',' + data.status;
         var refId = Number(data.message.RefId);
         var id = Number(data.message.Id);
-        for (i=0; i<$scope.myOtData.length; i++) {
+        for (var i=0; i<$scope.myOtData.length; i++) {
         	if ($scope.myOtData[i].RefId === refId) {
         		$scope.myOtData[i].Id = id;
         		$scope.myOtData[i].Status = data.message.Status;
@@ -135,7 +135,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$http.get('api/getTradeReport').then(function(result) {
 //			console.log(result);
 			v = result.data.data;
-			for (i=0; i<v.length; i++) {
+			for (var i=0; i<v.length; i++) {
 				data = {
 						'Id' : v[i].Id,
 						'RefId' : v[i].RefId,
@@ -191,6 +191,128 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$mdDialog.cancel();
 	}
 	
+	$scope.showCrossDetail_unittest = function(ev, trType, symbol, company, cpCompany) {
+		var str = [];
+		str.push('HSCEI MAR17/JUN17 9800 ROLL 191 TRADES REF 9850');
+		str.push('HSCEI DEC17 10400 C 191 TRADES REF 9850');
+		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (10000)');
+		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850');
+		str.push('HSCEI JUN17 8000/9000/10000/11000 CDOR 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (MAR17)');
+		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850');
+		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850');
+		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850');
+		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850');
+		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850');
+		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850');
+		str.push('HSI JUN17 19000 P 191 TRADES REF 9850');
+		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850');
+		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850');
+		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850');
+		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850');
+		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850');
+		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850');
+		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850');
+		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850');
+		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (C)');
+		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (C)');
+		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850');
+		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850');
+		
+		
+		var res = [];
+		res.push(['HSCEI','MAR17/JUN17','9800','-1X1X1X-1','SPRD',191,9850]);
+		res.push(['HSCEI','DEC17','10400','1','C',191,9850]);
+		res.push(['HSCEI','MAR17','9000/10000/11000','-1X2X-1','CB',191,9850]);
+		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+		res.push(['HSCEI','JUN17','8000/9000/10000/11000','1X-1X-1X1','CC',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+		res.push(['HSI','JUN17','19000','1','P',191,9850]);
+		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+		res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
+		res.push(['HSCEI','DEC17','9800','-1X1','S',191,9850]);
+		res.push(['HSCEI','DEC17','9800','1X-1','SPO',191,9850]);
+		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+
+
+		for (var i=0; i<str.length; i++) {
+			var isCorrect = true;
+			var s = str[i].replace(/ +(?= )/g,'');
+			try {
+			var tokens = parseSymbol(s);
+			var myInstr = tokens[0];
+			var myExpiry = tokens[1];
+			var myStrike = tokens[2];
+			var myMultiplier = tokens[3];
+			var myStrat = tokens[4];
+			var myPremium = Number(tokens[5]);
+			var myRef = Number(tokens[6].replace(',', ''));
+			var val = res[i];
+			if (val[0] !== myInstr) {
+				alert(s + ',' + myInstr + ',' + val[0]);
+			}
+			else if (val[1] !== myExpiry) {
+				alert('myExpiry' + ',' + s + ',' + myExpiry + ',' + val[1]);
+			}
+			else if (val[2] !== myStrike) {
+				alert('myStrike' + ',' + s + ',' + myStrike + ',' + val[2]);
+			}
+			else if (val[3] !== myMultiplier) {
+				alert('myMultiplier' + ',' + s + ',' + myMultiplier + ',' + val[3]);
+			}
+			else if (val[4] !== myStrat) {
+				alert('myStrat' + ',' + s + ',' + myStrat + ',' + val[4]);
+			}
+			else if (val[5] !== myPremium) {
+				alert('myPremium' + ',' + s + ',' + myPremium + ',' + val[5]);
+			}
+			else if (val[6] !== myRef) {
+				alert('myRef' + ',' + s + ',' + myRef + ',' + val[6]);
+			}
+			else {
+//				alert(s + 'OK');
+			}
+			}catch (err) {
+				alert(err.message);
+			}
+		}
+	} 
+	
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
 try {
@@ -201,7 +323,9 @@ try {
 //		$scope.myQty = 100;
 //		$scope.myFutMat = 'MAR17'; 
 		
-		var tokens = parseSymbol(symbol);
+		str = symbol.replace(/ +(?= )/g,'');
+		
+		var tokens = parseSymbol(str);
 		$scope.myInstr = tokens[0];
 		$scope.myExpiry = tokens[1];
 		$scope.myStrike = tokens[2];
@@ -211,7 +335,7 @@ try {
 		$scope.myRef = Number(tokens[6].replace(',', ''));
 		$scope.myCompany = company;
 		$scope.myCpCompany = cpCompany;
-		$scope.mySymbol = symbol;
+		$scope.mySymbol = str;
 		$scope.myTrType = trType;
 //		$scope.mySide = !side ? SIDE.BUY : side;
 		$scope.myUl  = $scope.myInstr;
@@ -910,7 +1034,7 @@ catch (err) {
 						mb.splice(last, 1);	// last one is dummy 'Choose...'
 					}
 					
-					for (i=0; i<mb.length; i++) {
+					for (var i=0; i<mb.length; i++) {
 						if (mb[i].ticked) {
 							rowEntity.FutMat = mb[i].name;
 						}
@@ -997,7 +1121,7 @@ catch (err) {
 			
 			// update legs qty
 			var hasDecimal = false;
-			for (i=0; i<tokens.length; i++) {
+			for (var i=0; i<tokens.length; i++) {
 				var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
 				$scope.param_myData[i].Qty = legQty;
 				if ((legQty % 1 !== 0)) {
@@ -1017,7 +1141,7 @@ catch (err) {
 		else {
 			$scope.param_isQtyValid = false;
 			$scope.myQty = rowEntity.Qty;
-			for (i=0; i<tokens.length; i++) {
+			for (var i=0; i<tokens.length; i++) {
 				$scope.param_myData[i].Qty = undefined;
 			}
 		}
@@ -1241,7 +1365,7 @@ catch (err) {
 
 function calRemainPrice(params, myMultiplier, myPremium) {
 	sum = 0;
-	for (i=0; i<params.length; i++) 
+	for (var i=0; i<params.length; i++) 
 	{
 //		var sign = params[i].side === 'Sell' ? -1 : 1; 
 		sum += Number(params[i].price) * Number(params[i].multiplier);
@@ -1406,7 +1530,7 @@ function getDefaultMultiplier(deriv) {
 	case 'IFR': // - European Iron Fly Ratio':
 		return '-1X1X1X-1';
 	case 'RR': // - European Risk Reversal':
-	case 'S':// - European Synthetic Call Over':
+	case 'S':// - European Synthetic Call Over':	// special reverse of 'SPO' -> S   
 	case 'SPO':// - European Synthetic Put Over':
 		return '1X-1';
 	case 'SD': // - European Straddle':
@@ -1614,12 +1738,12 @@ function getMaturities(term, sExpiry, strat) {
 		}
 		default: {
 			if (sExpiry.indexOf('/') > 0) {
-				for (i=0; i<mat.length; i++) {
+				for (var i=0; i<mat.length; i++) {
 					ary.push(mat[i]);
 				}	
 			}
 			else {
-				for (i=0; i<legs.length; i++) {
+				for (var i=0; i<legs.length; i++) {
 					ary.push(sExpiry);
 				}
 			}
@@ -1646,12 +1770,12 @@ function getStrikes(term, sStrike, strat) {
 		}
 		default: {
 			if (sStrike.indexOf('/') > 0) {
-				for (i=0; i<strikes.length; i++) {
+				for (var i=0; i<strikes.length; i++) {
 					ary.push(strikes[i]);
 				}	
 			}
 			else {
-				for (i=0; i<legs.length; i++) {
+				for (var i=0; i<legs.length; i++) {
 					ary.push(sStrike);
 				}
 			}
@@ -1779,6 +1903,10 @@ function parseSymbol(mySymbol)
 	for (j = 0; j < MAX; j++) {
 		multi[j] = 1;
 	}
+
+	var isReverse = false;
+	if ((mySymbol.indexOf('(') >=0) && (mySymbol.indexOf(')') > 0))
+		isReverse = true;
 	
 	var tokens = mySymbol.toUpperCase().split(' ');
 	var i = 0;
@@ -1802,13 +1930,13 @@ function parseSymbol(mySymbol)
 			&& tokens[3].match(/^[0-9]+/)) 
 	{
 		var common_strat = tokens[4];	// i = 4
-		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, true);
+		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, true, isReverse);
 		multiplier = getMultiplier(tokens[3], strat);	// ( multiplier )	// i = 3
 		i = 5;
 	} else {
 		// default
 		var common_strat = tokens[3];	// i = 3
-		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, false);
+		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, false, isReverse);
 		multiplier = getDefaultMultiplier(strat);
 		i = 4;
 	}
@@ -1818,23 +1946,22 @@ function parseSymbol(mySymbol)
 	multi[2] = strike;
 
 	j = 5;
-	while (j < MAX) {
+	while (i < tokens.length) {
 		value = tokens[i++];
 		if (value === 'TRADES' || value === 'REF' || value === 'DELTA') {
-		} else if ((value.indexOf('(') >=0) && (value.indexOf(')') > 0)) {
-			// idea is correct, but display is confusing
-//			if (strat === 'CB') {
-				multiplier = reverse(multiplier);
-//			}
-//			else {
-//				strat += '_Reverse';
-//			}
+		} 
+		else if ((value.indexOf('(') >=0) && (value.indexOf(')') > 0)) {
+//			multiplier = reverse(multiplier);
 		}
 		else {
-			multi[j++] = value;
+			if (j < MAX)
+				multi[j++] = value;
+			else {
+				alert('unexpected: ' + value);
+			}
 		}
 	}
-	multi[3] = multiplier;
+	multi[3] = isReverse ? reverse(multiplier) : multiplier;
 	multi[4] = strat;
 	
 	return multi;
@@ -1844,7 +1971,7 @@ function reverse(multiplier) {
 	var tokens = multiplier.split('X');
 	var new_tokens = [];
 	var str = "";
-	for (i=0; i<tokens.length; i++) {
+	for (var i=0; i<tokens.length; i++) {
 		str += (Number(tokens[i]) * -1) + "X";
 	}
 	s = str.substring(0, str.length-1);

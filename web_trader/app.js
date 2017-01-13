@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var log4js = require('log4js');
+var l4jLogger = log4js.getLogger('PipelineVentilator');
+
 var routes = require('./routes/index');
 var r_cross = require('./routes/cross');
 var r_test = require('./routes/test');

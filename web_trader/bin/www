@@ -9,6 +9,9 @@ var debug = require('debug')('web_trader:server');
 var http = require('http');
 var pjson = require('../package.json');
 
+var log4js = require('log4js');
+var logger = log4js.getLogger('www');
+
 //import object
 var BroadcastService = require('../controllers/BroadcastService');
 var nClients = 0;
@@ -51,7 +54,7 @@ server.on('connection', function(socket) {
 //  });
 	nClients++;
 	app.set('nClients', nClients);
-	console.log('client connect');
+	logger.info('client connect, nClients=' + nClients);
 //	app.onConnect();
 	socket.emit('someEvent', 'Got a message!');
 	
@@ -64,7 +67,7 @@ server.on('disconnect', function(socket) {
 //  });
 	nClients--;
 	app.set('nClients', nClients);
-	console.log('client disconnect');
+	logger.info('client disconnect, nClient=' + nClients);
 //	app.onDisconnect();
 //	socket.emit('serverMessage', 'Got a message!');
 //	socket.emit('data', {data: app.get('map').values()});
@@ -106,11 +109,11 @@ function onError(error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      logger.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      logger.error(bind + ' is already in use');
       process.exit(1);
       break;
     default:
@@ -127,5 +130,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  logger.debug('Listening on ' + bind);
 }
