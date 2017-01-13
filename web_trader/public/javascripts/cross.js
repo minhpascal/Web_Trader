@@ -191,7 +191,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$mdDialog.cancel();
 	}
 	
-	$scope.showCrossDetail_unittest = function(ev, trType, symbol, company, cpCompany) {
+	$scope.showCrossDetail_test = function(ev, trType, symbol, company, cpCompany) {
 		var str = [];
 		str.push('HSCEI MAR17/JUN17 9800 ROLL 191 TRADES REF 9850');
 		str.push('HSCEI DEC17 10400 C 191 TRADES REF 9850');
@@ -1785,7 +1785,7 @@ function getStrikes(term, sStrike, strat) {
 	return ary;
 }
 
-function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, isReverse) {
+function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, hasReverse) {
 	switch (common_strat) {
 	case 'CS' : {
 		if (is_n_expiry)
@@ -1860,7 +1860,7 @@ function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, is
 			return 'IF';
 	}
 	case 'SYNTH' : {
-		if (isReverse)
+		if (hasReverse)
 			return 'S';
 		else 
 			return 'SPO';
@@ -1882,6 +1882,69 @@ function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, is
 	}
 }
 
+function deduceReverse(common_strat, expiry, strike, multiplier, sReverse) {
+	try {
+		switch (common_strat) {
+		case 'CS' :
+		case 'PS' : 
+		case 'STRG' : 
+		case 'ROLL' : {
+			var strikes = strike.split('/');
+			if (strikes.length > 1 && sReverse === strikes[0])
+				return true;
+			var expiries = expiry.split('/');
+			if (expiries.length > 1 && sReverse === expiries[0])
+				return true;
+			break;
+		}
+		case 'CFLY' : 
+		case 'PFLY' : 
+		case 'CLDR' : 
+		case 'PLDR' : 
+		case 'IFLY' : {
+			var strikes = strike.split('/');
+			if (strikes.length > 1 && sReverse === strikes[1])
+				return true;
+			var expiries = expiry.split('/');
+			if (expiries.length > 1 && sReverse === expiries[1])
+				return true;
+			break;
+		}
+		case 'CDIAG' : {
+			var expiries = expiry.split('/');
+			var strikes = strike.split('/');
+			if (sReverse === expiries[0] || sReverse === strikes[0])
+				return true;
+		}
+		case 'SYNTH' : 
+		case 'RR' : {
+			return true;
+		}
+		case 'STRD' : {
+			var expiries = expiry.split('/');
+			if (expiries.length > 1) {	// SDTS
+				if (sReverse === expiries[0])
+					return true;
+			}
+			else {	// SD
+				return true;
+			}
+			break;
+		}
+		// no reverse
+		case 'CDOR' : 
+		case 'PDOR' : 
+		default: {
+			return false;
+		}
+	}
+	}
+	catch (err) {
+		alert('deduceReverse error: ' + err.message);
+	}
+	return false;
+}
+
 function parseSymbol(mySymbol) 
 {
 	MAX = 7;	// no delta
@@ -1898,20 +1961,20 @@ function parseSymbol(mySymbol)
 	var strike;
 	var multiplier;
 	var strat;
+	var common_strat;
 	
 	var multi = [];
 	for (j = 0; j < MAX; j++) {
 		multi[j] = 1;
 	}
 
-	var isReverse = false;
-	if ((mySymbol.indexOf('(') >=0) && (mySymbol.indexOf(')') > 0))
-		isReverse = true;
-	
 	var tokens = mySymbol.toUpperCase().split(' ');
 	var i = 0;
 //	multi[0] = tokens[i++];	// UL
 	ul = tokens[0];	// UL	, i = 0
+	
+	var isReverse = false;
+	var hasReverseSign = mySymbol.indexOf('(') >=0 && mySymbol.indexOf(')') > 0;
 	
 	expiry = tokens[1];	// Expiry	, i = 1	
 	var is_n_expiry = false;
@@ -1929,14 +1992,14 @@ function parseSymbol(mySymbol)
 	if (tokens[3].indexOf('X') > -1
 			&& tokens[3].match(/^[0-9]+/)) 
 	{
-		var common_strat = tokens[4];	// i = 4
-		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, true, isReverse);
+		common_strat = tokens[4];	// i = 4
+		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, true, hasReverseSign);
 		multiplier = getMultiplier(tokens[3], strat);	// ( multiplier )	// i = 3
 		i = 5;
 	} else {
 		// default
-		var common_strat = tokens[3];	// i = 3
-		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, false, isReverse);
+		common_strat = tokens[3];	// i = 3
+		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, false, hasReverseSign);
 		multiplier = getDefaultMultiplier(strat);
 		i = 4;
 	}
@@ -1951,7 +2014,8 @@ function parseSymbol(mySymbol)
 		if (value === 'TRADES' || value === 'REF' || value === 'DELTA') {
 		} 
 		else if ((value.indexOf('(') >=0) && (value.indexOf(')') > 0)) {
-//			multiplier = reverse(multiplier);
+			var sReverse = value.replace('(','').replace(')','');
+			isReverse = deduceReverse(common_strat, expiry, strike, multiplier, sReverse);
 		}
 		else {
 			if (j < MAX)
