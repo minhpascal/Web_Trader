@@ -1707,8 +1707,7 @@ function calRemainPrice(params, myMultiplier, myPremium) {
 //}
 
 function getMonthFromString(mmmyy){
-
-	   var d = Date.parse(mmmyy.substring(0,3) + "1, " + mmmyy.substring(3,5));
+	   var d = Date.parse(mmmyy.substring(0,3) + "1, 20" + mmmyy.substring(3,5));
 	   if(!isNaN(d)){
 	      return new Date(d).getMonth();
 	   }
@@ -1732,8 +1731,6 @@ function exchangeSymbol(ul, deriv, strike, futExp) {
 };
 
 function derivLetter(deriv, futExp) {
-//	var d = new Date(futExp);
-//	var m = d.getMonth();
 	var m = getMonthFromString(futExp);
 	switch (deriv) {
 	case 'C': {

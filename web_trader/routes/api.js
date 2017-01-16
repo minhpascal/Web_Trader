@@ -8,19 +8,6 @@ var Cmmf = require('../models/Cmmf');
 // local variable
 var app = require('../app');
 
-function updateTradeConfo(key, myData) 
-{
-	for (var i in myData) 
-	{
-		var tc = myData[i];
-		var company = parsecompany(tc.participant);
-		var key2 = generatekey(company, tc.curncy, tc.tradeDate);
-		if (key === key2) {
-			tc.hasSent = true;
-		}
-	}
-}
-
 /* GET users listing. */
 router.get('/getTradeReport', function(req, res, next) {
 	console.log('api/getTradeReport ');	

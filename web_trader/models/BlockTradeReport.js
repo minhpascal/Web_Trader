@@ -59,21 +59,15 @@ BlockTradeReport.prototype.json = function() {
 		'Status': 	this.status,   
 		'Buyer': 	this.buyer,
 		'Seller': 	this.seller,
-		'legs': [],
+		'Premium': 	this.price,
+		'Strategy': 	this.strat,
+		'Legs': [],
 	};
 	
 	for (j=0; j<this.legs.length; j++) {
 		var tr = this.legs[j];
 		var json = tr.json();
-//			var leg = {
-//				'Instrument' : l.ul,
-//				'Expiry' : v[i].legs[j].expiry,
-//				'Strike' : v[i].legs[j].strike,
-//				'Qty' : v[i].legs[j].qty,
-//				'Price' : v[i].legs[j].price,
-//				'Side' : v[i].legs[j].side,
-//			};
-		data.legs.push(json);
+		data.Legs.push(json);
 	}
 	
 	return data;
