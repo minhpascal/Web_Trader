@@ -1,61 +1,30 @@
 <md-dialog flex="90" aria-label="Crossing">
-<!-- 
-	<md-content layout-padding>
-	<div class="row-fluid span12">
-		<table class="table table-hover table-condensed table-striped">
-			<thead>
-				<tr>
-					<th>UL</th>
-					<th>Strategy</th>
-					<th>Expiry</th>
-					<th>Strike</th>
-					<th>Leg Multiplier</th>		
-					<th>Qty</th>
-					<th>Premium</th>
-					<th>Delta %</th>
-					<th>Fut Maturity</th>
-					<th>Ref</th>
-				</tr>
-			</thead>
-			<tbody ">
-				<tr class="clickableRow">
-					<td>{{myInstr}}</td>
-					<td>{{myStrat}}</td>
-					<td>{{myExpiry}}</td>
-					<td>{{myStrike}}</td>
-					<td>{{myMultiplier}}</td>
-					<td>{{myQty}}</td>
-					<td>{{myPremium}}</td>
-					<td>{{myDelta}}</td>
-					<td>{{myFutExp}}</td>
-					<td>{{myRef}}</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	</md-content> 
-	-->
 	<!-- 
         <md-toolbar flex layout="row" layout-align="center">
         </md-toolbar>
          -->
+          
 			<md-content layout-padding>
 			<div id="gridParam" ui-grid="paramGridOptions" class="myParamGrid"  
 				ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
 				ui-grid-edit ui-grid-cellNav  ui-grid-pinning ui-grid-expandable ></div>
 			</md-content>
+
 			<md-content layout-padding>
 			<div id="gridLeg" ui-grid="gridOptions" class="myGrid" 
 				ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
 				ui-grid-edit ui-grid-cellNav></div>
 			</md-content>
-			
+
 			<md-card-content layout-padding > 
 				<md-button class="md-primary md-raised"
 				ng-click="cancel($event)"> Cancel </md-button>  
 				<md-button class="md-primary md-raised md-warn" ng-show="param_isShowSendBtn" 
 				ng-click="sendTradeReport($event)"> Send </md-button>
 			</md-card-content> 
+		
+						 
+						 
 			<!--  
 			<p>isShowSend : {{isShowSendBtn}}</p>
 			 -->
