@@ -317,9 +317,9 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
-$scope.myDelta = 0;
-$scope.myQty = 100;
-$scope.myFutMat = 'MAR17';
+//$scope.myDelta = 0;
+//$scope.myQty = 100;
+//$scope.myFutMat = 'MAR17';
 		
 		$templateCache.put('ui-grid/uiGridViewport',
 		"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
