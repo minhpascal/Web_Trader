@@ -37,9 +37,12 @@ app.factory('socket', function (socketFactory) {
 	value('version', '0.1');
 
 app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-	'uiGridConstants', 'socket', '$templateCache', 
+	'uiGridConstants', 'socket', 
+//	'$templateCache', 
 	function($scope, $http, $mdDialog 
-		,uiGridConstants, socket, $templateCache) {
+		,uiGridConstants, socket
+//		,	$templateCache
+		) {
 	
 // $scope.clients = {};
 
@@ -60,7 +63,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
     
     socket.on('send:message', function (res) {
     	try {
-    		console.log(res.message.RefId);
+//    		console.log(res.message.RefId);
 // $scope.message = data.id + ',' + data.refId + ',' + data.status;
 	    	var refId = Number(res.message.RefId);
 	    	var id = Number(res.message.Id);
@@ -139,11 +142,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    //subGridVariable will be available in subGrid scope
 	    expandableRowScope: {
 	      subGridVariable: 'subGridScopeVariable',
-//				appScopeProvider: {
-//					showRow: function(row) {
-//						return true;
-//					}
-//				},
 	    },
 		appScopeProvider: {
 			showRow: function(row) {
@@ -161,7 +159,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						return 'order_reject';
 					return 'order_ok';
 				}
-			}, 
+			},
 			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
 			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
 			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
@@ -219,17 +217,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			v = result.data.data;
 			for (var i=0; i<v.length; i++) {
 				data = {
-						'Id' : v[i].Id,
-						'RefId' : v[i].RefId,
-						'TrType': v[i].TrType, 
-						'Qty': v[i].Qty,
-						'Delta' : v[i].Delta,
-						'Buyer': v[i].Buyer,
-						'Seller' : v[i].Seller,  
-						'FutMat': v[i].FutMat,   
-						'Symbol': v[i].Symbol,   
-						'Status': v[i].Status,   
-						'Legs': v[i].Legs,
+					'Id' : v[i].Id,
+					'RefId' : v[i].RefId,
+					'TrType': v[i].TrType, 
+					'Qty': v[i].Qty,
+					'Delta' : v[i].Delta,
+					'Buyer': v[i].Buyer,
+					'Seller' : v[i].Seller,  
+					'FutMat': v[i].FutMat,   
+					'Symbol': v[i].Symbol,   
+					'Status': v[i].Status,   
+					'Legs': v[i].Legs,
 				};
 				data.subGridOptions = {
 					enableSorting : false,
@@ -258,13 +256,21 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
 		try {
-//			$scope.myQty = '';
-//			$scope.myDelta = '';
-//			$scope.myFutMat = '';
-// $scope.myDelta = 20;
-// $scope.myQty = 100;
-// $scope.myFutMat = 'MAR17';
-		
+			var str = symbol.replace(/ +(?= )/g,'');
+			var tokens = parseSymbol(str);
+			var myStrat = tokens[4];
+			if (trType.indexOf('T2') < 0) {
+				switch (myStrat) {
+				case 'P':
+				case 'C':
+				case 'F':
+					break;
+				default:
+					alert(trType + ' accepts only Call, Put or Future');
+					return false;
+				}
+			}
+			
 			$mdDialog.show({
 				controller : DialogController,
 				templateUrl : 'dialog_auto.tmpl.html',
@@ -306,15 +312,18 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		}
 	};
 	
-	function DialogController($scope, $mdDialog, $http, locals, uiGridConstants) 
+	function DialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) 
 	{
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
-$scope.myDelta = 20;
+$scope.myDelta = 0;
 $scope.myQty = 100;
 $scope.myFutMat = 'MAR17';
 		
+		$templateCache.put('ui-grid/uiGridViewport',
+		"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
+		);
 		$scope.iconTemplate = '<i class="material-icons" style="color:red">error_outline</i>';
 		
 		str = locals.mySymbol.replace(/ +(?= )/g,'');
@@ -331,6 +340,10 @@ $scope.myFutMat = 'MAR17';
 		$scope.myCpCompany = locals.mySeller;
 		$scope.mySymbol = str;
 		$scope.myTrType = locals.myTrType;
+		$scope.isSingle = true;
+		if ($scope.myTrType.indexOf('T2') >= 0) {
+			$scope.isSingle = false;
+		}
 	//$scope.mySide = !side ? SIDE.BUY : side;
 		$scope.myUl  = $scope.myInstr;
 		
@@ -396,7 +409,8 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'noPrice' : false, 'isValidate' : false, 'isEditable' : false, 
+				'isHide' : true, 'isSingle': $scope.isSingle
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -412,7 +426,8 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '',	 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false,
+				'isHide' : true, 'isSingle': $scope.isSingleLeg
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -734,51 +749,15 @@ $scope.myFutMat = 'MAR17';
 		
 		$scope.sendTradeReport = function(ev) {
 			
-//			var order = {};
-//	// alert($scope.param_myData);
-//	// $scope.orders.push();
-			var legs = $scope.param_myData;
 			refId = new Date().getTime();
-//			data = 
-//				{
-//					'RefId' : refId,
-//					'TrType': $scope.myTrType.substring(0,2), 
-//					'UL': $scope.myUl, 
-//					'Strategy': $scope.myStrat, 
-//					'Expiry': $scope.myExpiry,
-//					'Strike': $scope.myStrike,
-//					'Multiplier' :$scope.myMultiplier,
-//					'Qty': $scope.myQty,
-//					'Premium': $scope.myPremium,
-//					'Delta' :$scope.myDelta,
-//					'Buyer' :$scope.myCompany,  
-//					'Seller' :$scope.myCpCompany,  
-//					'FutMat': $scope.myFutMat,   
-//					'Symbol': $scope.mySymbol,   
-//					'Status': 'UNSENT',   
-//					'legs': legs,
-//				};
-//			data.subGridOptions = {
-//					enableSorting : false,
-//					enableColumnResizing : true,
-//					appScopeProvider: {
-//						showRow: function(row) {
-//							return true;
-//						}
-//					},
-//	                columnDefs: [ 
-//	                	{name:"Instrument", field:"Instrument", width: '120'}, 
-//	                	{name:"Expiry", field:"Expiry", width: '80'},
-//	                	{name:"Strike", field:"Strike", width: '80'},
-//	                	{name:"Qty", field:"Qty", width: '80'},
-//	                	{name:"Price", field:"Price", width: '80'},
-//	                	{field:"Buyer", width: '60'},
-//	                	{field:"Seller", width: '60'},
-//	                ],
-//	                data: data.legs
-//	        }
 			
-//			$scope.myOtData.unshift(data);
+			var legs = $scope.param_myData;
+			for (var i=0; i<$scope.param_myData.length; i++) {
+				if ($scope.param_myData[i].isHide 
+					|| $scope.param_myData[i].isSingle) {
+					legs.splice(i, 1);
+				}
+			}
 			
 			$http.post('api/sendTradeReport', {
 				'refId'  : refId,
@@ -910,29 +889,26 @@ $scope.myFutMat = 'MAR17';
 		};
 		
 		$scope.afterCellEditParamGrid = function(rowEntity, colDef, newValue, oldValue) {
+			var threshold = 1000;
 			var tokens = rowEntity.Multiplier.split('X');
-			if (rowEntity.Qty && rowEntity.Qty !== '') {
+//			if (rowEntity.Qty && rowEntity.Qty !== '') {
+			if (!isNaN(rowEntity.Qty)) {
 				var params = [];
 				
 				// update legs qty
-				var hasDecimal = false;
+				var isInvalid = false;
 				for (var i=0; i<tokens.length; i++) {
 					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
 					$scope.param_myData[i].Qty = legQty;
-					if ((legQty % 1 !== 0)) {
-						hasDecimal = true;
+					if ((legQty % 1 !== 0) || legQty > threshold) {
+						isInvalid = true;
+						$scope.param_myData[i].isQtyValid = false;
 					}
-	// params.push({side : $scope.param_myData[i].Side, option:
-	// $scope.param_myData[i].UL.split(' ')[1], qty: $scope.param_myData[i].Qty});
 				}
-				$scope.param_isQtyValid = !hasDecimal;
-				rowEntity.isQtyValid = !hasDecimal;
-	// // // update future sell leg
-	// var side = hedgeSide(params);
-	// $scope.param_myData[$scope.param_myData.length - 1].Side = side;
-
+				// parameter qty 
+				rowEntity.isQtyValid = !isInvalid;
+				$scope.param_isQtyValid = !isInvalid;
 				$scope.myQty = Number(rowEntity.Qty);
-				
 			}
 			else {
 				$scope.param_isQtyValid = false;
@@ -942,7 +918,7 @@ $scope.myFutMat = 'MAR17';
 				}
 			}
 			
-			if (rowEntity.Delta && rowEntity.Delta !== '') {
+			if (!isNaN(rowEntity.Delta)/* && rowEntity.Delta !== ''*/) {
 				var len = $scope.param_myData.length;
 				var delta = Number(rowEntity.Delta);
 				var futQty = Number(rowEntity.Qty) * Math.abs(delta) * 0.01;
@@ -965,7 +941,8 @@ $scope.myFutMat = 'MAR17';
 					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCpCompany;
 					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCompany;
 				}
-				$scope.param_myData[$scope.param_myData.length - 1].isHide = isHide;
+				$scope.param_myData[$scope.param_myData.length - 1].isHide = 
+					isHide || $scope.param_myData[$scope.param_myData.length - 1].isSingle ;
 	// var side = hedgeSide(params);
 	// $scope.param_myData[$scope.param_myData.length - 1].Side = side;
 			}
@@ -998,9 +975,9 @@ $scope.myFutMat = 'MAR17';
 			 }
 		};
 		
-		$templateCache.put('ui-grid/uiGridViewport',
-				"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
-		);
+//		$templateCache.put('ui-grid/uiGridViewport',
+//				"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
+//		);
 		
 		// ========================== gridOptions ================================
 		$scope.gridOptions = {
@@ -1012,6 +989,7 @@ $scope.myFutMat = 'MAR17';
 				}
 			},
 	// rowEditWaitInterval : -1,
+			data : 'param_myData',
 			enableSorting : false,
 			enableColumnResizing : true,
 			enableFiltering : false,
@@ -1033,7 +1011,7 @@ $scope.myFutMat = 'MAR17';
 				{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
-						if (!isNaN(val) && val > 0 && (val % 1 === 0))	// decimal
+						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
 							 return '';
 						return 'missing';
 					}
@@ -1101,7 +1079,7 @@ $scope.myFutMat = 'MAR17';
 	// exporterMenuPdf : false,
 		};
 
-		$scope.gridOptions.data = $scope.param_myData;
+//		$scope.gridOptions.data = $scope.param_myData;
 		
 		$scope.gridOptions.onRegisterApi = function(gridApi) {
 			$scope.gridApi = gridApi;
