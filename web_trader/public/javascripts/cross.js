@@ -2,10 +2,11 @@
  * You must include the dependency on 'ngMaterial'
  */
 angular
-.module('moment-module', [/*'ngTouch', 'ui.grid'
-	, 'ui.grid.edit', 
-	'ui.grid.rowEdit', 'ui.grid.cellNav',
-	'ui.grid.resizeColumns'*/
+.module('moment-module', [/*
+							 * 'ngTouch', 'ui.grid' , 'ui.grid.edit',
+							 * 'ui.grid.rowEdit', 'ui.grid.cellNav',
+							 * 'ui.grid.resizeColumns'
+							 */
 	])
 .factory('moment', function ($window) {
     return $window.moment;
@@ -36,64 +37,153 @@ app.factory('socket', function (socketFactory) {
 	value('version', '0.1');
 
 app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-	'uiGridConstants', 'socket', '$templateCache', 
-	function($scope, $http
-			, $mdDialog 
-		,uiGridConstants, socket, $templateCache
+	'uiGridConstants', 'socket', 
+//	'$templateCache', 
+	function($scope, $http, $mdDialog 
+		,uiGridConstants, socket
+//		,	$templateCache
 		) {
 	
-//    $scope.clients = {};
+// $scope.clients = {};
 
-//    $scope.mySide = "Buy";
+// $scope.mySide = "Buy";
 
-//    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 PS 191 TRADES REF 9850 DELTA 28';
-//    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-//    $scope.mySymbol = 'HSCEI DEC17 22000/24000/26000 1x1.25X1 CL 10 TRADES REF 22,825';
-//    $scope.mySymbol = 'HSCEI JUN17 9000/7000 1x1.5 CS 191 TRADES REF 9850';
-//    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 CDOR 191 TRADES REF 9850';
-//    $scope.mySymbol = 'HSCEI JUN17 8000/9000/10000/11000 1x1.5X1.5X1 PDOR 191 TRADES REF 9850';
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS (MAR17) 191 TRADES REF 9850';		// CDIAG (not implement)
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850';		// CDIAG
-//    $scope.mySymbol = 'HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850';	// CR
-//    $scope.mySymbol = 'HSI DEC17 12000/13800 CS 191 TRADES REF 9850';	// CS
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850';	// CTR
-//    $scope.mySymbol = 'HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850';	// CTS
-//    $scope.mySymbol = 'HSCEI MAR17 9000/10000/11000 CFLY (10000) 191 TRADES REF 9850';	// CFLY (incomplete)
-//    $scope.mySymbol = 'HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850';	// CFLY
-//    $scope.mySymbol = 'HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850';	// CFLY
+// $scope.myType = 'EC - European Call';
     
-//    $scope.myType = 'EC - European Call';
+// // RESET when enter controller
+// $scope.param_isShowSendBtn = false; // display send button
+// $scope.param_isQtyValid = false;
+// $scope.param_isDeltaValid = false;
+// $scope.param_isFutMatValid = false;
+// $scope.param_isLastLegPriceValid = false;
+// $scope.param_myData = [];
+// $scope.myQty = '';
+// $scope.myDelta = '';
+// $scope.myFutMat = '';
     
-//    // RESET when enter controller
-//	$scope.param_isShowSendBtn = false;	// display send button
-//	$scope.param_isQtyValid = false;
-//	$scope.param_isDeltaValid = false;
-//	$scope.param_isFutMatValid = false;
-//	$scope.param_isLastLegPriceValid = false;
-//	$scope.param_myData = [];
-//	$scope.myQty = '';
-//	$scope.myDelta = '';
-//	$scope.myFutMat = '';
-	
-    socket.on('send:message', function (data) {
-//        $scope.message = data.id + ',' + data.refId + ',' + data.status;
-        var refId = Number(data.message.RefId);
-        var id = Number(data.message.Id);
-        for (var i=0; i<$scope.myOtData.length; i++) {
-        	if ($scope.myOtData[i].RefId === refId) {
-        		$scope.myOtData[i].Id = id;
-        		$scope.myOtData[i].Status = data.message.Status;
-        		break;
-        	}
-        }
-        $scope.otGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+    socket.on('send:message', function (res) {
+    	try {
+//    		console.log(res.message.RefId);
+// $scope.message = data.id + ',' + data.refId + ',' + data.status;
+	    	var refId = Number(res.message.RefId);
+	    	var id = Number(res.message.Id);
+	    	var isExist = false;
+	    	for (var i=0; i<$scope.myOtData.length; i++) {
+	    		if ($scope.myOtData[i].RefId === refId) {
+	    			$scope.myOtData[i].Id = id;
+	    			$scope.myOtData[i].Status = res.message.Status;
+	    			isExist = true;
+	    			break;
+	    		}
+	    	}
+	    	if (!isExist) {
+//				var legs = $scope.param_myData;
+				data = 
+					{
+						'RefId' : res.message.RefId,
+						'Status': res.message.Status,
+						'TrType': res.message.TrType, 
+						'Symbol': res.message.Symbol,
+						'Qty': res.message.Qty,
+						'Delta' : res.message.Delta,
+						'FutMat':res.message.FutMat,
+						'Buyer' : res.message.Buyer,  
+						'Seller' : res.message.Seller,
+//						'Premium': res.message.Premium,
+//						'Strategy': res.message.Strategy,
+//						'UL': '', 
+//						'Expiry': $scope.myExpiry,
+//						'Strike': $scope.myStrike,
+//						'Multiplier' : res.message.Multiplier,   
+						'Legs': res.message.Legs,
+					};
+				data.subGridOptions = {
+						enableSorting : false,
+						enableColumnResizing : true,
+						appScopeProvider: {
+							showRow: function(row) {
+								return true;
+							}
+						},
+		                columnDefs: [ 
+		                	{name:"Instrument", field:"Instrument", width: '120'}, 
+		                	{name:"Expiry", field:"Expiry", width: '80'},
+		                	{name:"Strike", field:"Strike", width: '80'},
+		                	{name:"Qty", field:"Qty", width: '80'},
+		                	{name:"Price", field:"Price", width: '80'},
+		                	{field:"Buyer", width: '60'},
+		                	{field:"Seller", width: '60'},
+		                ],
+		                data: data.Legs
+		        }
+	    		$scope.myOtData.unshift(data);
+	    		}
+	        $scope.otGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+    	}
+		catch (err) {
+			alert(err.message);
+		}
+
     });
+    
+	$scope.otGridOptions = {
+		data : 'myOtData',
+//			enableHorizontalScrollbar: false, 
+//			enableVerticalScrollbar: false,
+//				rowEditWaitInterval : -1,
+		enableSorting : false,
+		enableColumnResizing : true,
+		enableFiltering : false,
+		showGridFooter : false,
+		showColumnFooter : false,
+	    enableCellEditOnFocus: true,
+	    expandableRowTemplate: 'expandableRowTemplate.html',
+	    expandableRowHeight: 150,
+	    //subGridVariable will be available in subGrid scope
+	    expandableRowScope: {
+	      subGridVariable: 'subGridScopeVariable',
+	    },
+		appScopeProvider: {
+			showRow: function(row) {
+				return true;
+			}
+		},
+		columnDefs : [ 
+			{field : 'Id', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
+			{field : 'Status', headerCellClass: 'green-header', width : '*', enableCellEdit : false,
+				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+					var val = grid.getCellValue(row, col);
+					if (val === 'SENT')
+						return 'order_in_progress';
+					if (val === 'REJECT')
+						return 'order_reject';
+					return 'order_ok';
+				}
+			},
+			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
+			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
+			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
+			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false},
+			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
+			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
+			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
+		 ],
+//			exporterMenuPdf : false,
+	};
 	
-	if (!$scope.isInit) {
-		
-		$scope.iconTemplate = '<i class="material-icons" style="color:red">error_outline</i>';
-//		$scope.iconTemplate = '<i class="material-icons" style="color:red" ng-show="!grid.appScope.param_isFutMatValid">error_outline</i>';
-		
+//	$scope.otGridOptions.data = $scope.myOtData;
+	$scope.otGridOptions.onRegisterApi = function(gridApi) {
+		$scope.otGridApi = gridApi;
+//		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEditParamGrid);
+	}
+    $scope.expandAllRows = function() {
+        $scope.otGridApi.expandable.expandAllRows();
+    }
+    $scope.collapseAllRows = function() {
+        $scope.otGridApi.expandable.collapseAllRows();
+    }
+    
+//	if (!$scope.isInit) {
 	    // cross detail scope data
 	    $scope.trTypes = [
 	    	'T1 - Single',
@@ -105,49 +195,39 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
-//		$scope.myInstr = '';
-//		$scope.myExpiry = '';
-//		$scope.myStrike = '';
-//		$scope.myMultiplier = '';
-//		$scope.myStrat = '';
-//		$scope.myPremium = '';
-//		$scope.myRef = '';
-//		$scope.myUl  = '';
 	    
-	    
-	    // RESET when enter controller
-		$scope.param_isShowSendBtn = false;	// display send button
-		$scope.param_isQtyValid = false;
-		$scope.param_isDeltaValid = false;
-		$scope.param_isFutMatValid = false;
-		$scope.param_isLastLegPriceValid = false;
-		$scope.param_myData = [];
+//	    // RESET when enter controller
+//		$scope.param_isShowSendBtn = false;	// display send button
+//		$scope.param_isQtyValid = false;
+//		$scope.param_isDeltaValid = false;
+//		$scope.param_isFutMatValid = false;
+//		$scope.param_isLastLegPriceValid = false;
+//		$scope.param_myData = [];
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
 		
 		$scope.status = '  ';
 		$scope.myCompany = 'HKCEL';
-		$scope.myCpCompany = 'HKTOM';
+		$scope.myCpCompany = 'HKCEL';
 
 		$scope.myEnv = "TESTING";
 		
 		$http.get('api/getTradeReport').then(function(result) {
-//			console.log(result);
 			v = result.data.data;
 			for (var i=0; i<v.length; i++) {
 				data = {
-						'Id' : v[i].Id,
-						'RefId' : v[i].RefId,
-						'TrType': v[i].TrType, 
-						'Qty': v[i].Qty,
-						'Delta' : v[i].Delta,
-						'Buyer': v[i].Buyer,
-						'Seller' : v[i].Seller,  
-						'FutMat': v[i].FutMat,   
-						'Symbol': v[i].Symbol,   
-						'Status': v[i].Status,   
-						'legs': v[i].legs,
+					'Id' : v[i].Id,
+					'RefId' : v[i].RefId,
+					'TrType': v[i].TrType, 
+					'Qty': v[i].Qty,
+					'Delta' : v[i].Delta,
+					'Buyer': v[i].Buyer,
+					'Seller' : v[i].Seller,  
+					'FutMat': v[i].FutMat,   
+					'Symbol': v[i].Symbol,   
+					'Status': v[i].Status,   
+					'Legs': v[i].Legs,
 				};
 				data.subGridOptions = {
 					enableSorting : false,
@@ -166,467 +246,87 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	                	{field:"Buyer", width: '80'},
 	                	{field:"Seller", width: '80'},
 	                ],
-	                'data': data.legs
+	                'data': data.Legs
 		        }
 				$scope.myOtData.unshift(data);
 			}
 		});
-	}
-	$scope.isInit = true;
-	
-	$scope.cancel = function($event) {
-		
-//		$scope.param_isShowSendBtn = false;	// display send button
-//		$scope.param_isQtyValid = false;
-//		$scope.param_isDeltaValid = false;
-//		$scope.param_isFutMatValid = false;
-//		$scope.param_isLastLegPriceValid = false;
-//		
-		$scope.myQty = '';
-		$scope.myDelta = '';
-		$scope.myFutMat = '';
-//		
-//		$scope.param_myData = [];
-		
-		$mdDialog.cancel();
-	}
-	
-	$scope.showCrossDetail_test = function(ev, trType, symbol, company, cpCompany) {
-		var str = [];
-//		// P
-//		str.push('HSI JUN17 19000 P 191 TRADES REF 9850');
-//		// PB
-//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (11000)');
-//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850');
-//		// PC
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (1100)');
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (8000)');
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850');
-//		// PDIAG
-//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (7000)');
-//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850');
-//		// PR
-//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850 (C)');
-//		str.push('HSCEI DEC17 10000/9000 1x1.5 PS  191 TRADES REF 9850');
-//		// PS
-//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (8600)');
-//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850');
-//		// PTB
-//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (7800)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850');
-//		// PTC
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (8000)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850');
-//		// PL
-//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (8000)');
-//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850');
-//		// PTL
-//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (9200)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850');
-//		// PTR
-//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (DEC18)');
-//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (20000)');
-//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (C)');
-//		str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850');
-//		// PTS
-//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (JUN19)');
-//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850');
-//		
-//		
-//		// SPRD
-//		str.push('HSCEI MAR17/JUN17 9800 ROLL 191 TRADES REF 9850');
-//		str.push('HSCEI DEC17 10400 C 191 TRADES REF 9850');
-//		
-//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (11000)');
-//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850');
-//		
-//		str.push('HSCEI JUN17 8000/9000/10000/11000 CDOR 191 TRADES REF 9850');
-//		// CDIAG
-//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (12000)');
-//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (12600)');
-//		str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850');
-//		// CR
-//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (13000)');
-//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (12000)');
-//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850');
-//		// CS
-//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (13800)');
-//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (12000)');
-//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850');
-//		// CTB
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (10600)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850');
-//		// CTC
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850');
-//		// CL
-//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (11000)');
-//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (9000)');
-//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850');
-//		// CTL
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (JUN17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (10600)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850');
-//		// CTR
-//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850');
-//		// CTS
-//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (MAR17)');
-//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (10400)');
-//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850');
-//		// IF
-//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (8000)');
-//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (12000)');
-//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850');
-//		// IFR
-//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (8000)');
-//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (12000)');
-//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (10000)');
-//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850');
-//		// RR
-//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850');
-//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (SEP17)');
-//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (19000)');
-//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (C)');
-//		str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (25000)');
-//		// SYNTH
-//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (C)');
-//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (DEC17)');
-//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (9800)');
-//		str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850');
-//		// SD
-//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (DEC18)');
-//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (23000)');
-//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (C)');
-//		str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850');
-		// SDTS
-		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (MAR17)');
-		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (DEC17)');
-		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (10000)');
-		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (C)');
-		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850');
-		// SG
-		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (DEC17)');
-		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (8000)');
-		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (12000)');
-		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (C)');
-		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850');
-		
-		
-		var res = [];
-//		res.push(['HSI','JUN17','19000','1','P',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17','11000/10000/9000','-1X2X-1','PB',191,9850]);
-//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
-//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
-//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
-//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
-//		res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
-//		
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','-1X1X1X-1','PC',191,9850]);
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','-1X1X1X-1','PC',191,9850]);
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
-//		res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/DEC17','7000/9000','1X-1','PDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','7000/9000','1X-1','PDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
-//		
-//		res.push(['HSCEI','DEC17','10000/9000','-1X1.5','PR',191,9850]);
-//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
-//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
-//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
-//		res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
-//		
-//		res.push(['HSCEI','DEC17','9000/8600','-1X1','PS',191,9850]);
-//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
-//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
-//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
-//		res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','-1X2X-1','PTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','-1X1X1X-1','PTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','-1X1X1X-1','PTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
-//		
-//		res.push(['HSCEI','SEP17','10000/9000/8000','-1X1X1','PL',191,9850]);
-//		res.push(['HSCEI','SEP17','10000/9000/8000','-1X1X1','PL',191,9850]);
-//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
-//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
-//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
-//		res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','1X1X-1','PTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','1X1X-1','PTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
-//		
-//		res.push(['HSI','DEC17/DEC18','20000','2X-1','PTR',191,9850]);
-//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
-//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
-//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
-//		res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
-//		
-//		res.push(['HSCEI','JUN17/JUN19','9000','1X-1','PTS',191,9850]);
-//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
-//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
-//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
-//		res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17','9800','-1X1X1X-1','SPRD',191,9850]);
-//		res.push(['HSCEI','DEC17','10400','1','C',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17','9000/10000/11000','-1X2X-1','CB',191,9850]);
-//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
-//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
-//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
-//		res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
-//		
-//		res.push(['HSCEI','JUN17','8000/9000/10000/11000','1X-1X-1X1','CC',191,9850]);
-//
-//		res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
-//		
-//		res.push(['HSI','SEP17','12000/13000','-1X2','CR',191,9850]);
-//		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
-//		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
-//		res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
-//		
-//		res.push(['HSI','DEC17','12000/13800','-1X1','CS',191,9850]);
-//		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
-//		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
-//		res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X2X-1','CTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','-1X1X1X-1','CTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','-1X1X1X-1','CTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
-//		
-//		res.push(['HSCEI','SEP17','9000/10000/11000','-1X1X1','CL',191,9850]);
-//		res.push(['HSCEI','SEP17','9000/10000/11000','-1X1X1','CL',191,9850]);
-//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
-//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
-//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
-//		res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X1X-1','CTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X1X-1','CTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
-//		res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/DEC17','10000','2X-1','CTR',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
-//		
-//		res.push(['HSCEI','MAR17/DEC17','10400','1X-1','CTS',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
-//		res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
-//		
-//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1X-1X1','IF',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1X-1X1','IF',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
-//		
-//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1.5X-1.5X1','IFR',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','1X-1.5X-1.5X1','IFR',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
-//		res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
-//		
-//		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
-//		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
-//		res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
-//		res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
-//		res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
-//		
-//		res.push(['HSCEI','DEC17','9800','-1X1','SYNTH',191,9850]);
-//		res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
-//		res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
-//		res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
-//		
-//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
-//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
-//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
-//		res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
-		
-		res.push(['HSCEI','MAR17/DEC17','10000','1X1X-1X-1','SDTS',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
-		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
-		
-		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
-		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
-		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
-		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
-		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
-
-
-		for (var i=0; i<str.length; i++) {
-			var isCorrect = true;
-			var s = str[i].replace(/ +(?= )/g,'');
-			try {
-			var tokens = parseSymbol(s);
-			var myInstr = tokens[0];
-			var myExpiry = tokens[1];
-			var myStrike = tokens[2];
-			var myMultiplier = tokens[3];
-			var myStrat = tokens[4];
-			var myPremium = Number(tokens[5]);
-			var myRef = Number(tokens[6].replace(',', ''));
-			var val = res[i];
-			if (val[0] !== myInstr) {
-				alert(s + ',' + myInstr + ',' + val[0]);
-			}
-			else if (val[1] !== myExpiry) {
-				alert(s + ',myExpiry=' + myExpiry + ',' + val[1]);
-			}
-			else if (val[2] !== myStrike) {
-				alert(s + ',myStrike=' + myStrike + ',' + val[2]);
-			}
-			else if (val[3] !== myMultiplier) {
-				alert(s + ',myMultiplier=' + myMultiplier + ',' + val[3]);
-			}
-			else if (val[4] !== myStrat) {
-				alert(s + ',myStrat=' + myStrat + ',' + val[4]);
-			}
-			else if (val[5] !== myPremium) {
-				alert(s + ',myPremium=' + myPremium + ',' + val[5]);
-			}
-			else if (val[6] !== myRef) {
-				alert(s + ',myRef=' + myRef + ',' + val[6]);
-			}
-			else {
-//				alert(s + 'OK');
-			}
-			}catch (err) {
-				alert(err.message);
-			}
-		}
-	} 
+//	}
 	
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
-try {
+		try {
+			var str = symbol.replace(/ +(?= )/g,'');
+			var tokens = parseSymbol(str);
+			var myStrat = tokens[4];
+			if (trType.indexOf('T2') < 0) {
+				switch (myStrat) {
+				case 'P':
+				case 'C':
+				case 'F':
+					break;
+				default:
+					alert(trType + ' accepts only Call, Put or Future');
+					return false;
+				}
+			}
+			
+			$mdDialog.show({
+				controller : DialogController,
+				templateUrl : 'dialog_auto.tmpl.html',
+				parent : angular.element(document.body),
+				targetEvent: ev,
+				clickOutsideToClose: false,
+				fullscreen : false,
+				locals: {
+					'myTrType': $scope.myTrType,
+					'myBuyer': $scope.myCompany,
+					'mySeller': $scope.myCpCompany,
+					'mySymbol': $scope.mySymbol,
+					'myInstr': $scope.myInstr,
+					'myExpiry': $scope.Expiry,
+					'myStrike': $scope.Strike,
+					'myMultiplier': $scope.myMultiplier,
+					'myStrat': $scope.myStrat,
+					'myPremium': $scope.myPremium,
+					'myRef': $scope.myRef,
+				},
+// scope : $scope,
+// preserveScope: true,
+			// Only for -xs, -sm breakpoints.
+			})
+			.then(function(answer) {	// either OK / Cancel -> succ
+				if (answer === 'Cancel') {
+					$scope.status = 'cancelled';	
+				}
+				else {
+					$scope.status = 'Trade Report sent ' + answer;
+				}
+			}, function() { // fail , press outside or close dialog box
+				$scope.status = 'close ';
+// $mdDialog.destroy();
+			});
+		}
+		catch (err) {
+			alert('parse symbol error: ' + err.essage);
+		}
+	};
+	
+	function DialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) 
+	{
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
-//		$scope.myDelta = 20;
-//		$scope.myQty = 100;
-//		$scope.myFutMat = 'MAR17'; 
+$scope.myDelta = 0;
+$scope.myQty = 100;
+$scope.myFutMat = 'MAR17';
 		
-		str = symbol.replace(/ +(?= )/g,'');
+		$templateCache.put('ui-grid/uiGridViewport',
+		"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
+		);
+		$scope.iconTemplate = '<i class="material-icons" style="color:red">error_outline</i>';
+		
+		str = locals.mySymbol.replace(/ +(?= )/g,'');
 		
 		var tokens = parseSymbol(str);
 		$scope.myInstr = tokens[0];
@@ -636,11 +336,15 @@ try {
 		$scope.myStrat = tokens[4];
 		$scope.myPremium = Number(tokens[5]);
 		$scope.myRef = Number(tokens[6].replace(',', ''));
-		$scope.myCompany = company;
-		$scope.myCpCompany = cpCompany;
+		$scope.myCompany = locals.myBuyer;
+		$scope.myCpCompany = locals.mySeller;
 		$scope.mySymbol = str;
-		$scope.myTrType = trType;
-//		$scope.mySide = !side ? SIDE.BUY : side;
+		$scope.myTrType = locals.myTrType;
+		$scope.isSingle = true;
+		if ($scope.myTrType.indexOf('T2') >= 0) {
+			$scope.isSingle = false;
+		}
+	//$scope.mySide = !side ? SIDE.BUY : side;
 		$scope.myUl  = $scope.myInstr;
 		
 		$scope.param_isShowSendBtn = false;	// display send button
@@ -655,11 +359,9 @@ try {
 		var qty = [];
 		var ul = [];
 
-//		var expiry = $scope.myExpiry;
 		var strike = $scope.myStrike;
 		var multiplier = $scope.myMultiplier;
 		var ref = Number($scope.myRef);
-//		var sides = getSides($scope.myMultiplier, $scope.mySide);
 		var sides = getSidesByParty($scope.myMultiplier, $scope.myCompany, $scope.myCpCompany);
 		var instr = tokens[0];
 		var futExp = '';
@@ -667,7 +369,7 @@ try {
 		var multi = getMultiple(multiplier, strat);
 		var strikes = getStrikes(multiplier, tokens[2], strat);
 		
-//		var expiry = tokens[1];
+	//var expiry = tokens[1];
 		var maturities = getMaturities(multiplier, tokens[1], strat);
 		
 		$scope.myParam = [
@@ -691,11 +393,6 @@ try {
 			    { icon: '', name: "NOV17", ticked: false  },
 			    { icon: '', name: "DEC17", ticked: false  },
 				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
-//			    { icon: "<img src=[..]/internet_explorer.png.. />",   name: "Internet Explorer",  maker: "(Microsoft)",             ticked: false },
-//			    { icon: '<img src="https://cdn1.iconfinder.com/data/icons/humano2/32x32/apps/firefox-icon.png" />',        
-//			    	name: "Firefox",            maker: "(Mozilla Foundation)",    ticked: false  },
-//			    { icon: "<img src=[..]/safari_browser.png.. />",      name: "Safari",             maker: "(Apple)",                 ticked: false },
-//			    { icon: "<img src=[..]/chrome.png.. />",              name: "Chrome",             maker: "(Google)",                ticked: true  }
 			], 
 			'outputBrowsers' : [],
 			},
@@ -712,7 +409,8 @@ try {
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'noPrice' : false, 'isValidate' : false, 'isEditable' : false, 
+				'isHide' : true, 'isSingle': $scope.isSingle
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -728,7 +426,8 @@ try {
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '',	 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false,
+				'isHide' : true, 'isSingle': $scope.isSingleLeg
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -763,7 +462,7 @@ try {
 			};
 			break;			
 		}
-		case 'PL':  //'EPL - European Put Ladder':
+		case 'PL':  // 'EPL - European Put Ladder':
 		case 'PTL' : // - European Put Time Ladder':
 		case 'PFLY':  // butterfly
 		case 'PB':  // 'EPB - European Put Butterfly':
@@ -828,8 +527,8 @@ try {
 			break;
 		}
 		case 'PC': 
-		case 'PDOR': //'EPC - European Put Condor':
-		case 'PTC': {//'EPC - European Put Time Condor':
+		case 'PDOR': // 'EPC - European Put Condor':
+		case 'PTC': {// 'EPC - European Put Time Condor':
 			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
 			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
 			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
@@ -880,39 +579,11 @@ try {
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
-//				'Buyer': sides[0][0], 'Seller': sides[0][1],
-//				'Buyer': sides[1][0], 'Seller': sides[1][1],
-//				'Buyer': sides[2][0], 'Seller': sides[2][1],
-//				'Buyer': sides[3][0], 'Seller': sides[3][1],
 				'Buyer': '', 'Seller': '',
 				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
 			};
 			break;
 		}
-//		case 'CDIAG_Reverse': { // 'ECTS - European Call Time Spread':
-//			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-//			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-//			$scope.param_myData[0] = {
-//					'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-//					'Buyer': sides[0][0], 'Seller': sides[0][1],
-//					'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-//			};
-//			$scope.param_myData[1] = {
-//					'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-//					'Buyer': sides[1][0], 'Seller': sides[1][1],
-//					'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-//			};
-//			$scope.param_myData[2] = {
-//					'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
-////				'Buyer': sides[0][0], 'Seller': sides[0][1],
-////				'Buyer': sides[1][0], 'Seller': sides[1][1],
-////				'Buyer': sides[2][0], 'Seller': sides[2][1],
-////				'Buyer': sides[3][0], 'Seller': sides[3][1],
-//					'Buyer': '', 'Seller': '',
-//					'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-//			};
-//			break;
-//		}
 		case 'PS':  // 'EPS - European Put Spread':
 		case 'PDIAG':  // 'EPS - European Put Spread':
 		case 'PR':  // 'ECR - European Put Ratio':
@@ -937,8 +608,7 @@ try {
 			};
 			break;
 		}
-
-		case 'IF':  // - European Iron Fly': 
+		case 'IF':  // - European Iron Fly':
 		case 'IFR' :  // - European Iron Fly Ratio':
 		case 'SDTS' : {// - European Straddle Time Spread'
 			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
@@ -972,7 +642,7 @@ try {
 			};
 			break;
 		}
-		case 'SG' :  //} - European Strangle':
+		case 'SG' :  // } - European Strangle':
 		case 'RR' :  {// - European Risk Reversal':
 			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
 			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
@@ -993,29 +663,7 @@ try {
 			};
 			break;
 		}
-//		case 'RR_Reverse' :  {// - European Risk Reversal' Reverse:
-//			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-//			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-//			$scope.param_myData[0] = {
-//					'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-//					'Buyer': sides[0][0], 'Seller': sides[0][1],
-//					'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
-//			};
-//			$scope.param_myData[1] = {
-//					'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-//					'Buyer': sides[1][0], 'Seller': sides[1][1],
-//					'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
-//			};
-//			$scope.param_myData[2] = {
-//					'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-//					'Buyer': '', 'Seller': '', 
-//					'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
-//			};
-//			break;
-//		}
-//		case 'S' : // - European Synthetic Call Over': 
-		case 'SD':  //} - European Straddle':
-//		case 'SPO':  // - European Synthetic Put Over':
+		case 'SD':  // } - European Straddle':
 		case 'SYNTH': { // - European Synthetic Put Over':
 			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
 			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
@@ -1068,651 +716,894 @@ try {
 			};
 			break;
 		}
-		//		'ESGAC - European Strangle VS Call',
-		//		'ESGAP - European Strangle VS Put',
-		//		'ESGTS - European Strangle Time Spread',
-		//		'ETRR - European Time Risk Reversal',
-		//		'ECSAC - European Call Spread VS Call',
-		//		'ECSAP - European Call Spread Against Put',
-		//		'ECSAPR - European Call Spread VS Put (Ratio',
-		//		'ECSAPPO - European Call Spread VS Put - Put Over',
-		//		'ECSPS - European Call Spread VS Put Spread',
-		//		'ECSTR - European Call Spread Time Ratio',
-		//		'ECSTS - European Call Spread Time Spread',
-		//		'ECTSAP - European Call Time Spread Against Put',
-		//		'EPSAC - European Put Spread Against Call',
-		//		'EPSACR - European Put Spread VS Call (Ratio',
-		//		'EPSACCO - European Put Spread VS Call - Call Over',
-		//		'EPSAP - European Put Spread VS Put',
-		//		'EPSTUP - European Put Stupid',
-		//		'EPTSAC - European Put Time Spread Against Call',
-		//		'ESDAC - European Straddle VS Call',
-		//		'ESDAP - European Straddle VS Put',
-		//		'FWDB - Forward Butterfly',
+		// 'ESGAC - European Strangle VS Call',
+		// 'ESGAP - European Strangle VS Put',
+		// 'ESGTS - European Strangle Time Spread',
+		// 'ETRR - European Time Risk Reversal',
+		// 'ECSAC - European Call Spread VS Call',
+		// 'ECSAP - European Call Spread Against Put',
+		// 'ECSAPR - European Call Spread VS Put (Ratio',
+		// 'ECSAPPO - European Call Spread VS Put - Put Over',
+		// 'ECSPS - European Call Spread VS Put Spread',
+		// 'ECSTR - European Call Spread Time Ratio',
+		// 'ECSTS - European Call Spread Time Spread',
+		// 'ECTSAP - European Call Time Spread Against Put',
+		// 'EPSAC - European Put Spread Against Call',
+		// 'EPSACR - European Put Spread VS Call (Ratio',
+		// 'EPSACCO - European Put Spread VS Call - Call Over',
+		// 'EPSAP - European Put Spread VS Put',
+		// 'EPSTUP - European Put Stupid',
+		// 'EPTSAC - European Put Time Spread Against Call',
+		// 'ESDAC - European Straddle VS Call',
+		// 'ESDAP - European Straddle VS Put',
+		// 'FWDB - Forward Butterfly',
 
 		default:
 			alert('no matching');
 			break;
 		}
 		
-		$mdDialog.show({
-			controller : 'AppCtrl',
-			scope : $scope,
-			templateUrl : 'dialog_auto.tmpl.html',
-//			parent : angular.element(document.body),
-			preserveScope: true,
-			targetEvent: ev,
-			clickOutsideToClose: false,
-			fullscreen : false,
-//			locals: {
-//				'myTrType': myTrType,
-//				'mySide': mySide,
-//				'mySymbol': mySymbol,
-//				'myCpCompany': myCpCompany,
-//				'myInstr': instr,
-//				'myExpiry': expiry,
-//				'myStrike': strike,
-//				'myMultiplier': multiplier,
-//				'myStrat': strat,
-//				'myPremium': premium,
-//				'myRef': ref,
-//			}
-			
-		// Only for -xs, -sm breakpoints.
-		});
-//		.then(function(answer) {	// either OK / Cancel -> succ
-//			if (answer === 'Cancel') {
-//				$scope.status = 'cancelled';	
-//			}
-//			else {
-//				$scope.status = 'Trade Report sent ' + answer;
-//			}
-////			$http.post('api/emailInvoice', {
-////				client : answer,
-////				start : $scope.myStartDate.getTime(),
-////				end : $scope.myEndDate.getTime()
-////			}).then(function(result) {
-//////			$http.post('api/emailInvoice', answer).then(function(result) {
-////				console.log(result);
-////				//    	vm.param_myData = result.data.data;
-//////				$scope.param_myData = result.data.data;
-////			});
-//		}, function() { // fail , press outside or close dialog box
-//			$scope.status = 'close ';
-//		  $mdDialog.destroy();
-//		});
-}
-catch (err) {
-	alert('parse symbol error: ' + err.essage);
-}
-	};
-//}]);
-
-//function DialogController($scope, $mdDialog, locals, uiGridConstants) 
-//{
-
-	$scope.futMatTypes = [
-		{id: 'JAN17', type: 'JAN17' },
-		{id: 'FEB17', type: 'FEB17' },
-		{id: 'MAR17', type: 'MAR17' },
-		{id: 'APR17', type: 'APR17' },
-		{id: 'MAY17', type: 'MAY17' },
-		{id: 'JUN17', type: 'JUN17' },
-		{id: 'JUL17', type: 'JUL17' },
-		{id: 'AUG17', type: 'AUG17' },
-		{id: 'SEP17', type: 'SEP17' },
-		{id: 'OCT17', type: 'OCT17' },
-		{id: 'NOV17', type: 'NOV17' },
-		{id: 'DEC17', type: 'DEC17' },
-	];
-	  
-//	$scope.myOtData[0] = {'UL': 1, 'Side': 2, 'TrType': 3, 'CP': 4};
-
-	$scope.hide = function() {
-		$mdDialog.hide();
-	};
-	
-//	$scope.answer = function(answer) {
-//		$mdDialog.hide(answer);
-//	};
-	
-	$scope.sendTradeReport = function(ev) {
+		$scope.hide = function() {
+			$mdDialog.hide();
+		};
 		
-		var order = {};
-//		alert($scope.param_myData);
-//		$scope.orders.push();
-		var legs = $scope.param_myData;
-		refId = new Date().getTime();
-		data = 
-			{
-				'RefId' : refId,
-				'TrType': $scope.myTrType.substring(0,2), 
-				'UL': $scope.myUl, 
-				'Strategy': $scope.myStrat, 
-				'Expiry': $scope.myExpiry,
-				'Strike': $scope.myStrike,
-				'Multiplier' :$scope.myMultiplier,
-				'Qty': $scope.myQty,
-				'Premium': $scope.myPremium,
-				'Delta' :$scope.myDelta,
-				'Buyer' :$scope.myCompany,  
-				'Seller' :$scope.myCpCompany,  
-				'FutMat': $scope.myFutMat,   
-				'Symbol': $scope.mySymbol,   
-				'Status': 'UNSENT',   
-				'legs': legs,
-			};
-		data.subGridOptions = {
-				enableSorting : false,
-				enableColumnResizing : true,
+		$scope.sendTradeReport = function(ev) {
+			
+			refId = new Date().getTime();
+			
+			var legs = $scope.param_myData;
+			for (var i=0; i<$scope.param_myData.length; i++) {
+				if ($scope.param_myData[i].isHide 
+					|| $scope.param_myData[i].isSingle) {
+					legs.splice(i, 1);
+				}
+			}
+			
+			$http.post('api/sendTradeReport', {
+				'refId'  : refId,
+				'trType' : $scope.myTrType.substring(0,2),
+				'symbol': $scope.mySymbol,
+				'qty': $scope.myQty,
+				'delta': $scope.myDelta,
+				'price': $scope.myPremium,
+				'strat' : $scope.myStrat,
+				'futMat': $scope.myFutMat,
+				'buyer': $scope.myCompany,
+				'seller': $scope.myCpCompany,
+				'legs' : legs,
+			}).then(function(result) {
+			// $http.post('api/emailInvoice', answer).then(function(result) {
+	// alert(result);
+				// vm.param_myData = result.data.data;
+			// $scope.param_myData = result.data.data;
+			});
+			
+//			$scope.param_isShowSendBtn = false;	// display send button
+//			$scope.param_isQtyValid = false;
+//			$scope.param_isDeltaValid = false;
+//			$scope.param_isFutMatValid = false;
+//			$scope.param_isLastLegPriceValid = false;
+//			$scope.myQty = '';
+//			$scope.myDelta = '';
+//			$scope.myFutMat = '';
+//			$scope.param_myData = [];
+			
+			$mdDialog.cancel();
+		};
+
+		$scope.paramGridOptions = {
+			    data : 'myParam',
 				appScopeProvider: {
 					showRow: function(row) {
 						return true;
+					},
+					fClick: function( rowEntity ) {           
+						mb = rowEntity.modernBrowsers;
+						if (!rowEntity.isFutMatValid) {	// first set FutMat
+							last = mb.length - 1;
+							mb.splice(last, 1);	// last one is dummy 'Choose...'
+						}
+						
+						for (var i=0; i<mb.length; i++) {
+							if (mb[i].ticked) {
+								rowEntity.FutMat = mb[i].name;
+							}
+							mb[i].icon = '';
+						}
+					    $scope.afterCellEditParamGrid(rowEntity);
 					}
 				},
-                columnDefs: [ 
-                	{name:"Instrument", field:"Instrument", width: '120'}, 
-                	{name:"Expiry", field:"Expiry", width: '80'},
-                	{name:"Strike", field:"Strike", width: '80'},
-                	{name:"Qty", field:"Qty", width: '80'},
-                	{name:"Price", field:"Price", width: '80'},
-                	{field:"Buyer", width: '60'},
-                	{field:"Seller", width: '60'},
-                ],
-                data: data.legs
-        }
+				enableHorizontalScrollbar: false, 
+				enableVerticalScrollbar: false,
+				rowEditWaitInterval : -1,
+				enableSorting : false,
+				enableColumnResizing : true,
+				enableFiltering : false,
+				showGridFooter : false,
+				showColumnFooter : false,
+			    enableCellEditOnFocus: false,
+				columnDefs : [ 
+					{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit : false}, 
+					{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit : false}, 
+					{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
+					{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
+					{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
+					{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
+						cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="row.entity.isQtyValid === false">error_outline</i>' 
+							+ '{{row.entity.Qty}}</div>',
+// cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="grid.appScope.param_isQtyValid === false">error_outline</i>'
+// + '{{grid.appScope.myQty}}</div>',
+					}, 
+					{field : 'isQtyValid', visible: false},
+					{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '*',enableCellEdit : false}, 
+					{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
+// enableCellEditOnFocus: true,
+// editableCellTemplate: $scope.cellInputEditableTemplate,
+// cellTemplate: '<div><i class="material-icons" style="color:red"
+// ng-show="grid.appScope.param_isDeltaValid ===
+// false">error_outline</i>{{grid.appScope.myDelta}}</div>',
+				          cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-show="row.entity.isDeltaValid === false">error_outline</i>{{row.entity.Delta}}</div>',
+					},
+	// {field : 'isDeltaValid', visible: false},
+	// {
+	// field: 'FutMat',
+	// headerCellClass: 'blue-header',
+	// name: 'FutMat',
+	// displayName: 'Fut Mat',
+	// editableCellTemplate: 'ui-grid/dropdownEditor',
+	// width: '80',
+	// // cellFilter: 'mapGender',
+	// // cellTemplate: '<div class="ui-grid-cell-contents"><i
+	// class="material-icons" style="color:red"
+	// ng-show="!row.entity.isFutMatValid">error_outline</i>{{row.entity.FutMat}}</div>',
+	// editDropdownValueLabel: 'type',
+	// editDropdownOptionsArray: $scope.futMatTypes
+	// // [
+	// // { id: 'DEC16', type: 'DEC16' },
+	// // { id: 'MAR17', type: 'MAR17' },
+	// // { id: 'JUN17', type: 'JUN17' }
+	// // ]
+	// },
+					{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
+				    {field : 'FutMat', headerCellClass: 'blue-header', width : '*',
+				    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
+	// cellTemplate: '<div isteven-multi-select
+	// input-model="row.entity.modernBrowsers"'
+				    		+ ' output-model="row.entity.outputBrowsers" button-label="icon name" item-label="name" '
+				    		+ ' tick-property="ticked" disable-property="disabled"'
+	// + ' on-item-click="grid.appScope.fClick( row.entity )"
+	// selection-mode="single"></div>'
+				    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
+				    },
+				    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false }, 
+				    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false },
+				 ],
+				exporterMenuPdf : false,
+		};
 		
-		$scope.myOtData.unshift(data);
+	// $scope.myExternalScope = $scope;
 		
-		$http.post('api/sendTradeReport', {
-			'refId'  : refId,
-			'trType' : $scope.myTrType.substring(0,2),
-			'symbol': $scope.mySymbol,
-			'qty': $scope.myQty,
-			'delta': $scope.myDelta,
-			'price': $scope.myPremium,
-			'strat' : $scope.myStrat,
-			'futMat': $scope.myFutMat,
-			'buyer': $scope.myCompany,
-			'seller': $scope.myCpCompany,
-			'legs' : legs,
-		}).then(function(result) {
-		//$http.post('api/emailInvoice', answer).then(function(result) {
-//			alert(result);
-			//    	vm.param_myData = result.data.data;
-		//	$scope.param_myData = result.data.data;
-		});
+		$scope.paramGridOptions.onRegisterApi = function(gridApi) {
+			$scope.paramGridApi = gridApi;
+			gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEditParamGrid);
+		};
 		
-		$scope.param_isShowSendBtn = false;	// display send button
-		$scope.param_isQtyValid = false;
-		$scope.param_isDeltaValid = false;
-		$scope.param_isFutMatValid = false;
-		$scope.param_isLastLegPriceValid = false;
-		
-		$scope.myQty = '';
-		$scope.myDelta = '';
-		$scope.myFutMat = '';
-		
-		$scope.param_myData = [];
-		
-		$mdDialog.cancel();
-	};
-
-	$scope.otGridOptions = {
-		data : 'myOtData',
-//		enableHorizontalScrollbar: false, 
-//		enableVerticalScrollbar: false,
-//			rowEditWaitInterval : -1,
-		enableSorting : false,
-		enableColumnResizing : true,
-		enableFiltering : false,
-		showGridFooter : false,
-		showColumnFooter : false,
-	    enableCellEditOnFocus: true,
-	    expandableRowTemplate: 'expandableRowTemplate.html',
-	    expandableRowHeight: 150,
-	    //subGridVariable will be available in subGrid scope
-	    expandableRowScope: {
-	      subGridVariable: 'subGridScopeVariable',
-//			appScopeProvider: {
-//				showRow: function(row) {
-//					return true;
-//				}
-//			},
-	    },
-		appScopeProvider: {
-			showRow: function(row) {
-				return true;
-			}
-		},
-		columnDefs : [ 
-			{field : 'Id', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
-			{field : 'Status', headerCellClass: 'green-header', width : '*', enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val === 'SENT')
-						return 'order_in_progress';
-					if (val === 'REJECT')
-						return 'order_reject';
-					return 'order_ok';
+		$scope.afterCellEditParamGrid = function(rowEntity, colDef, newValue, oldValue) {
+			var threshold = 1000;
+			var tokens = rowEntity.Multiplier.split('X');
+//			if (rowEntity.Qty && rowEntity.Qty !== '') {
+			if (!isNaN(rowEntity.Qty)) {
+				var params = [];
+				
+				// update legs qty
+				var isInvalid = false;
+				for (var i=0; i<tokens.length; i++) {
+					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
+					$scope.param_myData[i].Qty = legQty;
+					if ((legQty % 1 !== 0) || legQty > threshold) {
+						isInvalid = true;
+						$scope.param_myData[i].isQtyValid = false;
+					}
 				}
-			}, 
-			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
-			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
-			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
-			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false},
-			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
-			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
-			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
-		 ],
-//		exporterMenuPdf : false,
-	};
-	$scope.otGridOptions.data = $scope.myOtData;
-	
-	$scope.otGridOptions.onRegisterApi = function(gridApi) {
-		$scope.otGridApi = gridApi;
-//		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEditParamGrid);
-	}
-	
-    $scope.expandAllRows = function() {
-        $scope.otGridApi.expandable.expandAllRows();
-      }
-   
-      $scope.collapseAllRows = function() {
-        $scope.otGridApi.expandable.collapseAllRows();
-      }
-	
-	$scope.paramGridOptions = {
-		    data : 'myParam',
+				// parameter qty 
+				rowEntity.isQtyValid = !isInvalid;
+				$scope.param_isQtyValid = !isInvalid;
+				$scope.myQty = Number(rowEntity.Qty);
+			}
+			else {
+				$scope.param_isQtyValid = false;
+				$scope.myQty = rowEntity.Qty;
+				for (var i=0; i<tokens.length; i++) {
+					$scope.param_myData[i].Qty = undefined;
+				}
+			}
+			
+			if (!isNaN(rowEntity.Delta)/* && rowEntity.Delta !== ''*/) {
+				var len = $scope.param_myData.length;
+				var delta = Number(rowEntity.Delta);
+				var futQty = Number(rowEntity.Qty) * Math.abs(delta) * 0.01;
+				$scope.param_myData[len - 1].Qty = futQty;
+				$scope.myDelta = Number(rowEntity.Delta);
+				
+				rowEntity.isDeltaValid = (futQty % 1 === 0);
+				$scope.param_isDeltaValid = (futQty % 1 === 0);
+				
+				var isHide = false;
+				// update future leg
+				if (delta < 0) {
+					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCompany;
+					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCpCompany;
+				}
+				else if (delta === 0){
+					isHide = true;
+				}
+				else {
+					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCpCompany;
+					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCompany;
+				}
+				$scope.param_myData[$scope.param_myData.length - 1].isHide = 
+					isHide || $scope.param_myData[$scope.param_myData.length - 1].isSingle ;
+	// var side = hedgeSide(params);
+	// $scope.param_myData[$scope.param_myData.length - 1].Side = side;
+			}
+			else {
+				$scope.param_isDeltaValid = false;
+				rowEntity.isDeltaValid = false;
+				$scope.myDelta = undefined;
+				$scope.param_myData[$scope.param_myData.length - 1].isHide = false;
+			}
+			
+			if (rowEntity.FutMat && rowEntity.FutMat !== '') {
+				$scope.param_myData[$scope.param_myData.length - 1].Expiry = rowEntity.FutMat;
+				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat);
+				$scope.param_isFutMatValid = true;
+				rowEntity.isFutMatValid = true;
+				$scope.myFutMat = rowEntity.FutMat;
+			}
+			else {
+				$scope.param_isFutMatValid = false;
+				rowEntity.isFutMatValid = false;
+			}
+			
+			$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
+					&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
+			
+	// $scope.paramGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+			 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+			 if (!$scope.$$phase) {
+				 $scope.$apply();
+			 }
+		};
+		
+//		$templateCache.put('ui-grid/uiGridViewport',
+//				"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
+//		);
+		
+		// ========================== gridOptions ================================
+		$scope.gridOptions = {
 			appScopeProvider: {
 				showRow: function(row) {
+					if (row.isHide && row.isHide === true)
+						return false;
 					return true;
-				},
-				fClick: function( rowEntity ) {           
-//	    alert( 'On-item-click' );        
-//	    alert( 'On-item-click - data:' );        
-//	    alert( rowEntity );
-					mb = rowEntity.modernBrowsers;
-					if (!rowEntity.isFutMatValid) {	// first set FutMat
-						last = mb.length - 1;
-						mb.splice(last, 1);	// last one is dummy 'Choose...'
-					}
-					
-					for (var i=0; i<mb.length; i++) {
-						if (mb[i].ticked) {
-							rowEntity.FutMat = mb[i].name;
-						}
-						mb[i].icon = '';
-					}
-				    $scope.afterCellEditParamGrid(rowEntity);
 				}
 			},
-			enableHorizontalScrollbar: false, 
-			enableVerticalScrollbar: false,
-			rowEditWaitInterval : -1,
+	// rowEditWaitInterval : -1,
+			data : 'param_myData',
 			enableSorting : false,
 			enableColumnResizing : true,
 			enableFiltering : false,
 			showGridFooter : false,
 			showColumnFooter : false,
-		    enableCellEditOnFocus: false,
+			enableCellEditOnFocus: false,
 			columnDefs : [ 
-				{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit : false}, 
-				{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit : false}, 
-				{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-				{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-				{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-				{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
-//					editableCellTemplate: '<div><input type="number" class="form-control" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>',
-//			        cellTemplate: 'prompt.html',
-			        cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="row.entity.isQtyValid === false">error_outline</i>' 
-			        	+ '{{row.entity.Qty}}</div>',
-//		        	cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="grid.appScope.param_isQtyValid === false">error_outline</i>' 
-//		        		+ '{{grid.appScope.myQty}}</div>',
+				{field : 'Instrument', 
+					headerCellClass: 'brown-header', 
+					width : '120', enableCellEdit : false,
+					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+						var val = grid.getCellValue(row, col);
+						if (val)
+							return '';
+						return 'missing';
+					}
 				}, 
-				{field : 'isQtyValid', visible: false},
-				{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '*',enableCellEdit : false}, 
-				{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
-//					enableCellEditOnFocus: true,
-//			          editableCellTemplate: $scope.cellInputEditableTemplate,
-//			          cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="grid.appScope.param_isDeltaValid === false">error_outline</i>{{grid.appScope.myDelta}}</div>',
-			          cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-show="row.entity.isDeltaValid === false">error_outline</i>{{row.entity.Delta}}</div>',
+				{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '*', enableCellEdit : false	}, 
+				{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
+					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+						var val = grid.getCellValue(row, col);
+						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
+							 return '';
+						return 'missing';
+					}
+				}, 
+				{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '*',enableCellEdit : false,}, 
+				{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '*', enableCellEdit : false,
+					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+						var val = grid.getCellValue(row, col);
+						if (val)
+							return '';
+						return 'missing';
+					}
+				}, 
+				{field : 'Price', headerCellClass: 'brown-header', displayName : 'Price', width : '*', /*
+																										 * enableCellEdit :
+																										 * true,
+																										 */cellFilter : 'number: 2',
+				    cellEditableCondition: function ($scope) {
+				    	if ($scope.row.entity.isEditable)
+				    		return true;
+				    	return false;
+	// 'row.entity.isEditable',
+				    },
+					cellTemplate: '<div class="ui-grid-cell-contents" ng-if="row.entity.isEditable">'
+						+ '<i class="material-icons" style="color:red" ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
+						+ '{{row.entity.Price}}'
+	// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
+						+ '</div>'
+						+ '<div class="ui-grid-cell-contents" ng-if="!row.entity.isEditable">'
+						+ '<input ng-if="row.entity.isValidate" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
+						+ '<div ng-if="!row.entity.isValidate">{{row.entity.Price}}</div>'
+						+ '</div>',
+	// cellTemplate: '<div><i class="material-icons" style="color:red"
+	// ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
+	// + '<input ng-if="row.entity.isValidate" style="background-color: red; color:
+	// white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
+	// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
+	// + '</div>',
 				},
-//				{field : 'isDeltaValid', visible: false},
-//			    { 
-//					field: 'FutMat',
-//					headerCellClass: 'blue-header',
-//			        name: 'FutMat', 
-//			        displayName: 'Fut Mat', 
-//			        editableCellTemplate: 'ui-grid/dropdownEditor', 
-//			        width: '80',
-////			        cellFilter: 'mapGender', 
-////			        cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-show="!row.entity.isFutMatValid">error_outline</i>{{row.entity.FutMat}}</div>',
-//			        editDropdownValueLabel: 'type',
-//			        editDropdownOptionsArray: $scope.futMatTypes 
-////			        	[
-////			        { id: 'DEC16', type: 'DEC16' },
-////			        { id: 'MAR17', type: 'MAR17' },
-////			        { id: 'JUN17', type: 'JUN17' }
-////			        ] 
-//			    },
-				{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
-			    {field : 'FutMat', headerCellClass: 'blue-header', width : '*',
-			    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
-//		    		cellTemplate: '<div isteven-multi-select input-model="row.entity.modernBrowsers"' 
-			    		+ ' output-model="row.entity.outputBrowsers" button-label="icon name" item-label="name" '
-			    		+ ' tick-property="ticked" disable-property="disabled"'
-//			    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
-			    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
-			    },
-			    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false }, 
-			    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false },
-			 ],
-			exporterMenuPdf : false,
-	};
-	
-//	$scope.myExternalScope = $scope;
-	
-	$scope.paramGridOptions.onRegisterApi = function(gridApi) {
-		$scope.paramGridApi = gridApi;
-		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEditParamGrid);
-	}
-	
-	$scope.afterCellEditParamGrid = function(rowEntity, colDef, newValue, oldValue) {
-		var tokens = rowEntity.Multiplier.split('X');
-		if (rowEntity.Qty && rowEntity.Qty !== '') {
-			var params = [];
-			
-			// update legs qty
-			var hasDecimal = false;
-			for (var i=0; i<tokens.length; i++) {
-				var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
-				$scope.param_myData[i].Qty = legQty;
-				if ((legQty % 1 !== 0)) {
-					hasDecimal = true;
-				}
-//				params.push({side : $scope.param_myData[i].Side, option: $scope.param_myData[i].UL.split(' ')[1], qty: $scope.param_myData[i].Qty});
-			}
-			$scope.param_isQtyValid = !hasDecimal;
-			rowEntity.isQtyValid = !hasDecimal;
-////			// update future sell leg
-//			var side = hedgeSide(params);
-//			$scope.param_myData[$scope.param_myData.length - 1].Side = side;
+	            {field : 'noPrice', headerCellClass: 'brown-header', displayName : 'noPrice', enableCellEdit : false, visible : false},
+	            {field : 'isValidate', headerCellClass: 'brown-header', displayName : 'isValidate', enableCellEdit : false, visible : false},
+	            {field : 'isEditable', headerCellClass: 'brown-header', displayName : 'isEditable', enableCellEdit : false, visible : false},
+	            {field : 'Multiplier', headerCellClass: 'brown-header', displayName : 'Multiplier',width : '*', enableCellEdit : false, visible : false},
+				{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+						var val = grid.getCellValue(row, col);
+						if (val)
+							return '';
+						return 'missing';
+					}
+				}, 
+				{field : 'Seller', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+						var val = grid.getCellValue(row, col);
+						if (val)
+							return '';
+						return 'missing';
+					}
+				},
+			],
+	// rowTemplate: '<div><div style="height: 100%; {\'background-color\': \'\'}"
+	// ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by
+	// col.colDef.name" class="ui-grid-cell" ng-class="{
+	// \'ui-grid-row-header-cell\': col.isRowHeader }" ui-grid-cell></div></div>',
+	// exporterMenuPdf : false,
+		};
 
-			$scope.myQty = Number(rowEntity.Qty);
-			
-		}
-		else {
-			$scope.param_isQtyValid = false;
-			$scope.myQty = rowEntity.Qty;
-			for (var i=0; i<tokens.length; i++) {
-				$scope.param_myData[i].Qty = undefined;
-			}
-		}
+//		$scope.gridOptions.data = $scope.param_myData;
 		
-		if (rowEntity.Delta && rowEntity.Delta !== '') {
-			var len = $scope.param_myData.length;
-			var delta = Number(rowEntity.Delta);
-			var futQty = Number(rowEntity.Qty) * Math.abs(delta) * 0.01;
-			$scope.param_myData[len - 1].Qty = futQty;
-			$scope.myDelta = Number(rowEntity.Delta);
+		$scope.gridOptions.onRegisterApi = function(gridApi) {
+			$scope.gridApi = gridApi;
+			gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEdit);
+		};
+
+		$scope.afterCellEdit = function(rowEntity, coldef, newValue, oldValue) {
+			var nMissLeg = 0;
+			params = [];
+			var multi = 0;
+			var premium = $scope.myPremium;
+			var side = 0;
+			rowEntity.noPrice = false;
 			
-			rowEntity.isDeltaValid = (futQty % 1 === 0);
-			$scope.param_isDeltaValid = (futQty % 1 === 0);
-			
-			var isHide = false;
-			// update future leg
-			if (delta < 0) {
-				$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCompany;
-				$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCpCompany;
+			for (i = 0; i < $scope.param_myData.length; i++) 
+			{
+				if ($scope.param_myData[i].noPrice) {
+	// if (isNaN($scope.param_myData[i].Price)) {
+					nMissLeg++;
+				}
 			}
-			else if (delta === 0){
-				isHide = true;
+			if (nMissLeg > 1)
+				return;
+			
+			for (i = 0; i < $scope.param_myData.length - 2; i++) 
+			{
+				if (!$scope.param_myData[i].noPrice) {
+					params.push({
+						'side' : $scope.param_myData[i].Side,
+						'multiplier' : $scope.param_myData[i].Multiplier,
+						'price' : $scope.param_myData[i].Price,
+						'option' : $scope.param_myData[i].UL.split(' ')[1],
+						'qty' : $scope.param_myData[i].Qty
+					});
+				} 
+			}
+			var iCal = $scope.param_myData.length - 2;
+	// side = $scope.param_myData[iCal].Side;
+			multi = $scope.param_myData[iCal].Multiplier;
+			var price = calRemainPrice(params, multi, premium);
+	// var price = calRemainPrice(params, multi, side, premium);
+			// calRemainPrice(params, myMultiplier, myPrice, mySide);
+			$scope.param_myData[iCal].Price = price;
+			$scope.param_myData[iCal].noPrice = false;
+			
+			if (isNaN(price) || price < 0 || (price % 1 != 0)) {	// has decimal
+				$scope.param_myData[iCal].isValidate = true;
+				$scope.param_isLastLegPriceValid = false;
 			}
 			else {
-				$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCpCompany;
-				$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCompany;
+				$scope.param_myData[iCal].isValidate = false;
+				$scope.param_isLastLegPriceValid = true;
 			}
-			$scope.param_myData[$scope.param_myData.length - 1].isHide = isHide;
-//			var side = hedgeSide(params);
-//			$scope.param_myData[$scope.param_myData.length - 1].Side = side;
-		}
-		else {
-			$scope.param_isDeltaValid = false;
-			rowEntity.isDeltaValid = false;
-			$scope.myDelta = undefined;
-			$scope.param_myData[$scope.param_myData.length - 1].isHide = false;
-		}
+			
+			$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
+					&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
+			
+			 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+			 if (!$scope.$$phase) {
+				 $scope.$apply();
+			 }
+		};
+		// ========================== gridOptions end ================================
 		
-		if (rowEntity.FutMat && rowEntity.FutMat !== '') {
-			$scope.param_myData[$scope.param_myData.length - 1].Expiry = rowEntity.FutMat;
-			$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat);
-			$scope.param_isFutMatValid = true;
-			rowEntity.isFutMatValid = true;
-			$scope.myFutMat = rowEntity.FutMat;
-		}
-		else {
-			$scope.param_isFutMatValid = false;
-			rowEntity.isFutMatValid = false;
-		}
-		
-		$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
-				&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
-		
-//	    $scope.paramGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
-		 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
-		 if (!$scope.$$phase) {
-			 $scope.$apply();
-		 }
-	}
-	
-	$templateCache.put('ui-grid/uiGridViewport',
-			"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
-	);
-	
-	$scope.gridOptions = {
-		appScopeProvider: {
-			showRow: function(row) {
-				if (row.isHide && row.isHide === true)
-					return false;
-				return true;
-			}
-		},
-//		rowEditWaitInterval : -1,
-		enableSorting : false,
-		enableColumnResizing : true,
-		enableFiltering : false,
-		showGridFooter : false,
-		showColumnFooter : false,
-		enableCellEditOnFocus: false,
-		columnDefs : [ 
-			{field : 'Instrument', 
-				headerCellClass: 'brown-header', 
-				width : '120', enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val)
-						return '';
-					return 'missing';
-				}
-			}, 
-			{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '*', enableCellEdit : false	}, 
-			{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (!isNaN(val) && val > 0 && (val % 1 === 0))	// decimal
-						 return '';
-					return 'missing';
-				}
-			}, 
-			{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '*',enableCellEdit : false,}, 
-			{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '*', enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val)
-						return '';
-					return 'missing';
-				}
-			}, 
-			{field : 'Price', headerCellClass: 'brown-header', displayName : 'Price', width : '*', /*enableCellEdit : true, */cellFilter : 'number: 2',
-			    cellEditableCondition: function ($scope) {
-			    	if ($scope.row.entity.isEditable)
-			    		return true;
-			    	return false;
-//			    	'row.entity.isEditable',
-			    },
-				cellTemplate: '<div class="ui-grid-cell-contents" ng-if="row.entity.isEditable">'
-					+ '<i class="material-icons" style="color:red" ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
-					+ '{{row.entity.Price}}'
-//					+ '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
-					+ '</div>'
-					+ '<div class="ui-grid-cell-contents" ng-if="!row.entity.isEditable">'
-					+ '<input ng-if="row.entity.isValidate" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
-					+ '<div ng-if="!row.entity.isValidate">{{row.entity.Price}}</div>'
-					+ '</div>',
-//					cellTemplate: '<div><i class="material-icons" style="color:red" ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
-//						+ '<input ng-if="row.entity.isValidate" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
-//						+ '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
-//						+ '</div>',
-			},
-            {field : 'noPrice', headerCellClass: 'brown-header', displayName : 'noPrice', enableCellEdit : false, visible : false},
-            {field : 'isValidate', headerCellClass: 'brown-header', displayName : 'isValidate', enableCellEdit : false, visible : false},
-            {field : 'isEditable', headerCellClass: 'brown-header', displayName : 'isEditable', enableCellEdit : false, visible : false},
-            {field : 'Multiplier', headerCellClass: 'brown-header', displayName : 'Multiplier',width : '*', enableCellEdit : false, visible : false},
-			{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val)
-						return '';
-					return 'missing';
-				}
-			}, 
-			{field : 'Seller', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
-				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-					var val = grid.getCellValue(row, col);
-					if (val)
-						return '';
-					return 'missing';
-				}
-			},
-		],
-//		rowTemplate: '<div><div style="height: 100%; {\'background-color\': \'\'}" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }" ui-grid-cell></div></div>',
-//		exporterMenuPdf : false,
+		$scope.hide = function() {
+			$mdDialog.hide();
+		};
+
+		$scope.cancel = function() {
+			$mdDialog.cancel();
+		};
+
+		$scope.answer = function(answer) {
+			$mdDialog.hide(answer);
+		};
 	};
+	// ====================== DialogController end ===========================
 
-	$scope.gridOptions.data = $scope.param_myData;
-	
-	$scope.gridOptions.onRegisterApi = function(gridApi) {
-		$scope.gridApi = gridApi;
-		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEdit);
-	}
-
-	$scope.afterCellEdit = function(rowEntity, coldef, newValue, oldValue) {
-		var nMissLeg = 0;
-		params = [];
-		var multi = 0;
-		var premium = $scope.myPremium;
-		var side = 0;
-		rowEntity.noPrice = false;
+	// ====================== unit test ===============================	
+	$scope.showCrossDetail_test = function(ev, trType, symbol, company, cpCompany) {
+		var str = [];
+ // P
+ str.push('HSI JUN17 19000 P 191 TRADES REF 9850');
+ // PB
+ str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (11000)');
+ str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17 11000/10000/9000 PFLY 191 TRADES REF 9850');
+ // PC
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (1100)');
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (8000)');
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI JUN17 11000/10000/9000/8000 PDOR 191 TRADES REF 9850');
+ // PDIAG
+ str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (7000)');
+ str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/DEC17 7000/9000 PS 191 TRADES REF 9850');
+ // PR
+ str.push('HSCEI DEC17 10000/9000 1x1.5 PS 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI DEC17 10000/9000 1x1.5 PS 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI DEC17 10000/9000 1x1.5 PS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI DEC17 10000/9000 1x1.5 PS 191 TRADES REF 9850 (C)');
+ str.push('HSCEI DEC17 10000/9000 1x1.5 PS 191 TRADES REF 9850');
+ // PS
+ str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (8600)');
+ str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850 (C)');
+ str.push('HSCEI DEC17 9000/8600 PS 191 TRADES REF 9850');
+ // PTB
+ str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (7800)');
+ str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/JUN17/SEP17 7800 PFLY 191 TRADES REF 9850');
+ // PTC
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (8000)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 8000 PDOR 191 TRADES REF 9850');
+ // PL
+ str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (8000)');
+ str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI SEP17 10000/9000/8000 PLDR 191 TRADES REF 9850');
+ // PTL
+ str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (9200)');
+ str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/JUN17/SEP17 9200 PLDR 191 TRADES REF 9850');
+ // PTR
+ str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (DEC18)');
+ str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (20000)');
+ str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850 (C)');
+ str.push('HSI DEC17/DEC18 20000 2x1 PS 191 TRADES REF 9850');
+ // PTS
+ str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (JUN19)');
+ str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850 (C)');
+ str.push('HSCEI JUN17/JUN19 9000 PS 191 TRADES REF 9850');
 		
-		for (i = 0; i < $scope.param_myData.length; i++) 
-		{
-			if ($scope.param_myData[i].noPrice) {
-//			if (isNaN($scope.param_myData[i].Price)) {
-				nMissLeg++;
+		
+ // SPRD
+ str.push('HSCEI MAR17/JUN17 9800 ROLL 191 TRADES REF 9850');
+ str.push('HSCEI DEC17 10400 C 191 TRADES REF 9850');
+		
+ str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (11000)');
+ str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17 9000/10000/11000 CFLY 191 TRADES REF 9850');
+		
+ str.push('HSCEI JUN17 8000/9000/10000/11000 CDOR 191 TRADES REF 9850');
+ // CDIAG
+ str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (12000)');
+ str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850 (12600)');
+ str.push('HSCEI MAR17/DEC17 12000/12600 CS 191 TRADES REF 9850');
+ // CR
+ str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (13000)');
+ str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (12000)');
+ str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850 (SEP17)');
+ str.push('HSI SEP17 12000/13000 1x2 CS 191 TRADES REF 9850');
+ // CS
+ str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (13800)');
+ str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (12000)');
+ str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSI DEC17 12000/13800 CS 191 TRADES REF 9850');
+ // CTB
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (10600)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CFLY 191 TRADES REF 9850');
+ // CTC
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/JUN17/SEP17/DEC17 10000 CDOR 191 TRADES REF 9850');
+ // CL
+ str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (11000)');
+ str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (9000)');
+ str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI SEP17 9000/10000/11000 CLDR 191 TRADES REF 9850');
+ // CTL
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (JUN17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (10600)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/JUN17/SEP17 10600 CLDR 191 TRADES REF 9850');
+ // CTR
+ str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/DEC17 10000 2x1 CS 191 TRADES REF 9850');
+ // CTS
+ str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (MAR17)');
+ str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (10400)');
+ str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850 (C)');
+ str.push('HSCEI MAR17/DEC17 10400 CS 191 TRADES REF 9850');
+ // IF
+ str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (8000)');
+ str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (12000)');
+ str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850 (C)');
+ str.push('HSCEI DEC17 8000/10000/12000 IFLY 191 TRADES REF 9850');
+ // IFR
+ str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (8000)');
+ str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (12000)');
+ str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (10000)');
+ str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850 (C)');
+ str.push('HSCEI DEC17 8000/10000/12000 1x1.5x1 IFLY 191 TRADES REF 9850');
+ // RR
+ str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850');
+ str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (SEP17)');
+ str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (19000)');
+ str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (C)');
+ str.push('HSI SEP17 19000/25000 RR 191 TRADES REF 9850 (25000)');
+ // SYNTH
+ str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (C)');
+ str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (DEC17)');
+ str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850 (9800)');
+ str.push('HSCEI DEC17 9800 SYNTH 191 TRADES REF 9850');
+ // SD
+ str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (DEC18)');
+ str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (23000)');
+ str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850 (C)');
+ str.push('HSI DEC18 23000 STRD 191 TRADES REF 9850');
+		// SDTS
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (MAR17)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (DEC17)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (10000)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850 (C)');
+		str.push('HSCEI MAR17/DEC17 10000 STRD 191 TRADES REF 9850');
+		// SG
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (DEC17)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (8000)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (12000)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850 (C)');
+		str.push('HSCEI DEC17 8000/12000 STRG 191 TRADES REF 9850');
+		
+		
+		var res = [];
+ res.push(['HSI','JUN17','19000','1','P',191,9850]);
+		
+ res.push(['HSCEI','MAR17','11000/10000/9000','-1X2X-1','PB',191,9850]);
+ res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+ res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+ res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+ res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+ res.push(['HSCEI','MAR17','11000/10000/9000','1X-2X1','PB',191,9850]);
+		
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','-1X1X1X-1','PC',191,9850]);
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','-1X1X1X-1','PC',191,9850]);
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+ res.push(['HSCEI','JUN17','11000/10000/9000/8000','1X-1X-1X1','PC',191,9850]);
+		
+ res.push(['HSCEI','MAR17/DEC17','7000/9000','1X-1','PDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','7000/9000','1X-1','PDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','7000/9000','-1X1','PDIAG',191,9850]);
+		
+ res.push(['HSCEI','DEC17','10000/9000','-1X1.5','PR',191,9850]);
+ res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+ res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+ res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+ res.push(['HSCEI','DEC17','10000/9000','1X-1.5','PR',191,9850]);
+		
+ res.push(['HSCEI','DEC17','9000/8600','-1X1','PS',191,9850]);
+ res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+ res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+ res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+ res.push(['HSCEI','DEC17','9000/8600','1X-1','PS',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17/SEP17','7800','-1X2X-1','PTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','7800','1X-2X1','PTB',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','-1X1X1X-1','PTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','-1X1X1X-1','PTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','8000','1X-1X-1X1','PTC',191,9850]);
+		
+ res.push(['HSCEI','SEP17','10000/9000/8000','-1X1X1','PL',191,9850]);
+ res.push(['HSCEI','SEP17','10000/9000/8000','-1X1X1','PL',191,9850]);
+ res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+ res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+ res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+ res.push(['HSCEI','SEP17','10000/9000/8000','1X-1X-1','PL',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17/SEP17','9200','1X1X-1','PTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','9200','1X1X-1','PTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','9200','-1X-1X1','PTL',191,9850]);
+		
+ res.push(['HSI','DEC17/DEC18','20000','2X-1','PTR',191,9850]);
+ res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+ res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+ res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+ res.push(['HSI','DEC17/DEC18','20000','-2X1','PTR',191,9850]);
+		
+ res.push(['HSCEI','JUN17/JUN19','9000','1X-1','PTS',191,9850]);
+ res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+ res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+ res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+ res.push(['HSCEI','JUN17/JUN19','9000','-1X1','PTS',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17','9800','-1X1X1X-1','SPRD',191,9850]);
+ res.push(['HSCEI','DEC17','10400','1','C',191,9850]);
+		
+ res.push(['HSCEI','MAR17','9000/10000/11000','-1X2X-1','CB',191,9850]);
+ res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+ res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+ res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+ res.push(['HSCEI','MAR17','9000/10000/11000','1X-2X1','CB',191,9850]);
+		
+ res.push(['HSCEI','JUN17','8000/9000/10000/11000','1X-1X-1X1','CC',191,9850]);
+
+ res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','12000/12600','1X-1','CDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','12000/12600','-1X1','CDIAG',191,9850]);
+		
+ res.push(['HSI','SEP17','12000/13000','-1X2','CR',191,9850]);
+ res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+ res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+ res.push(['HSI','SEP17','12000/13000','1X-2','CR',191,9850]);
+		
+ res.push(['HSI','DEC17','12000/13800','-1X1','CS',191,9850]);
+ res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+ res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+ res.push(['HSI','DEC17','12000/13800','1X-1','CS',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X2X-1','CTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X-2X1','CTB',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','-1X1X1X-1','CTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','-1X1X1X-1','CTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17/DEC17','10000','1X-1X-1X1','CTC',191,9850]);
+		
+ res.push(['HSCEI','SEP17','9000/10000/11000','-1X1X1','CL',191,9850]);
+ res.push(['HSCEI','SEP17','9000/10000/11000','-1X1X1','CL',191,9850]);
+ res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+ res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+ res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+ res.push(['HSCEI','SEP17','9000/10000/11000','1X-1X-1','CL',191,9850]);
+		
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X1X-1','CTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','1X1X-1','CTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+ res.push(['HSCEI','MAR17/JUN17/SEP17','10600','-1X-1X1','CTL',191,9850]);
+		
+ res.push(['HSCEI','MAR17/DEC17','10000','2X-1','CTR',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10000','-2X1','CTR',191,9850]);
+		
+ res.push(['HSCEI','MAR17/DEC17','10400','1X-1','CTS',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+ res.push(['HSCEI','MAR17/DEC17','10400','-1X1','CTS',191,9850]);
+		
+ res.push(['HSCEI','DEC17','8000/10000/12000','1X-1X-1X1','IF',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','1X-1X-1X1','IF',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1X1X-1','IF',191,9850]);
+		
+ res.push(['HSCEI','DEC17','8000/10000/12000','1X-1.5X-1.5X1','IFR',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','1X-1.5X-1.5X1','IFR',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+ res.push(['HSCEI','DEC17','8000/10000/12000','-1X1.5X1.5X-1','IFR',191,9850]);
+		
+ res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+ res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+ res.push(['HSI','SEP17','19000/25000','1X-1','RR',191,9850]);
+ res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
+ res.push(['HSI','SEP17','19000/25000','-1X1','RR',191,9850]);
+		
+ res.push(['HSCEI','DEC17','9800','-1X1','SYNTH',191,9850]);
+ res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
+ res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
+ res.push(['HSCEI','DEC17','9800','1X-1','SYNTH',191,9850]);
+		
+ res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+ res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+ res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+ res.push(['HSI','DEC18','23000','1X1','SD',191,9850]);
+		
+		res.push(['HSCEI','MAR17/DEC17','10000','1X1X-1X-1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		res.push(['HSCEI','MAR17/DEC17','10000','-1X-1X1X1','SDTS',191,9850]);
+		
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+		res.push(['HSCEI','DEC17','8000/12000','1X1','SG',191,9850]);
+
+
+		for (var i=0; i<str.length; i++) {
+			var isCorrect = true;
+			var s = str[i].replace(/ +(?= )/g,'');
+			try {
+			var tokens = parseSymbol(s);
+			var myInstr = tokens[0];
+			var myExpiry = tokens[1];
+			var myStrike = tokens[2];
+			var myMultiplier = tokens[3];
+			var myStrat = tokens[4];
+			var myPremium = Number(tokens[5]);
+			var myRef = Number(tokens[6].replace(',', ''));
+			var val = res[i];
+			if (val[0] !== myInstr) {
+				alert(s + ',' + myInstr + ',' + val[0]);
+			}
+			else if (val[1] !== myExpiry) {
+				alert(s + ',myExpiry=' + myExpiry + ',' + val[1]);
+			}
+			else if (val[2] !== myStrike) {
+				alert(s + ',myStrike=' + myStrike + ',' + val[2]);
+			}
+			else if (val[3] !== myMultiplier) {
+				alert(s + ',myMultiplier=' + myMultiplier + ',' + val[3]);
+			}
+			else if (val[4] !== myStrat) {
+				alert(s + ',myStrat=' + myStrat + ',' + val[4]);
+			}
+			else if (val[5] !== myPremium) {
+				alert(s + ',myPremium=' + myPremium + ',' + val[5]);
+			}
+			else if (val[6] !== myRef) {
+				alert(s + ',myRef=' + myRef + ',' + val[6]);
+			}
+			else {
+// alert(s + 'OK');
+			}
+			}catch (err) {
+				alert(err.message);
 			}
 		}
-		if (nMissLeg > 1)
-			return;
-		
-		for (i = 0; i < $scope.param_myData.length - 2; i++) 
-		{
-			if (!$scope.param_myData[i].noPrice) {
-				params.push({
-					'side' : $scope.param_myData[i].Side,
-					'multiplier' : $scope.param_myData[i].Multiplier,
-					'price' : $scope.param_myData[i].Price,
-					'option' : $scope.param_myData[i].UL.split(' ')[1],
-					'qty' : $scope.param_myData[i].Qty
-				});
-			} 
-		}
-		var iCal = $scope.param_myData.length - 2;
-//		side = $scope.param_myData[iCal].Side;
-		multi = $scope.param_myData[iCal].Multiplier;
-		var price = calRemainPrice(params, multi, premium);
-//		var price = calRemainPrice(params, multi, side, premium);
-		// calRemainPrice(params, myMultiplier, myPrice, mySide);
-		$scope.param_myData[iCal].Price = price;
-		$scope.param_myData[iCal].noPrice = false;
-		
-		if (isNaN(price) || price < 0 || (price % 1 != 0)) {	// has decimal
-			$scope.param_myData[iCal].isValidate = true;
-			$scope.param_isLastLegPriceValid = false;
-		}
-		else {
-			$scope.param_myData[iCal].isValidate = false;
-			$scope.param_isLastLegPriceValid = true;
-		}
-		
-		$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
-				&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
-		
-		 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
-		 if (!$scope.$$phase) {
-			 $scope.$apply();
-		 }
 	};
-
 }]);
 
-
+// ========================================= tools =========================================
 function calRemainPrice(params, myMultiplier, myPremium) {
 	sum = 0;
 	for (var i=0; i<params.length; i++) 
 	{
-//		var sign = params[i].side === 'Sell' ? -1 : 1; 
+// var sign = params[i].side === 'Sell' ? -1 : 1;
 		sum += Number(params[i].price) * Number(params[i].multiplier);
 	}
-//	var mySign = mySide === 'Sell' ? -1 : 1;
+// var mySign = mySide === 'Sell' ? -1 : 1;
 	return (myPremium - sum) / (myMultiplier);
 }
-//
-//function calRemainPrice(params, myMultiplier, mySide, myPremium) {
-//	sum = 0;
-//	for (i=0; i<params.length; i++) 
-//	{
-//		var sign = params[i].side === 'Sell' ? -1 : 1; 
-//		sum += Number(params[i].price) * sign * Number(params[i].multiplier);
-//	}
-//	var mySign = mySide === 'Sell' ? -1 : 1;
-//	return (myPremium - sum) / (myMultiplier * mySign);
-//}
-
-//function hedgeSide(params) {
-//	sum = 0;
-//	for (i=0; i<params.length; i++) 
-//	{
-//		var qty = Number(params[i].qty);
-//		if ((params[i].side === SIDE.BUY && params[i].option === 'Put') ||
-//			(params[i].side === SIDE.SELL && params[i].option === 'Call'))
-//			sum += -1 * qty;
-//		else 
-//			sum += qty;
-//	}
-//	if (sum > 0) {
-//		return SIDE.SELL;
-//	}
-//	return SIDE.BUY;
-//}
 
 function getMonthFromString(mmmyy){
-	   var d = Date.parse(mmmyy.substring(0,3) + "1, 20" + mmmyy.substring(3,5));
-	   if(!isNaN(d)){
-	      return new Date(d).getMonth();
-	   }
-	   return -1;
-	 }
+   var d = Date.parse(mmmyy.substring(0,3) + "1, 20" + mmmyy.substring(3,5));
+   if(!isNaN(d)){
+      return new Date(d).getMonth();
+   }
+   return -1;
+ }
 
 function exchangeSymbol(ul, deriv, strike, futExp) {
 	var m = derivLetter(deriv, futExp);
@@ -1731,6 +1622,8 @@ function exchangeSymbol(ul, deriv, strike, futExp) {
 };
 
 function derivLetter(deriv, futExp) {
+// var d = new Date(futExp);
+// var m = d.getMonth();
 	var m = getMonthFromString(futExp);
 	switch (deriv) {
 	case 'C': {
@@ -1831,8 +1724,8 @@ function getDefaultMultiplier(deriv) {
 	case 'IFR': // - European Iron Fly Ratio':
 		return '-1X1X1X-1';
 	case 'RR': // - European Risk Reversal':
-//	case 'S':// - European Synthetic Call Over':	// special reverse of 'SPO' -> S   
-//	case 'SPO':// - European Synthetic Put Over':
+// case 'S':// - European Synthetic Call Over': // special reverse of 'SPO' -> S
+// case 'SPO':// - European Synthetic Put Over':
 	case 'SYNTH':
 		return '1X-1';
 	case 'SD': // - European Straddle':
@@ -1888,7 +1781,7 @@ function getMultiplier(unsignedTerm, strat) {
 	case 'CL': // - European Call Ladder':
 	case 'PL': // - European Put Ladder':
 		return tokens[0] + 'X-' + tokens[1] + 'X-' + tokens[1];
-//		return '1X1X1';
+// return '1X1X1';
 	case 'CTL': // - European Call Time Ladder':
 	case 'PTL': // - European Put Time Ladder':
 		return '-' + tokens[0] + 'X-' + tokens[1] + 'X' + tokens[1];
@@ -1897,7 +1790,7 @@ function getMultiplier(unsignedTerm, strat) {
 	case 'PR': // - European Put Ratio':
 	case 'PS': // put spread
 	case 'RR': // - European Risk Reversal':
-//	case 'SPO':// - European Synthetic Put Over':
+// case 'SPO':// - European Synthetic Put Over':
 	case 'SYNTH':// - European Synthetic Put Over':
 		return tokens[0] + 'X-' + tokens[1];
 	case 'CTR' : // European Call Time Ratio':
@@ -1906,7 +1799,7 @@ function getMultiplier(unsignedTerm, strat) {
 	case 'PTR' : // - European Put Time Ratio':
 	case 'PTS': // - European Put Time Spread':
 	case 'PDIAG':
-//	case 'S':// - European Synthetic Call Over':
+// case 'S':// - European Synthetic Call Over':
 		return '-' + tokens[0] + 'X' + tokens[1];
 	case 'CTB': // - European Call Time Butterfly':
 	case 'CFLY':  // butterfly
@@ -1970,25 +1863,6 @@ function getMultiple(signedTerm, strat) {
 	return multi;
 }
 
-//function getMultiple(term, n, defaultTerm) {
-//	var multi = [];
-//	for (i = 0; i < n; i++) {
-//		multi[i] = 1;
-//	}
-//	if (term.indexOf('X') > 0) {
-//		var tokens = term.split('X');
-//		for (j = 0; j < tokens.length; j++) {
-//			multi[j] = Math.abs(tokens[j]);
-//		}
-//	} else {
-//		var tokens = defaultTerm.split('X');
-//		for (j = 0; j < tokens.length; j++) {
-//			multi[j] = tokens[j];
-//		}
-//	}
-//	return multi;
-//}
-
 function getSides(term, thisSide) {
 	var multi = [];
 	var otherSide = thisSide == SIDE.BUY ? SIDE.SELL : SIDE.BUY;
@@ -2019,7 +1893,7 @@ function getSidesByParty(term, buyer, seller) {
 		}
 	} 
 	else {	// single leg
-		multi.push(thisSide);
+		multi.push([buyer, seller]);
 	}
 	return multi;
 }
@@ -2162,12 +2036,12 @@ function deduceStrat(common_strat, is_n_expiry, is_n_strike, is_n_multiplier, ha
 		else 
 			return 'IF';
 	}
-//	case 'SYNTH' : {
-//		if (hasReverse)
-//			return 'S';
-//		else 
-//			return 'SPO';
-//	}
+// case 'SYNTH' : {
+// if (hasReverse)
+// return 'S';
+// else
+// return 'SPO';
+// }
 	case 'STRD' : {
 		if (is_n_expiry)
 			return 'SDTS';
@@ -2209,18 +2083,18 @@ function deduceReverse(common_strat, expiry, strike, multiplier, sReverse) {
 		case 'PS' :
 		case 'ROLL' : 
 		case 'STRG' : 
-//		{
-//			var strikes = strike.split('/');
-//			var multipliers = multiplier.split('X');
-//			var isReverse = isLegNegative(strikes, multipliers, sReverse);
-//			if (isReverse)
-//				return true;
-//			var expiries = expiry.split('/');
-//			var isReverse = isLegNegative(expiries, multipliers, sReverse);
-//			if (isReverse)
-//				return true;
-//			break;
-//		}
+// {
+// var strikes = strike.split('/');
+// var multipliers = multiplier.split('X');
+// var isReverse = isLegNegative(strikes, multipliers, sReverse);
+// if (isReverse)
+// return true;
+// var expiries = expiry.split('/');
+// var isReverse = isLegNegative(expiries, multipliers, sReverse);
+// if (isReverse)
+// return true;
+// break;
+// }
 		{
 			var strikes = strike.split('/');
 			var multipliers = multiplier.split('X');
@@ -2299,31 +2173,32 @@ function parseSymbol(mySymbol)
 
 	var tokens = mySymbol.toUpperCase().split(' ');
 	var i = 0;
-//	multi[0] = tokens[i++];	// UL
-	ul = tokens[0];	// UL	, i = 0
+// multi[0] = tokens[i++]; // UL
+	ul = tokens[0];	// UL , i = 0
 	
 	var isReverse = false;
 	var hasReverseSign = mySymbol.indexOf('(') >=0 && mySymbol.indexOf(')') > 0;
 	
-	expiry = tokens[1];	// Expiry	, i = 1	
+	expiry = tokens[1];	// Expiry , i = 1
 	var is_n_expiry = false;
 	if (expiry.split('/').length > 1) {
 		is_n_expiry = true;
 	}
 	
-	strike = tokens[2];	// strike, 	 	i=2
+	strike = tokens[2];	// strike, i=2
 	var is_n_strike = false;
 	if (strike.split('/').length > 1) {
 		is_n_strike = true;
 	}
 	
-	// multiple specified		i = 3 
+	// multiple specified i = 3
 	if (tokens[3].indexOf('X') > -1
 			&& tokens[3].match(/^[0-9]+/)) 
 	{
 		common_strat = tokens[4];	// i = 4
 		strat = deduceStrat(common_strat, is_n_expiry, is_n_strike, true, hasReverseSign);
-		multiplier = getMultiplier(tokens[3], strat);	// ( multiplier )	// i = 3
+		multiplier = getMultiplier(tokens[3], strat);	// ( multiplier ) // i =
+														// 3
 		i = 5;
 	} else {
 		// default
@@ -2371,61 +2246,31 @@ function reverse(multiplier) {
 	return s;
 }
 
-//function getDefaultLegs(common_strat) {
-//	try {
-//		switch (common_strat) {
-//		case 'CS' :
-//			return 'CXC';
-//		case 'PS' : 
-//			return 'PXP';
-//		case 'CFLY' :
-//		case 'CLDR' : 
-//			return 'CXCXC';
-//		case 'PFLY' : 
-//		case 'PLDR' : 
-//			return 'PXPXP';
-//			
-//		case 'IFLY' : {	//no
-//			return 'PXPXCXC';
-//			
-//		case 'STRG' : 
-//		case 'ROLL' : 	// no
-//			return 'CXPXCXP';
 //
-//
-//		case 'CDIAG' : {
-//			var expiries = expiry.split('/');
-//			var strikes = strike.split('/');
-//			if (sReverse === expiries[0] || sReverse === strikes[0])
-//				return true;
-//		}
-//		case 'SYNTH' : 
-//		case 'RR' : {
-//			return true;
-//		}
-//		case 'STRD' : {
-//			var expiries = expiry.split('/');
-//			if (expiries.length > 1) {	// SDTS
-//				if (sReverse === expiries[0])
-//					return true;
-//			}
-//			else {	// SD
-//				return true;
-//			}
-//			break;
-//		}
-//		// no reverse
-//		case 'CDOR' : 
-//			return 'CXCXCXC';
-//		case 'PDOR' : 
-//			return 'PXPXPXP';
-//		default: {
-//			return false;
-//		}
-//	}
-//	}
-//	catch (err) {
-//		alert('deduceReverse error: ' + err.message);
-//	}
-//	return false;
-//}
+// function calRemainPrice(params, myMultiplier, mySide, myPremium) {
+// sum = 0;
+// for (i=0; i<params.length; i++)
+// {
+// var sign = params[i].side === 'Sell' ? -1 : 1;
+// sum += Number(params[i].price) * sign * Number(params[i].multiplier);
+// }
+// var mySign = mySide === 'Sell' ? -1 : 1;
+// return (myPremium - sum) / (myMultiplier * mySign);
+// }
+
+// function hedgeSide(params) {
+// sum = 0;
+// for (i=0; i<params.length; i++)
+// {
+// var qty = Number(params[i].qty);
+// if ((params[i].side === SIDE.BUY && params[i].option === 'Put') ||
+// (params[i].side === SIDE.SELL && params[i].option === 'Call'))
+// sum += -1 * qty;
+// else
+// sum += qty;
+// }
+// if (sum > 0) {
+// return SIDE.SELL;
+// }
+// return SIDE.BUY;
+// }
