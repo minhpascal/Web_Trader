@@ -1125,7 +1125,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			$scope.param_myData[iCal].Price = price;
 			$scope.param_myData[iCal].noPrice = false;
 			
-			if (isNaN(price) || price < 0 || (price % 1 != 0)) {	// has decimal
+			if (isNaN(price) || Math.abs(price) < 0.001 || (price % 1 != 0)) {	// has decimal
 				$scope.param_myData[iCal].isValidate = true;
 				$scope.param_isLastLegPriceValid = false;
 			}

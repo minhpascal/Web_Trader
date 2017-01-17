@@ -175,7 +175,14 @@ select::-ms-expand {
 }
 
 
-.blue-header { color: white; background-color:rgb(63,81,181) !important;  }
+.blue-header { 
+	color: white; 
+	background-color:rgb(63,81,181) !important;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
 .brown-header { color: white; background-color:rgb(134, 51, 0) !important;  }
 .green-header { color: white; background-color:rgb(0,100,0) !important;  }
 
