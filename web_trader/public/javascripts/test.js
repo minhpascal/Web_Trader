@@ -938,8 +938,6 @@ $scope.myFutMat = 'MAR17';
 				}
 				$scope.param_myData[$scope.param_myData.length - 1].isHide = 
 					isHide || $scope.param_myData[$scope.param_myData.length - 1].isSingle ;
-	// var side = hedgeSide(params);
-	// $scope.param_myData[$scope.param_myData.length - 1].Side = side;
 			}
 			else {
 				$scope.param_isDeltaValid = false;
@@ -960,10 +958,20 @@ $scope.myFutMat = 'MAR17';
 				rowEntity.isFutMatValid = false;
 			}
 			
+//			var accumQty = 0;
+			var maxQty = 0;
+			var maxQtyIdx = 0;
 			// split leg over 1000 qty
 			var newLegData = [];
 			for (var i=0; i<$scope.param_myData.length; i++) {
 				var legQty = $scope.param_myData[i].Qty;
+				
+				if (maxQty < legQty) {
+					maxQty = legQty;
+					maxQtyIdx = i;
+				}
+//				accumQty += legQty;
+				
 				var isFirstLeg = true;
 				var count = 1;
 				while (legQty > 1000) {
@@ -973,6 +981,11 @@ $scope.myFutMat = 'MAR17';
 				} 
 				fill($scope.param_myData[i], newLegData, legQty, isFirstLeg);
 			}
+//			if (accumQty < 100) {
+			if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
+				newLegData[maxQtyIdx].displayQty = 3;
+			}
+			
 			// validate splited legs
 			$scope.myLegData = newLegData;
 			
@@ -1019,12 +1032,31 @@ $scope.myFutMat = 'MAR17';
 				}, 
 				{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '*', enableCellEdit : false	}, 
 				{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
+				    cellFilter: 'number: 2', 
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-						var val = grid.getCellValue(row, col);
-						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
-							 return '';
+//						var val = grid.getCellValue(row, col);
+//						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
+//							 return '';
+						if (row.entity.displayQty === 1)
+							return '';
+						else if (row.entity.displayQty === 3)
+							return 'insufficient';
 						return 'missing';
+					},
+					cellTooltip : function(row, col) {
+						if (row.entity.displayQty === 3)
+							return 'This leg use Qty=100 to Cross';
+						return '';
 					}
+//					cellTemplate: 
+//					'<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 1">'
+//					+ '{{row.entity.Qty}}</div>'
+//					+ '<div class="ui-grid-cell-contents missing" ng-if="row.entity.displayQty === 2">'
+//					+ '{{row.entity.Qty}}</div>'
+//					+ '<div class="tooltip" ng-if="row.entity.displayQty === 3">{{row.entity.Qty}}'
+//					+ '<span class="tooltiptext">Use 100 to cross</span>'
+////					+ '{{row.entity.Qty}}'
+//					+ '</div>'
 				}, 
 				{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '*',enableCellEdit : false,}, 
 				{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '*', enableCellEdit : false,
@@ -1054,6 +1086,7 @@ $scope.myFutMat = 'MAR17';
 						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag < 3">'
 						+ '<input ng-if="row.entity.displayTag === 2" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
 						+ '<div ng-if="row.entity.displayTag === 1">{{row.entity.Price}}</div>'
+						+ '<div ng-if="row.entity.displayTag === 0">{{row.entity.Price}}</div>'
 						+ '</div>',
 	// cellTemplate: '<div><i class="material-icons" style="color:red"
 	// ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
@@ -1129,32 +1162,11 @@ $scope.myFutMat = 'MAR17';
 			if (nMissLeg > 1)
 				return;
 			
-//			for (i = 0; i < $scope.myLegData.length; i++) 
-//			{
-//				if ($scope.myLegData[i].displayTag === 4
-//						&& !isNaN($scope.myLegdata[i].Price)) 
-////				if (!$scope.myLegData[i].noPrice) 
-//				{
-//					params.push({
-//						'side' : $scope.myLegData[i].Side,
-//						'multiplier' : $scope.myLegData[i].Multiplier,
-//						'price' : $scope.myLegData[i].Price,
-//						'option' : $scope.myLegData[i].UL.split(' ')[1],
-//						'qty' : $scope.myLegData[i].Qty
-//					});
-//				} 
-//				else if ($scope.myLegdata[i].isLastLeg) {
-//					multi = $scope.myLegData[i].Multiplier;
-//				}
-//			}
 			var price = calRemainPrice(params, multi, premium);
 			
-//			$scope.myLegData[iCal].Price = price;
-//			$scope.myLegData[iCal].noPrice = false;
 			
 			var displayTag = 1;
 			if (isNaN(price) || price <= 0 || (price % 1 != 0)) {	// has decimal
-//				$scope.myLegData[iCal].isValidate = true;
 				displayTag = 2;
 				$scope.param_isLastLegPriceValid = false;
 				rowEntity.displayTag = 4;
@@ -2134,20 +2146,7 @@ function deduceReverse(common_strat, expiry, strike, multiplier, sReverse) {
 		case 'PLDR' : 
 		case 'PS' :
 		case 'ROLL' : 
-		case 'STRG' : 
-// {
-// var strikes = strike.split('/');
-// var multipliers = multiplier.split('X');
-// var isReverse = isLegNegative(strikes, multipliers, sReverse);
-// if (isReverse)
-// return true;
-// var expiries = expiry.split('/');
-// var isReverse = isLegNegative(expiries, multipliers, sReverse);
-// if (isReverse)
-// return true;
-// break;
-// }
-		{
+		case 'STRG' : {
 			var strikes = strike.split('/');
 			var multipliers = multiplier.split('X');
 			var isNeg = isLegNegative(strikes, multipliers, sReverse);
@@ -2299,17 +2298,19 @@ function reverse(multiplier) {
 }
 
 function fill(data, array, qty, isFirstLeg) {
+	var displayQty = 2;	// red
+	if (qty > 0 && (qty % 1 === 0))
+		displayQty = 1; // no problem
 	array.push({'UL' : data.UL, 'Instrument' : data.Instrument, 'Expiry' : data.Expiry, 
 		'Strike' : data.Strike, 'Qty' : qty, 'Price': data.Price,
 		'Buyer': data.Buyer, 'Seller': data.Seller, 'Multiplier': data.Multiplier, 
-//		'noPrice' : !isFirstLeg ? true : data.noPrice, 
-//		'isValidate' : !isFirstLeg ? false : data.isValidate, 
 		'isEditable' : !isFirstLeg ? false: data.isEditable,
-//		'isQtyValid' : !isFirstLeg ? true: data.isQtyValid,
-		'displayTag' : isFirstLeg ? data.displayTag : 1,
+		// keep the first leg price editable
+		'displayTag' : (data.displayTag === 4 && !isFirstLeg) ? 1 : data.displayTag,
 		'isLastLeg' : data.isLastLeg,		
 		'isHide' : data.isHide,
 		'isSingle' : data.isSingle,
+		'displayQty' : displayQty,
 		});
 }
 
