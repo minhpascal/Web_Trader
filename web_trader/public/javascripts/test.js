@@ -73,7 +73,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 // $scope.myFutMat = '';
     
 //    $state.go('home1');
-	alert(    CONFIG.SOME_CONFIGURATION_VALUE );
     socket.on('send:message', function (res) {
     	try {
 //    		console.log(res.message.RefId);
@@ -427,14 +426,16 @@ $scope.myFutMat = 'MAR17';
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 
 				'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 
 				'Strike' : '', 'Qty' : '', 
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 				'isHide' : true, 'isSingle': $scope.isSingle
 			};
@@ -447,13 +448,15 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 				'isHide' : true, 'isSingle': $scope.isSingleLeg,
 			};
@@ -471,25 +474,29 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable': true,
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable': true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable': true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable': true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable': false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable': false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false,  'isEditable': false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false,  'isEditable': false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;			
@@ -505,25 +512,29 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;			
@@ -538,31 +549,36 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]),
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -577,31 +593,36 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -616,19 +637,22 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'displayTag': 4, 'displayQty': 2, 'isLastLeg' : false, isEditable: true,
+				displayTag: CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, isEditable: true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag': 2, 'displayQty': 2, 'isLastLeg' : true, isEditable: false,
+				displayTag: CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, isEditable: false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref,  
-				'displayTag': 1, 'displayQty': 2, 'isLastLeg' : false,
+				displayTag: CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -643,19 +667,22 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -670,31 +697,36 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -706,19 +738,22 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -730,19 +765,22 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0,
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -755,31 +793,36 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
@@ -954,7 +997,7 @@ $scope.myFutMat = 'MAR17';
 				for (var i=0; i<tokens.length; i++) {
 					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
 					$scope.param_myData[i].Qty = legQty;
-					if (CONFIG.rule_check_qty(rowEntity.UL, legQty)) {
+					if (CFG.rule_check_qty(rowEntity.UL, legQty)) {
 						isInvalid = true;
 						$scope.param_myData[i].isQtyValid = false;
 					}
@@ -980,7 +1023,7 @@ $scope.myFutMat = 'MAR17';
 				$scope.myDelta = Number(rowEntity.Delta);
 				
 //				var isDigit = (futQty % 1 === 0);
-				var isDigit = CONFIG.rule_check_qty(rowEntity.UL, futQty);
+				var isDigit = CFG.rule_check_qty(rowEntity.UL, futQty);
 				rowEntity.isDeltaValid = isDigit;
 				$scope.param_isDeltaValid = isDigit;
 				rowEntity.isQtyValid = isDigit;
@@ -1026,30 +1069,6 @@ $scope.myFutMat = 'MAR17';
 			var maxQtyIdx = 0;
 			// split leg over 1000 qty
 			var newLegData = rebuildSplit($scope.param_myData);
-			
-//			var newLegData = [];
-//			for (var i=0; i<$scope.param_myData.length; i++) {
-//				var legQty = $scope.param_myData[i].Qty;
-//				
-//				if (maxQty < legQty) {
-//					maxQty = legQty;
-//					maxQtyIdx = i;
-//				}
-////				accumQty += legQty;
-//				
-//				var isFirstLeg = true;
-//				var count = 1;
-//				while (legQty > 1000) {
-//					legQty -= 1000;
-//					fill($scope.param_myData[i], newLegData, 1000, isFirstLeg);
-//					isFirstLeg = false;
-//				} 
-//				fill($scope.param_myData[i], newLegData, legQty, isFirstLeg);
-//			}
-////			if (accumQty < 100) {
-//			if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
-//				newLegData[maxQtyIdx].displayQty = 3;
-//			}
 			
 			// validate splited legs
 			$scope.myLegData = newLegData;
@@ -1101,9 +1120,9 @@ $scope.myFutMat = 'MAR17';
 				{field : 'Qty', headerCellClass: 'brown-header', width: '*', enableCellEdit: false, /*enableHiding: false,*/
 //				    cellFilter: 'number: 2', 
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-						if (row.entity.displayQty === 3)
+						if (row.entity.displayQty === CFG.DISPLAY_QTY_ROUND_TO_MAX)
 							return 'insufficient';
-						if (row.entity.displayQty === 2)
+						if (row.entity.displayQty === CFG.DISPLAY_QTY_INVALID)
 							return 'missing';
 						return '';
 						
@@ -1115,7 +1134,7 @@ $scope.myFutMat = 'MAR17';
 //						return 'missing';
 					},
 					cellTooltip : function(row, col) {
-						if (row.entity.displayQty === 3)
+						if (row.entity.displayQty === CFG.DISPLAY_QTY_ROUND_TO_MAX)
 							return 'Max Qty < 100. Use this leg as Qty[100] to cross';
 						return '';
 					},
@@ -1240,18 +1259,18 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[iCal].Price = price;
 			
 //			if (isNaN(price) || Math.abs(price) < 0.001 || price < 0 || (price % 1 != 0)) {	// has decimal
-			if (CONFIG.rule_check_price($scope.param_myData[0].UL, price)) {	// has decimal
+			if (CFG.rule_check_price($scope.param_myData[0].UL, price)) {	// has decimal
 				$scope.param_isLastLegPriceValid = true;
 				
 				for (i = 0; i < $scope.param_myData.length - 1; i++) {
-					$scope.param_myData[i].displayTag = i === iCal ? 1 : 3;	// Uneditable+Valid
+					$scope.param_myData[i].displayTag = i === iCal ? CFG.DISPLAY_PRICE_NOEDIT_OK : CFG.DISPLAY_PRICE_EDIT_OK;	// Uneditable+Valid
 				}
 			}
 			else {
 				$scope.param_myData[iCal].isValidate = true;
 				$scope.param_isLastLegPriceValid = false;
-				$scope.param_myData[iRow].displayTag = 4;	// Editable+Valid
-				$scope.param_myData[iCal].displayTag = 2;	// Uneditable+Valid
+				$scope.param_myData[iRow].displayTag = CFG.DISPLAY_PRICE_EDIT_INVALID;	// Editable+Valid
+				$scope.param_myData[iCal].displayTag = CFG.DISPLAY_PRICE_NOEDIT_INVALID;	// Uneditable+Valid
 			}
 			
 			var newLegSplits = rebuildSplit($scope.param_myData);
@@ -2357,16 +2376,16 @@ function reverse(multiplier) {
 }
 
 function fill(data, array, qty, isFirstLeg, groupId) {
-	var displayQty = 2;	// red
-//	if (qty > 0 && (qty % 1 === 0))
-	if (CONFIG.rule_check_qty(data.UL, qty))
+	var displayQty = CFG.DISPLAY_QTY_INVALID;	// red
+	if (CFG.rule_check_qty(data.UL, qty))
 		displayQty = 1; // no problem
 	array.push({'UL' : data.UL, 'Instrument' : data.Instrument, 'Expiry' : data.Expiry, 
 		'Strike' : data.Strike, 'Qty' : qty, 'Price': data.Price,
 		'Buyer': data.Buyer, 'Seller': data.Seller, 'Multiplier': data.Multiplier, 
 		'isEditable' : !isFirstLeg ? false: data.isEditable,
 		// keep the first leg price editable
-		'displayTag' : (data.displayTag === 4 && !isFirstLeg) ? 1 : data.displayTag,
+		'displayTag' : (data.displayTag === CFG.DISPLAY_PRICE_EDIT_INVALID
+				&& !isFirstLeg) ? 1 : data.displayTag,
 		'displayQty' : data.displayQty,
 		'isLastLeg' : data.isLastLeg,		
 		'isHide' : data.isHide,
@@ -2400,15 +2419,17 @@ function rebuildSplit(param_myData)
 		var count = 1;
 		while (legQty > 1000) {
 			legQty -= 1000;
-			fill(param_myData[i], newLegData, 1000, isFirstLeg, groupId[i]);
+			fill(param_myData[i], newLegData, CFG.max_leg_qty(param_myData[0].UL), isFirstLeg, groupId[i]);
 			isFirstLeg = false;
 			groupId[i]++;
 		} 
 		fill(param_myData[i], newLegData, legQty, isFirstLeg, groupId[i]);
 	}
 //	if (accumQty < 100) {
-	if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
-		newLegData[maxQtyIdx].displayQty = 3;
+	// change only the first appear max_qty
+	if (maxQty < CFG.min_qty(param_myData[0].UL) 
+			&& newLegData[maxQtyIdx].displayQty === CFG.DISPLAY_QTY_OK) {
+		newLegData[maxQtyIdx].displayQty = CFG.DISPLAY_QTY_ROUND_TO_MAX;
 	}
 	return newLegData;
 }

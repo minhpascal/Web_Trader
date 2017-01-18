@@ -1,11 +1,57 @@
 /**
  * http://usejsdoc.org/
  */
-if (!window.CONFIG) {
-    window.CONFIG = {};
+if (!window.CFG) {
+    window.CFG = {};
 
-    CONFIG.SOME_CONFIGURATION_VALUE = 1;
-    CONFIG.rule_check_qty = function(instr, qty) {
+    
+    
+    CFG.DISPLAY_QTY_OK = 1;
+    CFG.DISPLAY_QTY_INVALID = 2;
+    CFG.DISPLAY_QTY_ROUND_TO_MAX = 3;
+    
+    CFG.DISPLAY_PRICE_NOEDIT_OK = 1;
+    CFG.DISPLAY_PRICE_NOEDIT_INVALID = 2;
+    CFG.DISPLAY_PRICE_EDIT_OK = 3;
+    CFG.DISPLAY_PRICE_EDIT_INVALID = 4;
+    
+    CFG.min_qty = function(instr) {
+    	try {
+	    	var ul = instr.split(' ')[0];
+	    	switch (ul) {
+	    	case 'HSI':
+	    	case 'HSCEI': {
+	    		return 100;
+	    	}
+	    	case 'KS200': {
+	    	}
+	    	}
+    	}
+    	catch (err) {
+    		alert(err.message);
+    	}
+		return 10000;	// undefine yet
+    }
+
+    CFG.max_leg_qty = function(instr) {
+    	try {
+    		var ul = instr.split(' ')[0];
+    		switch (ul) {
+    		case 'HSI':
+    		case 'HSCEI': {
+    			return 1000;
+    		}
+    		case 'KS200': {
+    		}
+    		}
+    	}
+    	catch (err) {
+    		alert(err.message);
+    	}
+    	return 10000;	// undefine yet
+    }
+    
+    CFG.rule_check_qty = function(instr, qty) {
     	try {
 	    	var ul = instr.split(' ')[0];
 	    	switch (ul) {
@@ -27,7 +73,7 @@ if (!window.CONFIG) {
     	}
     	return false;
     }
-    CONFIG.rule_check_price = function(instr, price) {
+    CFG.rule_check_price = function(instr, price) {
     	try {
     		var ul = instr.split(' ')[0];
     		switch (ul) {
