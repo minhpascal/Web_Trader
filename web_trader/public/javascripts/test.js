@@ -1182,6 +1182,7 @@ $scope.myFutMat = 'MAR17';
 						return 'missing';
 					}
 				},
+				{field : 'Group', headerCellClass: 'brown-header', width : '*'	},
 			],
 	// rowTemplate: '<div><div style="height: 100%; {\'background-color\': \'\'}"
 	// ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by
@@ -2353,7 +2354,7 @@ function reverse(multiplier) {
 	return s;
 }
 
-function fill(data, array, qty, isFirstLeg) {
+function fill(data, array, qty, isFirstLeg, groupId) {
 	var displayQty = 2;	// red
 	if (qty > 0 && (qty % 1 === 0))
 		displayQty = 1; // no problem
@@ -2369,6 +2370,7 @@ function fill(data, array, qty, isFirstLeg) {
 		'isSingle' : data.isSingle,
 		'displayQty' : displayQty,
 		'isFirstSplit' : isFirstLeg,
+		'Group' : groupId,
 		});
 }
 
@@ -2377,9 +2379,12 @@ function rebuildSplit(param_myData)
 	var newLegData = [];
 	var maxQty = 0;
 	var maxQtyIdx = 0;
+	var groupId = [];	// to count the number leg split
 	
 	for (var i=0; i<param_myData.length; i++) 
 	{
+		groupId.push(1);
+		
 		var legQty = param_myData[i].Qty;
 		
 		if (maxQty < legQty) {
@@ -2392,10 +2397,11 @@ function rebuildSplit(param_myData)
 		var count = 1;
 		while (legQty > 1000) {
 			legQty -= 1000;
-			fill(param_myData[i], newLegData, 1000, isFirstLeg);
+			fill(param_myData[i], newLegData, 1000, isFirstLeg, groupId[i]);
 			isFirstLeg = false;
+			groupId[i]++;
 		} 
-		fill(param_myData[i], newLegData, legQty, isFirstLeg);
+		fill(param_myData[i], newLegData, legQty, isFirstLeg, groupId[i]);
 	}
 //	if (accumQty < 100) {
 	if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
