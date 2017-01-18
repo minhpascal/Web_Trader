@@ -73,7 +73,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 // $scope.myFutMat = '';
     
 //    $state.go('home1');
-	
+	alert(    CONFIG.SOME_CONFIGURATION_VALUE );
     socket.on('send:message', function (res) {
     	try {
 //    		console.log(res.message.RefId);
@@ -954,7 +954,7 @@ $scope.myFutMat = 'MAR17';
 				for (var i=0; i<tokens.length; i++) {
 					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
 					$scope.param_myData[i].Qty = legQty;
-					if ((legQty % 1) !== 0) {
+					if (CONFIG.rule_check_qty(rowEntity.UL, legQty)) {
 						isInvalid = true;
 						$scope.param_myData[i].isQtyValid = false;
 					}
@@ -979,7 +979,8 @@ $scope.myFutMat = 'MAR17';
 				$scope.param_myData[len - 1].Qty = futQty;
 				$scope.myDelta = Number(rowEntity.Delta);
 				
-				var isDigit = (futQty % 1 === 0);
+//				var isDigit = (futQty % 1 === 0);
+				var isDigit = CONFIG.rule_check_qty(rowEntity.UL, futQty);
 				rowEntity.isDeltaValid = isDigit;
 				$scope.param_isDeltaValid = isDigit;
 				rowEntity.isQtyValid = isDigit;
@@ -1238,18 +1239,19 @@ $scope.myFutMat = 'MAR17';
 			var price = calRemainPrice(params, multi, premium);
 			$scope.param_myData[iCal].Price = price;
 			
-			if (isNaN(price) || Math.abs(price) < 0.001 || price < 0 || (price % 1 != 0)) {	// has decimal
-				$scope.param_myData[iCal].isValidate = true;
-				$scope.param_isLastLegPriceValid = false;
-				$scope.param_myData[iRow].displayTag = 4;	// Editable+Valid
-				$scope.param_myData[iCal].displayTag = 2;	// Uneditable+Valid
-			}
-			else {
+//			if (isNaN(price) || Math.abs(price) < 0.001 || price < 0 || (price % 1 != 0)) {	// has decimal
+			if (CONFIG.rule_check_price($scope.param_myData[0].UL, price)) {	// has decimal
 				$scope.param_isLastLegPriceValid = true;
 				
 				for (i = 0; i < $scope.param_myData.length - 1; i++) {
 					$scope.param_myData[i].displayTag = i === iCal ? 1 : 3;	// Uneditable+Valid
 				}
+			}
+			else {
+				$scope.param_myData[iCal].isValidate = true;
+				$scope.param_isLastLegPriceValid = false;
+				$scope.param_myData[iRow].displayTag = 4;	// Editable+Valid
+				$scope.param_myData[iCal].displayTag = 2;	// Uneditable+Valid
 			}
 			
 			var newLegSplits = rebuildSplit($scope.param_myData);
@@ -2356,7 +2358,8 @@ function reverse(multiplier) {
 
 function fill(data, array, qty, isFirstLeg, groupId) {
 	var displayQty = 2;	// red
-	if (qty > 0 && (qty % 1 === 0))
+//	if (qty > 0 && (qty % 1 === 0))
+	if (CONFIG.rule_check_qty(data.UL, qty))
 		displayQty = 1; // no problem
 	array.push({'UL' : data.UL, 'Instrument' : data.Instrument, 'Expiry' : data.Expiry, 
 		'Strike' : data.Strike, 'Qty' : qty, 'Price': data.Price,
