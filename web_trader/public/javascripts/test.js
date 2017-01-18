@@ -30,6 +30,17 @@ var app = angular.module('app', [
 	'btford.socket-io',
 	'isteven-multi-select',
 	]);
+//	  .config(function ($stateProvider) {
+//
+//      $stateProvider.state('home1', {
+//        url:'/home1',
+//        templateUrl: 'views/modals/test.html'
+//      })
+//      .state('secondState',{
+//        url:'/secondState',
+//        templateUrl: 'views/modals/secondStateTest.html'
+//      });
+//  });
 
 app.factory('socket', function (socketFactory) {
 	 return socketFactory();
@@ -37,7 +48,7 @@ app.factory('socket', function (socketFactory) {
 	value('version', '0.1');
 
 app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-	'uiGridConstants', 'socket', 
+	'uiGridConstants', 'socket',
 //	'$templateCache', 
 	function($scope, $http, $mdDialog 
 		,uiGridConstants, socket
@@ -61,6 +72,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 // $scope.myDelta = '';
 // $scope.myFutMat = '';
     
+//    $state.go('home1');
+	
     socket.on('send:message', function (res) {
     	try {
 //    		console.log(res.message.RefId);
@@ -131,14 +144,14 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			enableHorizontalScrollbar: false, 
 //			enableVerticalScrollbar: false,
 //				rowEditWaitInterval : -1,
-		enableSorting : false,
+		enableSorting : true,
 		enableColumnResizing : true,
 		enableFiltering : false,
 		showGridFooter : false,
 		showColumnFooter : false,
-	    enableCellEditOnFocus: true,
+	    enableCellEditOnFocus: false,
 	    expandableRowTemplate: 'expandableRowTemplate.html',
-	    expandableRowHeight: 150,
+//	    expandableRowHeight: 150,
 	    //subGridVariable will be available in subGrid scope
 	    expandableRowScope: {
 	      subGridVariable: 'subGridScopeVariable',
@@ -149,8 +162,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			}
 		},
 		columnDefs : [ 
-			{field : 'Id', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
-			{field : 'Status', headerCellClass: 'green-header', width : '*', enableCellEdit : false,
+			{field : 'Id', headerCellClass: 'green-header', width: '*', enableCellEdit : false, enableHiding: false}, 
+			{field : 'Status', headerCellClass: 'green-header', width: '*', enableCellEdit: false, enableHiding: false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
 					if (val === 'SENT')
@@ -160,13 +173,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return 'order_ok';
 				}
 			},
-			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
-			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
-			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
-			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false},
-			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
-			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
-			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
+			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width: '*', enableCellEdit: false, enableHiding: false}, 
+			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 		 ],
 //			exporterMenuPdf : false,
 	};
@@ -208,7 +221,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		
 		$scope.status = '  ';
 		$scope.myCompany = 'HKCEL';
-		$scope.myCpCompany = 'HKCEL';
+		$scope.myCpCompany = 'HKTOM';
 
 		$scope.myEnv = "TESTING";
 		
@@ -338,9 +351,9 @@ $scope.myFutMat = 'MAR17';
 		$scope.myCompany = locals.myBuyer;
 		$scope.myCpCompany = locals.mySeller;
 		$scope.mySymbol = str;
-		$scope.myTrType = locals.myTrType;
+		$scope.myTrType = locals.myTrType.substring(0,2);
 		$scope.isSingle = true;
-		if ($scope.myTrType.indexOf('T2') >= 0) {
+		if ($scope.myTrType === 'T2') {
 			$scope.isSingle = false;
 		}
 	//$scope.mySide = !side ? SIDE.BUY : side;
@@ -411,14 +424,18 @@ $scope.myFutMat = 'MAR17';
 		case 'C': { // 'EC - European Call':
 			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
 			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'noPrice' : true, 'isValidate' : false, 'isEditable' : false
+				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 
+				'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
+				'displayTag' : 1, 'isLastLeg' : true, 'isEditable' : false
+//				'noPrice' : true, 'isValidate' : false, 'isEditable' : false
 			};
 			$scope.param_myData[1] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 
+				'Strike' : '', 'Qty' : '', 
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'noPrice' : false, 'isValidate' : false, 'isEditable' : false, 
+//				'noPrice' : false, 'isValidate' : false, 'isEditable' : false,
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false,
 				'isHide' : true, 'isSingle': $scope.isSingle
 			};
 			$scope.param_isLastLegPriceValid = true;
@@ -429,13 +446,13 @@ $scope.myFutMat = 'MAR17';
 			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
-				'Buyer': sides[0][0], 'Seller': sides[0][1],	
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : false
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : 1, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',	 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false,
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false,
 				'isHide' : true, 'isSingle': $scope.isSingleLeg
 			};
 			$scope.param_isLastLegPriceValid = true;
@@ -451,23 +468,23 @@ $scope.myFutMat = 'MAR17';
 			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]), 'displayTag' : 4, 'isLastLeg' : false
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable': true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'displayTag' : 4, 'isLastLeg' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable': true
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1],
-				'Multiplier' : Number(multi[2]), 'displayTag' : 2, 'isLastLeg' : true,
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable': false
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',
-				'Price' : ref, 'Multiplier' : 0, 'displayTag' : 3, 'isLastLeg' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 3, 'isLastLeg' : false,  'isEditable': false
 			};
 			break;			
 		}
@@ -481,23 +498,23 @@ $scope.myFutMat = 'MAR17';
 			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1], 
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1], 
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;			
 		}
@@ -510,28 +527,28 @@ $scope.myFutMat = 'MAR17';
 			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1], 
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1], 
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false,  'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]),
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1], 
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;
 		}
@@ -544,28 +561,28 @@ $scope.myFutMat = 'MAR17';
 			ul[3] = exchangeSymbol(instr, 'P', strikes[3], maturities[3]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1], 
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1], 
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1], 
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;
 		}
@@ -578,18 +595,18 @@ $scope.myFutMat = 'MAR17';
 			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]), 'displayTag': 4, 'isLastLeg' : false, isEditable: true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
+				'displayTag': 4, 'displayQty': 2, 'isLastLeg' : false, isEditable: true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'displayTag': 2, 'isLastLeg' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag': 2, 'displayQty': 2, 'isLastLeg' : true, isEditable: false
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',
-				'Price' : ref, 'Multiplier' : 0, 'displayTag' : 1, 'isLastLeg' : false
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref,  
+				'displayTag': 1, 'displayQty': 2, 'isLastLeg' : false
 			};
 			break;
 		}
@@ -602,18 +619,18 @@ $scope.myFutMat = 'MAR17';
 			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;
 		}
@@ -626,28 +643,28 @@ $scope.myFutMat = 'MAR17';
 			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1],
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1],
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;
 		}
@@ -657,18 +674,18 @@ $scope.myFutMat = 'MAR17';
 			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;
 		}
@@ -678,18 +695,18 @@ $scope.myFutMat = 'MAR17';
 			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0,
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
 			};
 			break;
 		}
@@ -700,28 +717,29 @@ $scope.myFutMat = 'MAR17';
 			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1],
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1],
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false, 
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false 
 			};
 			break;
 		}
@@ -772,7 +790,7 @@ $scope.myFutMat = 'MAR17';
 			
 			$http.post('api/sendTradeReport', {
 				'refId'  : refId,
-				'trType' : $scope.myTrType.substring(0,2),
+				'trType' : $scope.myTrType,
 				'symbol': $scope.mySymbol,
 				'qty': $scope.myQty,
 				'delta': $scope.myDelta,
@@ -820,20 +838,20 @@ $scope.myFutMat = 'MAR17';
 				showColumnFooter : false,
 			    enableCellEditOnFocus: false,
 				columnDefs : [ 
-					{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit : false}, 
-					{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit : false}, 
-					{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-					{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-					{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-					{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
-						cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="row.entity.isQtyValid === false">error_outline</i>' 
+					{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false}, 
+					{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit: true, enableHiding: false,
+						cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="!row.entity.isQtyValid">error_outline</i>' 
 							+ '{{row.entity.Qty}}</div>',
 // cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="grid.appScope.param_isQtyValid === false">error_outline</i>'
 // + '{{grid.appScope.myQty}}</div>',
 					}, 
 					{field : 'isQtyValid', visible: false},
-					{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '*',enableCellEdit : false}, 
-					{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
+					{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width: '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true, enableHiding: false,
 // enableCellEditOnFocus: true,
 // editableCellTemplate: $scope.cellInputEditableTemplate,
 // cellTemplate: '<div><i class="material-icons" style="color:red"
@@ -862,7 +880,7 @@ $scope.myFutMat = 'MAR17';
 	// // ]
 	// },
 					{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
-				    {field : 'FutMat', headerCellClass: 'blue-header', width : '*',
+				    {field : 'FutMat', headerCellClass: 'blue-header', width : '*', enableHiding: false,
 				    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
 	// cellTemplate: '<div isteven-multi-select
 	// input-model="row.entity.modernBrowsers"'
@@ -872,8 +890,8 @@ $scope.myFutMat = 'MAR17';
 	// selection-mode="single"></div>'
 				    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
 				    },
-				    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false }, 
-				    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false },
+				    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false}, 
+				    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false},
 				 ],
 				exporterMenuPdf : false,
 		};
@@ -920,8 +938,11 @@ $scope.myFutMat = 'MAR17';
 				$scope.param_myData[len - 1].Qty = futQty;
 				$scope.myDelta = Number(rowEntity.Delta);
 				
-				rowEntity.isDeltaValid = (futQty % 1 === 0);
-				$scope.param_isDeltaValid = (futQty % 1 === 0);
+				var isDigit = (futQty % 1 === 0);
+				rowEntity.isDeltaValid = isDigit;
+				$scope.param_isDeltaValid = isDigit;
+				rowEntity.isQtyValid = isDigit;
+				$scope.param_isQtyValid = isDigit;
 				
 				var isHide = false;
 				// update future leg
@@ -962,29 +983,31 @@ $scope.myFutMat = 'MAR17';
 			var maxQty = 0;
 			var maxQtyIdx = 0;
 			// split leg over 1000 qty
-			var newLegData = [];
-			for (var i=0; i<$scope.param_myData.length; i++) {
-				var legQty = $scope.param_myData[i].Qty;
-				
-				if (maxQty < legQty) {
-					maxQty = legQty;
-					maxQtyIdx = i;
-				}
-//				accumQty += legQty;
-				
-				var isFirstLeg = true;
-				var count = 1;
-				while (legQty > 1000) {
-					legQty -= 1000;
-					fill($scope.param_myData[i], newLegData, 1000, isFirstLeg);
-					isFirstLeg = false;
-				} 
-				fill($scope.param_myData[i], newLegData, legQty, isFirstLeg);
-			}
-//			if (accumQty < 100) {
-			if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
-				newLegData[maxQtyIdx].displayQty = 3;
-			}
+			var newLegData = rebuildSplit($scope.param_myData);
+			
+//			var newLegData = [];
+//			for (var i=0; i<$scope.param_myData.length; i++) {
+//				var legQty = $scope.param_myData[i].Qty;
+//				
+//				if (maxQty < legQty) {
+//					maxQty = legQty;
+//					maxQtyIdx = i;
+//				}
+////				accumQty += legQty;
+//				
+//				var isFirstLeg = true;
+//				var count = 1;
+//				while (legQty > 1000) {
+//					legQty -= 1000;
+//					fill($scope.param_myData[i], newLegData, 1000, isFirstLeg);
+//					isFirstLeg = false;
+//				} 
+//				fill($scope.param_myData[i], newLegData, legQty, isFirstLeg);
+//			}
+////			if (accumQty < 100) {
+//			if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
+//				newLegData[maxQtyIdx].displayQty = 3;
+//			}
 			
 			// validate splited legs
 			$scope.myLegData = newLegData;
@@ -1002,6 +1025,8 @@ $scope.myFutMat = 'MAR17';
 //				"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
 //		);
 		
+		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
+		
 		// ========================== gridOptions ================================
 		$scope.gridOptions = {
 			appScopeProvider: {
@@ -1013,7 +1038,7 @@ $scope.myFutMat = 'MAR17';
 			},
 	// rowEditWaitInterval : -1,
 			data : 'myLegData',
-			enableSorting : false,
+			enableSorting : true,
 			enableColumnResizing : true,
 			enableFiltering : false,
 			showGridFooter : false,
@@ -1022,7 +1047,7 @@ $scope.myFutMat = 'MAR17';
 			columnDefs : [ 
 				{field : 'Instrument', 
 					headerCellClass: 'brown-header', 
-					width : '120', enableCellEdit : false,
+					width : '120', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1030,36 +1055,42 @@ $scope.myFutMat = 'MAR17';
 						return 'missing';
 					}
 				}, 
-				{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '*', enableCellEdit : false	}, 
-				{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
-				    cellFilter: 'number: 2', 
+				{field : 'UL', headerCellClass: 'brown-header', width: '*', enableCellEdit: false, enableHiding: false }, 
+				{field : 'Qty', headerCellClass: 'brown-header', width: '*', enableCellEdit: false, /*enableHiding: false,*/
+//				    cellFilter: 'number: 2', 
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+						if (row.entity.displayQty === 3)
+							return 'insufficient';
+						if (row.entity.displayQty === 2)
+							return 'missing';
+						return '';
+						
 //						var val = grid.getCellValue(row, col);
 //						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
 //							 return '';
-						if (row.entity.displayQty === 1)
-							return '';
-						else if (row.entity.displayQty === 3)
-							return 'insufficient';
-						return 'missing';
+//						if (row.entity.displayQty === 1)
+//							return '';
+//						return 'missing';
 					},
 					cellTooltip : function(row, col) {
 						if (row.entity.displayQty === 3)
-							return 'This leg use Qty=100 to Cross';
+							return 'Max Qty < 100. Use this leg as Qty[100] to cross';
 						return '';
-					}
-//					cellTemplate: 
-//					'<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 1">'
-//					+ '{{row.entity.Qty}}</div>'
-//					+ '<div class="ui-grid-cell-contents missing" ng-if="row.entity.displayQty === 2">'
-//					+ '{{row.entity.Qty}}</div>'
-//					+ '<div class="tooltip" ng-if="row.entity.displayQty === 3">{{row.entity.Qty}}'
-//					+ '<span class="tooltiptext">Use 100 to cross</span>'
-////					+ '{{row.entity.Qty}}'
-//					+ '</div>'
+					},
+//					cellTemplate:
+//						siteNameLink
+//						templateWithTooltip
+//						'<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 2">{{row.entity.Qty}}</div>'
+//						'<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 1">{{row.entity.Qty}}</div>'
+//						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 2">'
+//						+ '<input style="background-color: red; color: white;" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>'
+//						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 3">{{row.entity.Qty}}'
+//						'<div><span class="formInfo"><a href="ajax.htm?width=375" class="jTip" id="one" name="Cross as 100">?</a></span></div>'
+//						'<div><span class="formInfo"><a ui-sref="ajax.htm?width=375" class="jTip" id="one" name="Cross as 100">?</a></span></div>'
+//						'<div class="ui-grid-cell-contents" ><a href="#" data-toggle="tooltip" title="Hooray!">{{row.entity.Qty}}</a></div>'
 				}, 
-				{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '*',enableCellEdit : false,}, 
-				{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '*', enableCellEdit : false,
+				{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false}, 
+				{field : 'Expiry',headerCellClass: 'brown-header', width : '*', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1067,39 +1098,34 @@ $scope.myFutMat = 'MAR17';
 						return 'missing';
 					}
 				}, 
-				{field : 'Price', headerCellClass: 'brown-header', displayName : 'Price', width : '*', /*
-																										 * enableCellEdit :
-																										 * true,
-																										 */cellFilter : 'number: 2',
+				{field : 'Price', headerCellClass: 'brown-header', width : '*', enableHiding: false,
+//enableCellEdit : true,
+ cellFilter : 'number: 2',
 				    cellEditableCondition: function ($scope) {
 				    	if ($scope.row.entity.isEditable)
 				    		return true;
 				    	return false;
 	// 'row.entity.isEditable',
 				    },
-//					cellTemplate: '<div class="ui-grid-cell-contents" ng-if="row.entity.isEditable">'
-					cellTemplate: '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag > 2">'
-						+ '<i class="material-icons" style="color:red" ng-if="row.entity.displayTag === 4">error_outline</i>'
-						+ '{{row.entity.Price}}'
-//	 + '<input ng-model="row.entity.Price" />'
-						+ '</div>'
-						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag < 3">'
-						+ '<input ng-if="row.entity.displayTag === 2" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
-						+ '<div ng-if="row.entity.displayTag === 1">{{row.entity.Price}}</div>'
-						+ '<div ng-if="row.entity.displayTag === 0">{{row.entity.Price}}</div>'
-						+ '</div>',
-	// cellTemplate: '<div><i class="material-icons" style="color:red"
-	// ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
-	// + '<input ng-if="row.entity.isValidate" style="background-color: red; color:
-	// white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
-	// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
-	// + '</div>',
+					cellTemplate: 
+						'<div class="ui-grid-cell-contents" style="color:red" ng-if="row.entity.displayTag === 4">'
+						+ '<i class="material-icons">error_outline</i>{{row.entity.Price}}</div>'
+						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag === 2">'
+						+ '<input style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" /></div>'
+						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag === 3 || row.entity.displayTag === 1">{{row.entity.Price}}</div>'
+						
+// cellTemplate: '<div><i class="material-icons" style="color:red"
+// ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
+// + '<input ng-if="row.entity.isValidate" style="background-color: red; color:
+// white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
+// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
+// + '</div>',
 				},
-	            {field : 'noPrice', headerCellClass: 'brown-header', displayName : 'noPrice', enableCellEdit : false, visible : false},
-	            {field : 'isValidate', headerCellClass: 'brown-header', displayName : 'isValidate', enableCellEdit : false, visible : false},
-	            {field : 'isEditable', headerCellClass: 'brown-header', displayName : 'isEditable', enableCellEdit : false, visible : false},
-	            {field : 'Multiplier', headerCellClass: 'brown-header', displayName : 'Multiplier',width : '*', enableCellEdit : false, visible : false},
-				{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+	            {field : 'displayTag', headerCellClass: 'brown-header', enableCellEdit : false, visible : false},
+	            {field : 'displayQty', headerCellClass: 'brown-header', enableCellEdit : false, visible : false},
+	            {field : 'isEditable', headerCellClass: 'brown-header', enableCellEdit : false, visible : false},
+	            {field : 'Multiplier', headerCellClass: 'brown-header', width : '*', enableCellEdit : false, visible : false},
+				{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1107,7 +1133,7 @@ $scope.myFutMat = 'MAR17';
 						return 'missing';
 					}
 				}, 
-				{field : 'Seller', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+				{field : 'Seller', headerCellClass: 'brown-header', width : '*', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1135,68 +1161,57 @@ $scope.myFutMat = 'MAR17';
 			var premium = $scope.myPremium;
 			var side = 0;
 			rowEntity.noPrice = false;
+			var iRow = -1;
 			
-			for (i = 0; i < $scope.myLegData.length; i++) {
-	// if (isNaN($scope.myLegData[i].Price)) {
-				if ($scope.myLegData[i].displayTag > 2) {
-					if (isNaN($scope.myLegData[i].Price)) {
-						nMissLeg++;
-					}
-					else {
-						params.push({
-							'side' : $scope.myLegData[i].Side,
-							'multiplier' : $scope.myLegData[i].Multiplier,
-							'price' : $scope.myLegData[i].Price,
-							'option' : $scope.myLegData[i].UL.split(' ')[1],
-							'qty' : $scope.myLegData[i].Qty
-						});
-					}
+			for (i = 0; i < $scope.param_myData.length; i++) 
+			{
+				if ($scope.param_myData[i].Instrument === rowEntity.Instrument) {
+					$scope.param_myData[i].Price = rowEntity.Price;
+					iRow = i;
 				}
-				if ($scope.myLegData[i].Instrument === rowEntity.Instrument) {
-					$scope.myLegData[i].Price = rowEntity.Price;
-				}
-				if ($scope.myLegData[i].isLastLeg) {
-					multi = $scope.myLegData[i].Multiplier;
+				if (isNaN($scope.param_myData[i].Price)) {	// initially ok, 
+					nMissLeg++;
 				}
 			}
-			if (nMissLeg > 1)
+			if (nMissLeg > 1) {	// too many missing legs
+				var newLegSplits = rebuildSplit($scope.param_myData);
+				$scope.myLegData = newLegSplits;
 				return;
+			}
 			
+			for (i = 0; i < $scope.param_myData.length - 2; i++) 
+			{
+				if (!isNaN($scope.param_myData[i].Price)) {
+					params.push({
+						'side' : $scope.param_myData[i].Side,
+						'multiplier' : $scope.param_myData[i].Multiplier,
+						'price' : $scope.param_myData[i].Price,
+						'option' : $scope.param_myData[i].UL.split(' ')[1],
+						'qty' : $scope.param_myData[i].Qty
+					});
+				} 
+			}
+			var iCal = $scope.param_myData.length - 2;
+			multi = $scope.param_myData[iCal].Multiplier;
 			var price = calRemainPrice(params, multi, premium);
+			$scope.param_myData[iCal].Price = price;
 			
-			
-			var displayTag = 1;
-			if (isNaN(price) || price <= 0 || (price % 1 != 0)) {	// has decimal
-				displayTag = 2;
+			if (isNaN(price) || Math.abs(price) < 0.001 || price < 0 || (price % 1 != 0)) {	// has decimal
+				$scope.param_myData[iCal].isValidate = true;
 				$scope.param_isLastLegPriceValid = false;
-				rowEntity.displayTag = 4;
+				$scope.param_myData[iRow].displayTag = 4;	// Editable+Valid
+				$scope.param_myData[iCal].displayTag = 2;	// Uneditable+Valid
 			}
 			else {
 				$scope.param_isLastLegPriceValid = true;
-				rowEntity.displayTag = 3;
-			}
-			// update all last leg price
-			for (var i = 0; i < $scope.myLegData.length; i++) {
-				if ($scope.myLegData[i].isLastLeg) {
-					$scope.myLegData[i].Price = price;
-					$scope.myLegData[i].displayTag = displayTag;
-				}
-				// split legs
-				if ($scope.myLegData[i].Instrument === rowEntity.Instrument) {
-					$scope.myLegData[i].Price = rowEntity.Price;
+				
+				for (i = 0; i < $scope.param_myData.length - 1; i++) {
+					$scope.param_myData[i].displayTag = i === iCal ? 1 : 3;	// Uneditable+Valid
 				}
 			}
 			
-			for (var i = 0; i < $scope.param_myData.length; i++) {
-				if ($scope.param_myData[i].isLastLeg) {
-					$scope.param_myData[i].Price = price;
-					$scope.param_myData[i].displayTag = displayTag;
-				}                       
-				if ($scope.param_myData[i].Instrument === rowEntity.Instrument) {
-					$scope.param_myData[i].Price = rowEntity.Price;
-					$scope.param_myData[i].displayTag = rowEntity.displayTag;
-				}
-			}
+			var newLegSplits = rebuildSplit($scope.param_myData);
+			$scope.myLegData = newLegSplits;
 			
 			$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
 					&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
@@ -2307,11 +2322,45 @@ function fill(data, array, qty, isFirstLeg) {
 		'isEditable' : !isFirstLeg ? false: data.isEditable,
 		// keep the first leg price editable
 		'displayTag' : (data.displayTag === 4 && !isFirstLeg) ? 1 : data.displayTag,
+		'displayQty' : data.displayQty,
 		'isLastLeg' : data.isLastLeg,		
 		'isHide' : data.isHide,
 		'isSingle' : data.isSingle,
 		'displayQty' : displayQty,
+		'isFirstSplit' : isFirstLeg,
 		});
+}
+
+function rebuildSplit(param_myData) 
+{
+	var newLegData = [];
+	var maxQty = 0;
+	var maxQtyIdx = 0;
+	
+	for (var i=0; i<param_myData.length; i++) 
+	{
+		var legQty = param_myData[i].Qty;
+		
+		if (maxQty < legQty) {
+			maxQty = legQty;
+			maxQtyIdx = i;
+		}
+//		accumQty += legQty;
+		
+		var isFirstLeg = true;
+		var count = 1;
+		while (legQty > 1000) {
+			legQty -= 1000;
+			fill(param_myData[i], newLegData, 1000, isFirstLeg);
+			isFirstLeg = false;
+		} 
+		fill(param_myData[i], newLegData, legQty, isFirstLeg);
+	}
+//	if (accumQty < 100) {
+	if (maxQty < 100 && newLegData[maxQtyIdx].displayQty === 1) {
+		newLegData[maxQtyIdx].displayQty = 3;
+	}
+	return newLegData;
 }
 
 //
