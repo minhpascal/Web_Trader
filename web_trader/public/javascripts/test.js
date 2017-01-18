@@ -427,15 +427,15 @@ $scope.myFutMat = 'MAR17';
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 
 				'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
-				'displayTag' : 1, 'isLastLeg' : true, 'isEditable' : false
-//				'noPrice' : true, 'isValidate' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 
 				'Strike' : '', 'Qty' : '', 
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-//				'noPrice' : false, 'isValidate' : false, 'isEditable' : false,
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false,
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 				'isHide' : true, 'isSingle': $scope.isSingle
 			};
 			$scope.param_isLastLegPriceValid = true;
@@ -447,13 +447,15 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 1, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false,
-				'isHide' : true, 'isSingle': $scope.isSingleLeg
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
+				'isHide' : true, 'isSingle': $scope.isSingleLeg,
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -469,22 +471,26 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable': true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable': true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable': true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable': true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable': false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable': false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 3, 'isLastLeg' : false,  'isEditable': false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false,  'isEditable': false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;			
 		}
@@ -499,22 +505,26 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;			
 		}
@@ -528,27 +538,32 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]),
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -562,27 +577,32 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -596,17 +616,20 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'displayTag': 4, 'displayQty': 2, 'isLastLeg' : false, isEditable: true
+				'displayTag': 4, 'displayQty': 2, 'isLastLeg' : false, isEditable: true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag': 2, 'displayQty': 2, 'isLastLeg' : true, isEditable: false
+				'displayTag': 2, 'displayQty': 2, 'isLastLeg' : true, isEditable: false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref,  
-				'displayTag': 1, 'displayQty': 2, 'isLastLeg' : false
+				'displayTag': 1, 'displayQty': 2, 'isLastLeg' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -620,17 +643,20 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -644,27 +670,32 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -675,17 +706,20 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -696,17 +730,20 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0,
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -718,28 +755,32 @@ $scope.myFutMat = 'MAR17';
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true,
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
-				'displayTag' : 4, 'isLastLeg' : false, 'isEditable' : true
+				'displayTag' : 4, displayQty: 2, 'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
-				'displayTag' : 2, 'isLastLeg' : true, 'isEditable' : false
+				'displayTag' : 2, displayQty: 2, 'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'displayTag' : 1, 'isLastLeg' : false, 'isEditable' : false 
+				'displayTag' : 1, displayQty: 2, 'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
