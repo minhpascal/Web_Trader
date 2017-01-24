@@ -40,10 +40,6 @@ requester.on("message", function(reply) {
 		that.onOrder(json);
 		break;
 	}
-	case Cmmf.Command.INSTRUMENT_UPDATE: {
-		that.onInstrumentUpdate(json);
-		break;
-	}
 	default : {
 		logger.error("Unknown message", json);
 		break;

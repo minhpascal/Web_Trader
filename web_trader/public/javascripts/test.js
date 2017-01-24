@@ -125,6 +125,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		                	{name:"Price", field:"Price", width: '80'},
 		                	{field:"Buyer", width: '60'},
 		                	{field:"Seller", width: '60'},
+		                	{field:"Group", width: '60'},
+		                	{field:"Status", width: '60'},
 		                ],
 		                data: data.Legs
 		        }
@@ -207,6 +209,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
 	    
+	    $scope.myInstrList = [];
+	    
 //	    // RESET when enter controller
 //		$scope.param_isShowSendBtn = false;	// display send button
 //		$scope.param_isQtyValid = false;
@@ -256,11 +260,22 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	                	{name:"Price", field:"Price", width: '80'},
 	                	{field:"Buyer", width: '80'},
 	                	{field:"Seller", width: '80'},
+	                	{field:"Group", width: '80'},
+	                	{field:"Status", width: '80'},
 	                ],
 	                'data': data.Legs
 		        }
 				$scope.myOtData.unshift(data);
 			}
+		});
+		
+		$http.get('api/getInstrument').then(function(result) {
+//			v = result.data.data;
+//			var data = [];
+//			for (var i=0; i<v.length; i++) {
+//				data.push(v[i]);
+//			}
+			$scope.myInstrList = result.data.data;
 		});
 //	}
 	
@@ -301,6 +316,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'myStrat': $scope.myStrat,
 					'myPremium': $scope.myPremium,
 					'myRef': $scope.myRef,
+					'myInstrList': $scope.myInstrList,
 				},
 // scope : $scope,
 // preserveScope: true,
@@ -328,9 +344,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
-$scope.myDelta = 0;
+$scope.myDelta = 10;
 $scope.myQty = 100;
 $scope.myFutMat = 'MAR17';
+
+		$scope.myInstrList = locals.myInstrList;
 		
 		$templateCache.put('ui-grid/uiGridViewport',
 		"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
@@ -421,7 +439,7 @@ $scope.myFutMat = 'MAR17';
 		
 		switch (strat) {
 		case 'C': { // 'EC - European Call':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 
 				'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
@@ -444,7 +462,7 @@ $scope.myFutMat = 'MAR17';
 		}
 		// put strategy
 		case 'P' : { // - European Put': {
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
@@ -468,9 +486,9 @@ $scope.myFutMat = 'MAR17';
 		case 'CFLY':  // butterfly
 		case 'CB':  // 'ECB - European Call Butterfly':
 		case 'CTB': { // 'ECTB - European Call Time Butterfly':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
@@ -506,9 +524,9 @@ $scope.myFutMat = 'MAR17';
 		case 'PFLY':  // butterfly
 		case 'PB':  // 'EPB - European Put Butterfly':
 		case 'PTB': { // 'EPTB - European Put Time Butterfly':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
@@ -542,10 +560,10 @@ $scope.myFutMat = 'MAR17';
 		case 'CDOR':  // 'ECC - European Call Condor':
 		case 'CC':  // 'ECC - European Call Condor':
 		case 'CTC': { // 'ECC - European Call Time Condor':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
@@ -586,10 +604,10 @@ $scope.myFutMat = 'MAR17';
 		case 'PC': 
 		case 'PDOR': // 'EPC - European Put Condor':
 		case 'PTC': {// 'EPC - European Put Time Condor':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'P', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'P', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
@@ -632,8 +650,9 @@ $scope.myFutMat = 'MAR17';
 		case 'CR':  // 'ECR - European Call Ratio':
 		case 'CTR':  // 'ECTR - European Call Time Ratio':
 		case 'CTS': { // 'ECTS - European Call Time Spread':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
@@ -662,8 +681,9 @@ $scope.myFutMat = 'MAR17';
 		case 'PR':  // 'ECR - European Put Ratio':
 		case 'PTR':  // 'ECTR - European Put Time Ratio':
 		case 'PTS': { // 'ECTS - European Put Time Spread':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1], $scope.myInstrList);
+			
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
@@ -690,10 +710,10 @@ $scope.myFutMat = 'MAR17';
 		case 'IF':  // - European Iron Fly':
 		case 'IFR' :  // - European Iron Fly Ratio':
 		case 'SDTS' : {// - European Straddle Time Spread'
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
@@ -733,8 +753,8 @@ $scope.myFutMat = 'MAR17';
 		}
 		case 'SG' :  // } - European Strangle':
 		case 'RR' :  {// - European Risk Reversal':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
@@ -760,8 +780,8 @@ $scope.myFutMat = 'MAR17';
 		}
 		case 'SD':  // } - European Straddle':
 		case 'SYNTH': { // - European Synthetic Put Over':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
@@ -786,10 +806,10 @@ $scope.myFutMat = 'MAR17';
 			break;
 		}
 		case 'SPRD' : { // - Spread'
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
@@ -1054,7 +1074,7 @@ $scope.myFutMat = 'MAR17';
 			
 			if (rowEntity.FutMat && rowEntity.FutMat !== '') {
 				$scope.param_myData[$scope.param_myData.length - 1].Expiry = rowEntity.FutMat;
-				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat);
+				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat, $scope.myInstrList);
 				$scope.param_isFutMatValid = true;
 				rowEntity.isFutMatValid = true;
 				$scope.myFutMat = rowEntity.FutMat;
@@ -1747,7 +1767,7 @@ function getMonthFromString(mmmyy){
    return -1;
  }
 
-function exchangeSymbol(ul, deriv, strike, futExp) {
+function exchangeSymbol(ul, deriv, strike, futExp, myInstrList) {
 	var m = derivLetter(deriv, futExp);
 	var y = futExp.substring(4,5);
 	var symbol = '';
@@ -1760,6 +1780,9 @@ function exchangeSymbol(ul, deriv, strike, futExp) {
 	if (strike)
 		symbol += strike;
 	symbol += m + y;
+	
+	if (myInstrList.indexOf(symbol) < 0) 
+		alert(symbol + ' not tradable');
 	return symbol;
 };
 

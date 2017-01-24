@@ -21,6 +21,7 @@ function OMS(_app) {
 		this.orderId = 1;
 	}
 	this.map = {};
+	this.mapInstruments = {};
 };
 
 OMS.prototype.getOrderId = function(callback) {
@@ -49,6 +50,19 @@ OMS.prototype.getAllTradeReport = function() {
 	return list;
 };
 
+OMS.prototype.getAllInstrument = function() {
+	logger.info("getAllInstrument");
+	var list = [];
+	for (var key in this.mapInstruments) {
+			list.push(key);
+//			console.log(key + " -> " + this.mapInstruments[key]);
+	}
+	return list;
+};
 
+OMS.prototype.addInstrument = function(symbol, status) {
+	logger.info("add instrument ", symbol, status);
+	this.mapInstruments[symbol] = status;
+};
 
 module.exports = OMS;

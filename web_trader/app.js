@@ -85,6 +85,7 @@ plVent.Bind();
 //plSink.Bind();
 
 plVent.QueryAllTradeReport();
+plVent.QueryAllInstrument();
 
 //setInterval(function() {
 //	plVent.SOD();

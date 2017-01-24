@@ -111,11 +111,15 @@ PipelineVentilator.prototype.SOD = function() {
 	}
 };
 
-
-
+// Query 
 PipelineVentilator.prototype.QueryAllTradeReport = function() {
 	logger.info("QueryAllTradeReport");
 	sender.send("TOQR");
+}
+
+PipelineVentilator.prototype.QueryAllInstrument = function() {
+	logger.info("QueryAllInstrument");
+	sender.send("TOQP");
 }
 		
 PipelineVentilator.prototype.SendTradeReport = function(
@@ -218,9 +222,56 @@ logger.debug('onTradeReport: ', refId + ',' + id + ',' + status);
 PipelineVentilator.prototype.onOrder = function(doc) {
 	logger.info(doc);
 };
-PipelineVentilator.prototype.onInstrumentUpdate = function(doc) {
-	logger.info(doc);
-};
+
+PipelineVentilator.prototype.onQueryAllInstrument = function(doc) {
+	logger.info('onQueryAllInstrument: ', doc);
+	
+	
+		oms = this.app.get('oms');
+		var instruments = [];
+		var size = doc.Size;
+		var list = doc.Instruments;
+		for (i=0; i<size; i++) {
+			try {
+			var instr = list[i];
+logger.info('instr: ', instr);			
+			var Symbol = instr.Symbol;
+			var Status = instr.Status;
+//			if (Symbol.startWith('HHI') || Symbol.startWith('HSI'))
+				oms.addInstrument(Symbol, Status);
+			} catch (err) {
+				logger.error(instr + "," + err.message);
+			}
+		}
+}
+
+//onPipelineVentilator.prototype.onInstrumentUpdate = function(doc) {
+//	logger.info('onInstrumentUpdate: ', doc);
+//	
+//	try {
+//			var legs = [];
+//			var list = doc.Instruments;
+//			for (i=0; i<list.length; i++) {
+//				var Instrument = list[i].Instrument;
+//				var UL = list[i].UL;
+//				var Qty = list[i].Qty;
+//				var Buyer = list[i].Buyer;
+//				var Seller = list[i].Seller;
+//				var Strike = list[i].Strike;
+//				var Expiry = list[i].Expiry;
+//				var Price = list[i].Price;
+//				legs.push({'Instrument' : Instrument, 'UL': UL, 'Qty' : Qty,
+//					'Buyer': Buyer, 'Seller': Seller, 'Strike': Strike, 'Expiry': Expiry, 'Price': Price});
+//			}
+//
+//			if (list.length > 0) {
+//				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, legs);
+//				oms.addBlockTradeReport(refId, block_tr);
+//			}
+//	} catch (err) {
+//		logger.error(err.message);
+//	}
+//};
 
 receiver.on('message', function(buf) {
 	
@@ -239,7 +290,7 @@ receiver.on('message', function(buf) {
 				break;
 			}
 			case Command.INSTRUMENT_UPDATE: {
-				that.onInstrumentUpdate(json);
+				that.onQueryAllInstrument(json);
 				break;
 			}
 			default : {

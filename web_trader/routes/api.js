@@ -24,6 +24,21 @@ router.get('/getTradeReport', function(req, res, next) {
 	console.log('api/getTradeReport ' + {data:list});
 });
 
+router.get('/getInstrument', function(req, res, next) {
+	console.log('api/getInstrument ');	
+	var oms = req.app.get('oms');
+	var v = oms.getAllInstrument();
+	
+//	list = [];
+//	for (i=0; i<v.length; i++) {
+//		data = v[i].json();
+//		list.push(data);
+//	}
+	
+	res.send({data:v});
+	console.log('api/getInstrument ' + {data:v});
+});
+
 router.post('/sendTradeReport', function(req, res, next) {
 	console.log('api/sendTradeReport ' + req.body.trType  + ',' + JSON.stringify(req.body.legs));
 	

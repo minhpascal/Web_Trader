@@ -28,7 +28,7 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	{
 		tr = legs[i];
     	this.legs.push(new TradeReport(tr.Instrument, '', 
-    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Buyer, tr.Seller));		
+    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Buyer, tr.Seller, tr.Group, 'UNSENT'));		
 	}
 };
 
