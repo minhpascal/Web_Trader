@@ -149,7 +149,7 @@ PipelineVentilator.prototype.SendTradeReport = function(
 		});
 	
 		oms = this.app.get('oms');
-		var block_tr = new BlockTradeReport('', refId, 'UNSENT', trType, symbol, qty, delta, price, strat, buyer, seller, futMat, legs);
+		var block_tr = new BlockTradeReport('', refId, 'UNSENT', trType, symbol, qty, delta, price, strat, buyer, seller, futMat, '', legs);
 		oms.addBlockTradeReport(refId, block_tr);
 		
 		bdxService = this.app.get('broadcastService');
@@ -172,13 +172,27 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 		var refId = doc.tradeReport.RefId;
 		var id = doc.tradeReport.Id;
 		var status = doc.tradeReport.Status;
-logger.debug('onTradeReport: ', refId + ',' + id + ',' + status);
+		var remark = doc.tradeReport.Remark;
+logger.debug('onTradeReport: ', refId + ',' + id + ',' + status + ',' + remark);
 		var tr = oms.get(refId);
 		if (tr) {
 			// update internal oms
 			tr.id = id;
 			tr.status = status;
 			
+			if (doc.tradeReport.Legs) {
+				var list = doc.tradeReport.Legs;
+				for (i=0; i<list.length; i++) {
+					var Group = list[i].Group;
+					var Status = list[i].Status;
+					var Remark = list[i].Remark;
+					tr.setGroupStatus(Group, Status, Remark);
+				}
+			}
+			else {
+				tr.setStatus(status);
+				tr.setRemark(remark);
+			}
 			bdxService = this.app.get('broadcastService');
 			bdxService.toAll(doc.tradeReport);
 		}
@@ -194,22 +208,32 @@ logger.debug('onTradeReport: ', refId + ',' + id + ',' + status);
 			var futMat = doc.tradeReport.FutMat;
 			
 			var legs = [];
-			var list = doc.tradeReport.Legs;
-			for (i=0; i<list.length; i++) {
-				var Instrument = list[i].Instrument;
-				var UL = list[i].UL;
-				var Qty = list[i].Qty;
-				var Buyer = list[i].Buyer;
-				var Seller = list[i].Seller;
-				var Strike = list[i].Strike;
-				var Expiry = list[i].Expiry;
-				var Price = list[i].Price;
-				legs.push({'Instrument' : Instrument, 'UL': UL, 'Qty' : Qty,
-					'Buyer': Buyer, 'Seller': Seller, 'Strike': Strike, 'Expiry': Expiry, 'Price': Price});
+			if (doc.tradeReport.Legs) {
+				var list = doc.tradeReport.Legs;
+				for (i=0; i<list.length; i++) {
+					var Instrument = list[i].Instrument;
+					var UL = list[i].UL;
+					var Qty = list[i].Qty;
+					var Buyer = list[i].Buyer;
+					var Seller = list[i].Seller;
+					var Strike = list[i].Strike;
+					var Expiry = list[i].Expiry;
+					var Price = list[i].Price;
+					var Group = list[i].Group;
+					var Status = list[i].Status;
+					var Remark = list[i].Remark;
+					legs.push({'Instrument' : Instrument, 'UL': UL, 'Qty' : Qty,
+						'Buyer': Buyer, 'Seller': Seller, 'Strike': Strike, 'Expiry': Expiry, 
+						'Price': Price, 'Group': Group, 'Status' : Status, 'Remark' : Remark});
+				}
+	
+				if (list.length > 0) {
+					var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, remark, legs);
+					oms.addBlockTradeReport(refId, block_tr);
+				}
 			}
-
-			if (list.length > 0) {
-				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, legs);
+			else {
+				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, remark, []);
 				oms.addBlockTradeReport(refId, block_tr);
 			}
 		}

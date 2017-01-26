@@ -9,9 +9,10 @@ function BlockTradeReport() {
 };
 
 // Constructor
-function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, legs) {
+function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, remark, legs) {
 	this.id = id;
 	this.refId = refId;
+	this.group = 1;
 	this.status = status;
 	this.trType = trType;
 	this.symbol = symbol;
@@ -21,6 +22,7 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	this.strat = strat;
 	this.buyer = buyer;
 	this.seller = seller;
+	this.remark = remark;
 	this.futMat = futMat;
 	
 	this.legs = [];
@@ -28,7 +30,17 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	{
 		tr = legs[i];
     	this.legs.push(new TradeReport(tr.Instrument, '', 
-    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Buyer, tr.Seller, tr.Group, 'UNSENT'));		
+    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Buyer, tr.Seller, tr.Group, tr.Status, tr.Remark));		
+	}
+};
+
+// class methods
+BlockTradeReport.prototype.setGroupStatus = function(group, status, remark) {
+	for (var i=0; i<this.legs.length; i++) {
+		if (this.legs[i].Group === group) {
+			this.legs[i].Status = status;
+			this.legs[i].Remark = remark;
+		} 
 	}
 };
 
@@ -45,6 +57,9 @@ BlockTradeReport.prototype.setId = function(id) {
 BlockTradeReport.prototype.setStatus = function(status) {
 	this.status = status;
 };
+BlockTradeReport.prototype.setRemark = function(remark) {
+	this.remark = remark;
+};
 
 BlockTradeReport.prototype.json = function() {
 	data = {
@@ -60,7 +75,8 @@ BlockTradeReport.prototype.json = function() {
 		'Buyer': 	this.buyer,
 		'Seller': 	this.seller,
 		'Premium': 	this.price,
-		'Strategy': 	this.strat,
+		'Strategy': this.strat,
+		'Remark': 	this.remark,
 		'Legs': [],
 	};
 	

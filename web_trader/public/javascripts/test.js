@@ -85,6 +85,27 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    			$scope.myOtData[i].Id = id;
 	    			$scope.myOtData[i].Status = res.message.Status;
 	    			isExist = true;
+	    			
+	    			if (res.message.Legs) {
+//		    			if ($scope.myOtData[i].Legs) {
+		    				for (var j=0; j<$scope.myOtData[i].Legs.length; j++) {
+		    					for (var k=0; k<res.message.Legs.length; k++) {
+		    						if ($scope.myOtData[i].Legs[j].Group === res.message.Legs[k].Group) {
+		    							$scope.myOtData[i].Legs[j].Status = res.message.Legs[k].Status;
+		    							$scope.myOtData[i].Legs[j].Remark = res.message.Legs[k].Remark;
+		    						}
+		    					}
+		    				}
+//		    			}
+	    			}
+	    			else {
+	    				for (var j=0; j<$scope.myOtData[i].Legs.length; j++) {
+//    						if ($scope.myOtData[i].Legs[j].Group === res.message.Group) {
+    							$scope.myOtData[i].Legs[j].Status = res.message.Status;
+    							$scope.myOtData[i].Legs[j].Remark = res.message.Remark;
+//    						}
+	    				}
+	    			}
 	    			break;
 	    		}
 	    	}
@@ -126,7 +147,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		                	{field:"Buyer", width: '60'},
 		                	{field:"Seller", width: '60'},
 		                	{field:"Group", width: '60'},
-		                	{field:"Status", width: '60'},
+		                	{field:"Status", width: '60',
+		        				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+		        					var val = grid.getCellValue(row, col);
+		        					if (val === 'SENT' || val === 'UNSENT')
+		        						return 'order_in_progress';
+		        					if (val === 'REJECTED')
+		        						return 'order_reject';
+		        					return 'order_ok';
+		        				}	
+	                		},
+		                	{field:"Remark", width: '60'},
 		                ],
 		                data: data.Legs
 		        }
@@ -167,9 +198,9 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			{field : 'Status', headerCellClass: 'green-header', width: '*', enableCellEdit: false, enableHiding: false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
-					if (val === 'SENT')
+					if (val === 'SENT' || val === 'UNSENT')
 						return 'order_in_progress';
-					if (val === 'REJECT')
+					if (val === 'REJECTED')
 						return 'order_reject';
 					return 'order_ok';
 				}
@@ -261,7 +292,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	                	{field:"Buyer", width: '80'},
 	                	{field:"Seller", width: '80'},
 	                	{field:"Group", width: '80'},
-	                	{field:"Status", width: '80'},
+	                	{field:"Status", width: '80',
+	        				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+	        					var val = grid.getCellValue(row, col);
+	        					if (val === 'SENT' || val === 'UNSENT')
+	        						return 'order_in_progress';
+	        					if (val === 'REJECTED')
+	        						return 'order_reject';
+	        					return 'order_ok';
+	        				}	
+	                	},
+	                	{field:"Remark", width: '80'},
 	                ],
 	                'data': data.Legs
 		        }

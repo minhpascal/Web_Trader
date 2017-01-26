@@ -8,7 +8,7 @@ function TradeReport() {
 
 // Constructor
 function TradeReport(ul, type, strike, expiry, price, qty,
-		buyer, seller, group, status) {
+		buyer, seller, group, status, remark) {
 	// always initialize all instance properties
 	this.ul = ul;
 	this.type = type;
@@ -19,7 +19,11 @@ function TradeReport(ul, type, strike, expiry, price, qty,
 	this.buyer = buyer;
 	this.seller = seller;
 	this.group = group;
-	this.status = status;
+	if (status || status !== '')
+		this.status = status;
+	else 
+		this.status = 'UNSENT';
+	this.remark = remark;
 };
 
 //function TradeReport(json) {
@@ -48,8 +52,20 @@ TradeReport.prototype.json = function() {
 			"Seller":this.seller, 
 			"Group":this.group, 
 			"Status":this.status, 
+			"Remark":this.remark, 
 	};
 	return j;
+};
+
+TradeReport.prototype.setStatus = function(status) {
+	this.status = status;
+};
+
+TradeReport.prototype.setRemark = function(remark) {
+	this.remark = remark;
+};
+
+TradeReport.prototype.setGroupStatus = function(group, status, remark) {
 };
 
 // export the class
