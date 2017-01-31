@@ -173,39 +173,40 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 		var id = doc.tradeReport.Id;
 		var status = doc.tradeReport.Status;
 		var remark = doc.tradeReport.Remark;
-logger.debug('onTradeReport: ', refId + ',' + id + ',' + status + ',' + remark);
+		var trType = doc.tradeReport.TrType;
+		var symbol = doc.tradeReport.Symbol;
+		var qty = doc.tradeReport.Qty;
+		var delta = doc.tradeReport.Delta;
+		var buyer = doc.tradeReport.Buyer;
+		var seller = doc.tradeReport.Seller;
+		var futMat = doc.tradeReport.FutMat;
+		var inputTime = doc.tradeReport.InputTime;
+		
+logger.debug('onTradeReport 185: ', doc.tradeReport);
+//logger.debug('onTradeReport 185: ', refId + ',' + id + ',' + status + ',' + remark);
 		var tr = oms.get(refId);
 		if (tr) {
 			// update internal oms
 			tr.id = id;
 			tr.status = status;
-			
+			tr.remark = remark;
 			if (doc.tradeReport.Legs) {
 				var list = doc.tradeReport.Legs;
 				for (i=0; i<list.length; i++) {
+//logger.debug('onTradeReport 195: ', list[i]);
 					var Group = list[i].Group;
 					var Status = list[i].Status;
 					var Remark = list[i].Remark;
-					tr.setGroupStatus(Group, Status, Remark);
+					var TrType = list[i].TrType;
+					var LastUpdateTime = list[i].LastUpdateTime;
+					tr.updateGroup(Group, Status, Remark, TrType, LastUpdateTime);
 				}
-			}
-			else {
-				tr.setStatus(status);
-				tr.setRemark(remark);
 			}
 			bdxService = this.app.get('broadcastService');
 			bdxService.toAll(doc.tradeReport);
 		}
 		else {
 			logger.error('order not found: ' + refId);
-			
-			var trType = doc.tradeReport.TrType;
-			var symbol = doc.tradeReport.Symbol;
-			var qty = doc.tradeReport.Qty;
-			var delta = doc.tradeReport.Delta;
-			var buyer = doc.tradeReport.Buyer;
-			var seller = doc.tradeReport.Seller;
-			var futMat = doc.tradeReport.FutMat;
 			
 			var legs = [];
 			if (doc.tradeReport.Legs) {
@@ -222,18 +223,34 @@ logger.debug('onTradeReport: ', refId + ',' + id + ',' + status + ',' + remark);
 					var Group = list[i].Group;
 					var Status = list[i].Status;
 					var Remark = list[i].Remark;
-					legs.push({'Instrument' : Instrument, 'UL': UL, 'Qty' : Qty,
-						'Buyer': Buyer, 'Seller': Seller, 'Strike': Strike, 'Expiry': Expiry, 
-						'Price': Price, 'Group': Group, 'Status' : Status, 'Remark' : Remark});
+					var TrType = list[i].TrType;
+					var LastUpdateTime = list[i].LastUpdateTime;
+					legs.push({
+						'Instrument' : Instrument,
+						'UL' : UL,
+						'Qty' : Qty,
+						'Buyer' : Buyer,
+						'Seller' : Seller,
+						'Strike' : Strike,
+						'Expiry' : Expiry,
+						'Price' : Price,
+						'Group' : Group,
+						'Status' : Status,
+						'Remark' : Remark,
+						'TrType' : TrType,
+						'LastUpdateTime' : LastUpdateTime
+					});
 				}
 	
 				if (list.length > 0) {
-					var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, remark, legs);
+					var block_tr = new BlockTradeReport(id, refId, status,
+							trType, symbol, qty, delta, '', '', buyer, seller,
+							futMat, remark, inputTime, legs);
 					oms.addBlockTradeReport(refId, block_tr);
 				}
 			}
 			else {
-				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, remark, []);
+				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, remark, inputTime, []);
 				oms.addBlockTradeReport(refId, block_tr);
 			}
 		}

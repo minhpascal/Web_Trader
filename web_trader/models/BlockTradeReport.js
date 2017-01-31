@@ -1,7 +1,7 @@
 /**
  * http://usejsdoc.org/
  */
-
+var moment = require('moment')
 var TradeReport = require('./TradeReport')
 
 function BlockTradeReport() {
@@ -9,7 +9,7 @@ function BlockTradeReport() {
 };
 
 // Constructor
-function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, remark, legs) {
+function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, remark, inputTime, legs) {
 	this.id = id;
 	this.refId = refId;
 	this.group = 1;
@@ -24,22 +24,27 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	this.seller = seller;
 	this.remark = remark;
 	this.futMat = futMat;
+	this.inputTime = moment(new Date(inputTime)).format('HH:mm:ss.SSS');
 	
 	this.legs = [];
 	for (i=0; i<legs.length; i++) 
 	{
 		tr = legs[i];
-    	this.legs.push(new TradeReport(tr.Instrument, '', 
-    			tr.Strike, tr.Expiry, tr.Price, tr.Qty, tr.Buyer, tr.Seller, tr.Group, tr.Status, tr.Remark));		
+		    	this.legs.push(new TradeReport(tr.Instrument, '', tr.Strike, tr.Expiry,
+				tr.Price, tr.Qty, tr.Buyer, tr.Seller, tr.Group, tr.Status,
+				tr.Remark, tr.TrType, tr.LastUpdateTime));		
 	}
 };
 
 // class methods
-BlockTradeReport.prototype.setGroupStatus = function(group, status, remark) {
+BlockTradeReport.prototype.updateGroup = function(group, status, remark, trType, lastUpdateTime) {
+	logger.debug('updateGroup: ', group, status, remark, trType, lastUpdateTime);
 	for (var i=0; i<this.legs.length; i++) {
 		if (this.legs[i].Group === group) {
 			this.legs[i].Status = status;
 			this.legs[i].Remark = remark;
+			this.legs[i].TrType = trType;
+			this.legs[i].LastUpdateTime = moment(new Date(lastUpdateTime)).format('HH:mm:ss.SSS');
 		} 
 	}
 };
@@ -77,6 +82,7 @@ BlockTradeReport.prototype.json = function() {
 		'Premium': 	this.price,
 		'Strategy': this.strat,
 		'Remark': 	this.remark,
+		'InputTime': 	this.inputTime,
 		'Legs': [],
 	};
 	

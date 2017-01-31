@@ -45,9 +45,16 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="bower_components/angular-socket-io/socket.js"></script>  
 
+<script type="text/javascript" src="javascripts/config.js"></script>
 <script type="text/javascript" src="javascripts/cross.js"></script>
 <!--<script type="text/javascript" src="javascripts/datepicker.js"></script>-->
-
+<!-- 
+    <script type="text/javascript"  src="javascripts/ng-grid-debug.js"></script>
+ -->
+ 
+<script type="text/javascript"  src="js/jquery.js"></script>
+<script type="text/javascript"  src="js/jtip.js"></script>
+ 
 </head>
 <body ng-app="app">
 	<div ng-controller="AppCtrl as pc" class="md-padding"	id="popupContainer" ng-cloak>
@@ -94,17 +101,16 @@
 				<md-input-container class="md-block" flex-gt-sm="10"> -->
 				<md-input-container class="md-block">
 				<label>Buyer</label> 
-				<input  ng-model="myCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> 
-<!-- 				<input md-max-length="100" ng-model="myCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> --> 
+				<input  ng-model="myCompany" > 
+<!-- 			<input  ng-model="myCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> --> 
 				</md-input-container>
 				<!-- 
 				<md-input-container class="md-block" flex-gt-sm="10" >
 				 -->
 				<md-input-container class="md-block">
 				<label>Seller</label> 
-<!-- 				<input md-max-length="100"  ng-model="myCpCompany" ng-disabled="myTrType !== 'T4 - Interbank'">
- --> 
-				<input ng-model="myCpCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> 
+				<!--<input ng-model="myCpCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> --> 
+				<input ng-model="myCpCompany"> 
 				</md-input-container>
 
 				<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myTrType, mySymbol, myCompany, myCpCompany)">

@@ -1,3 +1,5 @@
+var log4js = require('log4js');
+var logger = log4js.getLogger('api');
 var express = require('express');
 var router = express.Router();
 var path = require('path');
@@ -18,6 +20,7 @@ router.get('/getTradeReport', function(req, res, next) {
 	for (i=0; i<v.length; i++) {
 		data = v[i].json();
 		list.push(data);
+logger.debug('api/getTradeReport 2: ', data);
 	}
 	
 	res.send({data:list});

@@ -1,6 +1,8 @@
 /**
  * http://usejsdoc.org/
  */
+var moment = require('moment');
+
 // var Hedge = require('./Hedge');
 // var Leg = require('./Leg');
 function TradeReport() {
@@ -8,7 +10,7 @@ function TradeReport() {
 
 // Constructor
 function TradeReport(ul, type, strike, expiry, price, qty,
-		buyer, seller, group, status, remark) {
+		buyer, seller, group, status, remark, trType, lastUpdateTime) {
 	// always initialize all instance properties
 	this.ul = ul;
 	this.type = type;
@@ -24,6 +26,8 @@ function TradeReport(ul, type, strike, expiry, price, qty,
 	else 
 		this.status = 'UNSENT';
 	this.remark = remark;
+	this.trType = trType;
+	this.lastUpdateTime = moment(new Date(lastUpdateTime)).format('HH:mm:ss.SSS');
 };
 
 //function TradeReport(json) {
@@ -53,6 +57,8 @@ TradeReport.prototype.json = function() {
 			"Group":this.group, 
 			"Status":this.status, 
 			"Remark":this.remark, 
+			"TrType":this.trType, 
+			"LastUpdateTime":this.lastUpdateTime, 
 	};
 	return j;
 };
@@ -65,7 +71,7 @@ TradeReport.prototype.setRemark = function(remark) {
 	this.remark = remark;
 };
 
-TradeReport.prototype.setGroupStatus = function(group, status, remark) {
+TradeReport.prototype.updateGroup = function(group, status, remark) {
 };
 
 // export the class

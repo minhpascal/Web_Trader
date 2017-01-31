@@ -44,7 +44,7 @@ OMS.prototype.getAllTradeReport = function() {
 	for (var key in this.map) {
 	  if (this.map.hasOwnProperty(key)) {
 		  list.push(this.map[key]);
-		  console.log(key + " -> " + this.map[key]);
+		  logger.debug('key ', key, this.map[key]);
 	  }
 	}
 	return list;

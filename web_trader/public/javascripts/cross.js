@@ -30,6 +30,17 @@ var app = angular.module('app', [
 	'btford.socket-io',
 	'isteven-multi-select',
 	]);
+//	  .config(function ($stateProvider) {
+//
+//      $stateProvider.state('home1', {
+//        url:'/home1',
+//        templateUrl: 'views/modals/test.html'
+//      })
+//      .state('secondState',{
+//        url:'/secondState',
+//        templateUrl: 'views/modals/secondStateTest.html'
+//      });
+//  });
 
 app.factory('socket', function (socketFactory) {
 	 return socketFactory();
@@ -37,7 +48,7 @@ app.factory('socket', function (socketFactory) {
 	value('version', '0.1');
 
 app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-	'uiGridConstants', 'socket', 
+	'uiGridConstants', 'socket',
 //	'$templateCache', 
 	function($scope, $http, $mdDialog 
 		,uiGridConstants, socket
@@ -61,6 +72,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 // $scope.myDelta = '';
 // $scope.myFutMat = '';
     
+//    $state.go('home1');
     socket.on('send:message', function (res) {
     	try {
 //    		console.log(res.message.RefId);
@@ -73,6 +85,29 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    			$scope.myOtData[i].Id = id;
 	    			$scope.myOtData[i].Status = res.message.Status;
 	    			isExist = true;
+	    			
+	    			if (res.message.Legs) {
+//		    			if ($scope.myOtData[i].Legs) {
+		    				for (var j=0; j<$scope.myOtData[i].Legs.length; j++) {
+		    					for (var k=0; k<res.message.Legs.length; k++) {
+		    						if ($scope.myOtData[i].Legs[j].Group === res.message.Legs[k].Group) {
+		    							$scope.myOtData[i].Legs[j].Status = res.message.Legs[k].Status;
+		    							$scope.myOtData[i].Legs[j].Remark = res.message.Legs[k].Remark;
+		    							$scope.myOtData[i].Legs[j].LastUpdateTime = res.message.Legs[k].LastUpdateTime;
+		    						}
+		    					}
+		    				}
+//		    			}
+	    			}
+	    			else {
+	    				for (var j=0; j<$scope.myOtData[i].Legs.length; j++) {
+//    						if ($scope.myOtData[i].Legs[j].Group === res.message.Group) {
+    							$scope.myOtData[i].Legs[j].Status = res.message.Status;
+    							$scope.myOtData[i].Legs[j].Remark = res.message.Remark;
+    							$scope.myOtData[i].Legs[j].LastUpdateTime = res.message.LastUpdateTime;
+//    						}
+	    				}
+	    			}
 	    			break;
 	    		}
 	    	}
@@ -89,6 +124,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						'FutMat':res.message.FutMat,
 						'Buyer' : res.message.Buyer,  
 						'Seller' : res.message.Seller,
+						'InputTime': res.message.InputTime,
 //						'Premium': res.message.Premium,
 //						'Strategy': res.message.Strategy,
 //						'UL': '', 
@@ -113,6 +149,20 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		                	{name:"Price", field:"Price", width: '80'},
 		                	{field:"Buyer", width: '60'},
 		                	{field:"Seller", width: '60'},
+		                	{field:"Group", width: '60'},
+		                	{field:"Status", width: '60',
+		        				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+		        					var val = grid.getCellValue(row, col);
+		        					if (val === 'SENT' || val === 'UNSENT')
+		        						return 'order_in_progress';
+		        					if (val === 'REJECTED')
+		        						return 'order_reject';
+		        					return 'order_ok';
+		        				}	
+	                		},
+		                	{field:"Remark", width: '60'},
+		                	{field:"TrType", width: '60'},
+		                	{field:"LastUpdateTime", displayName:'Last', width: '60'},
 		                ],
 		                data: data.Legs
 		        }
@@ -131,14 +181,14 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			enableHorizontalScrollbar: false, 
 //			enableVerticalScrollbar: false,
 //				rowEditWaitInterval : -1,
-		enableSorting : false,
+		enableSorting : true,
 		enableColumnResizing : true,
 		enableFiltering : false,
 		showGridFooter : false,
 		showColumnFooter : false,
-	    enableCellEditOnFocus: true,
+	    enableCellEditOnFocus: false,
 	    expandableRowTemplate: 'expandableRowTemplate.html',
-	    expandableRowHeight: 150,
+//	    expandableRowHeight: 150,
 	    //subGridVariable will be available in subGrid scope
 	    expandableRowScope: {
 	      subGridVariable: 'subGridScopeVariable',
@@ -149,24 +199,25 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			}
 		},
 		columnDefs : [ 
-			{field : 'Id', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
-			{field : 'Status', headerCellClass: 'green-header', width : '*', enableCellEdit : false,
+			{field : 'Id', headerCellClass: 'green-header', width: '*', enableCellEdit : false, enableHiding: false}, 
+			{field : 'Status', headerCellClass: 'green-header', width: '*', enableCellEdit: false, enableHiding: false,
 				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 					var val = grid.getCellValue(row, col);
-					if (val === 'SENT')
+					if (val === 'SENT' || val === 'UNSENT')
 						return 'order_in_progress';
-					if (val === 'REJECT')
+					if (val === 'REJECTED')
 						return 'order_reject';
 					return 'order_ok';
 				}
 			},
-			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width : '*', enableCellEdit : false}, 
-			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false},
-			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
-			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false},
-			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false},
-			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
-			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false},
+			{field : 'TrType', displayName: 'Cross Type', headerCellClass: 'green-header', width: '*', enableCellEdit: false, enableHiding: false}, 
+			{field : 'Symbol', headerCellClass: 'green-header',width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
+			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'InputTime', displayName: 'Input', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 		 ],
 //			exporterMenuPdf : false,
 	};
@@ -174,7 +225,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //	$scope.otGridOptions.data = $scope.myOtData;
 	$scope.otGridOptions.onRegisterApi = function(gridApi) {
 		$scope.otGridApi = gridApi;
-//		gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEditParamGrid);
 	}
     $scope.expandAllRows = function() {
         $scope.otGridApi.expandable.expandAllRows();
@@ -196,6 +246,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
 	    
+	    $scope.myInstrList = [];
+	    
 //	    // RESET when enter controller
 //		$scope.param_isShowSendBtn = false;	// display send button
 //		$scope.param_isQtyValid = false;
@@ -209,7 +261,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		
 		$scope.status = '  ';
 		$scope.myCompany = 'HKCEL';
-		$scope.myCpCompany = 'HKCEL';
+		$scope.myCpCompany = 'HKTOM';
 
 		$scope.myEnv = "TESTING";
 		
@@ -227,6 +279,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'FutMat': v[i].FutMat,   
 					'Symbol': v[i].Symbol,   
 					'Status': v[i].Status,   
+					'InputTime': v[i].InputTime,   
 					'Legs': v[i].Legs,
 				};
 				data.subGridOptions = {
@@ -245,11 +298,34 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	                	{name:"Price", field:"Price", width: '80'},
 	                	{field:"Buyer", width: '80'},
 	                	{field:"Seller", width: '80'},
+	                	{field:"Group", width: '80'},
+	                	{field:"Status", width: '80',
+	        				cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
+	        					var val = grid.getCellValue(row, col);
+	        					if (val === 'SENT' || val === 'UNSENT')
+	        						return 'order_in_progress';
+	        					if (val === 'REJECTED')
+	        						return 'order_reject';
+	        					return 'order_ok';
+	        				}	
+	                	},
+	                	{field:"Remark", width: '80'},
+	                	{field:"TrType", width: '80'},
+	                	{field:"LastUpdateTime", displayName:'Last', width: '80'},
 	                ],
 	                'data': data.Legs
 		        }
 				$scope.myOtData.unshift(data);
 			}
+		});
+		
+		$http.get('api/getInstrument').then(function(result) {
+//			v = result.data.data;
+//			var data = [];
+//			for (var i=0; i<v.length; i++) {
+//				data.push(v[i]);
+//			}
+			$scope.myInstrList = result.data.data;
 		});
 //	}
 	
@@ -290,6 +366,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'myStrat': $scope.myStrat,
 					'myPremium': $scope.myPremium,
 					'myRef': $scope.myRef,
+					'myInstrList': $scope.myInstrList,
 				},
 // scope : $scope,
 // preserveScope: true,
@@ -317,9 +394,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
-//$scope.myDelta = 0;
-//$scope.myQty = 100;
-//$scope.myFutMat = 'MAR17';
+$scope.myDelta = 10;
+$scope.myQty = 100;
+$scope.myFutMat = 'MAR17';
+
+		$scope.myInstrList = locals.myInstrList;
 		
 		$templateCache.put('ui-grid/uiGridViewport',
 		"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
@@ -339,9 +418,9 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myCompany = locals.myBuyer;
 		$scope.myCpCompany = locals.mySeller;
 		$scope.mySymbol = str;
-		$scope.myTrType = locals.myTrType;
+		$scope.myTrType = locals.myTrType.substring(0,2);
 		$scope.isSingle = true;
-		if ($scope.myTrType.indexOf('T2') >= 0) {
+		if ($scope.myTrType === 'T2') {
 			$scope.isSingle = false;
 		}
 	//$scope.mySide = !side ? SIDE.BUY : side;
@@ -355,6 +434,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		
 		var myQty = qty;
 		$scope.param_myData = [];
+		$scope.myLegData = [];
 		var strat = $scope.myStrat;
 		var qty = [];
 		var ul = [];
@@ -398,18 +478,33 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			},
 		];
 		
+		/* 
+		 * =============== Do not remove =================
+		 * 'displayTag' 
+		 * 1 - not editable (future leg and splits)input
+		 * 2 - not editable (invalid price of last leg)
+		 * 3 - input legs (price valid)
+		 * 4 - input legs (price invalid -> quotation mark) 
+		 */ 
+		
 		switch (strat) {
 		case 'C': { // 'EC - European Call':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
 			$scope.param_myData[0] = {
-				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
-				'noPrice' : true, 'isValidate' : false, 'isEditable' : false
+				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 
+				'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
-				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 
+				'Strike' : '', 'Qty' : '', 
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
-				'noPrice' : false, 'isValidate' : false, 'isEditable' : false, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 				'isHide' : true, 'isSingle': $scope.isSingle
 			};
 			$scope.param_isLastLegPriceValid = true;
@@ -417,17 +512,21 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		}
 		// put strategy
 		case 'P' : { // - European Put': {
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 'Price' : $scope.myPremium,
-				'Buyer': sides[0][0], 'Seller': sides[0][1],	
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : false
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',	 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false,
-				'isHide' : true, 'isSingle': $scope.isSingleLeg
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
+				'isHide' : true, 'isSingle': $scope.isSingleLeg,
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -437,28 +536,36 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		case 'CFLY':  // butterfly
 		case 'CB':  // 'ECB - European Call Butterfly':
 		case 'CTB': { // 'ECTB - European Call Time Butterfly':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable': true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable': true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1],
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable': false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false,  'isEditable': false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;			
 		}
@@ -467,96 +574,124 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		case 'PFLY':  // butterfly
 		case 'PB':  // 'EPB - European Put Butterfly':
 		case 'PTB': { // 'EPTB - European Put Time Butterfly':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1], 
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1], 
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;			
 		}
 		case 'CDOR':  // 'ECC - European Call Condor':
 		case 'CC':  // 'ECC - European Call Condor':
 		case 'CTC': { // 'ECC - European Call Time Condor':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'C', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1], 
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1], 
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false,  'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]),
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1], 
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
 		case 'PC': 
 		case 'PDOR': // 'EPC - European Put Condor':
 		case 'PTC': {// 'EPC - European Put Time Condor':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'P', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'P', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1], 
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1], 
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1], 
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1], 
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -565,22 +700,29 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		case 'CR':  // 'ECR - European Call Ratio':
 		case 'CTR':  // 'ECTR - European Call Time Ratio':
 		case 'CTS': { // 'ECTS - European Call Time Spread':
-			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'C', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
+				displayTag: CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, isEditable: true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag: CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, isEditable: false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref,  
+				displayTag: CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -589,130 +731,169 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		case 'PR':  // 'ECR - European Put Ratio':
 		case 'PTR':  // 'ECTR - European Put Time Ratio':
 		case 'PTS': { // 'ECTS - European Put Time Spread':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'P', strikes[1], maturities[1], $scope.myInstrList);
+			
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
 		case 'IF':  // - European Iron Fly':
 		case 'IFR' :  // - European Iron Fly Ratio':
 		case 'SDTS' : {// - European Straddle Time Spread'
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1],
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1],
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
 		case 'SG' :  // } - European Strangle':
 		case 'RR' :  {// - European Risk Reversal':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
 		case 'SD':  // } - European Straddle':
 		case 'SYNTH': { // - European Synthetic Put Over':
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '', 
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0,
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
 		case 'SPRD' : { // - Spread'
-			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0]);
-			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1]);
-			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2]);
-			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3]);
+			ul[0] = exchangeSymbol(instr, 'P', strikes[0], maturities[0], $scope.myInstrList);
+			ul[1] = exchangeSymbol(instr, 'C', strikes[1], maturities[1], $scope.myInstrList);
+			ul[2] = exchangeSymbol(instr, 'P', strikes[2], maturities[2], $scope.myInstrList);
+			ul[3] = exchangeSymbol(instr, 'C', strikes[3], maturities[3], $scope.myInstrList);
 			$scope.param_myData[0] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[0], 'Expiry' : maturities[0], 'Strike' : strikes[0], 'Qty' : '', 
-				'Buyer': sides[0][0], 'Seller': sides[0][1],
-				'Multiplier' : Number(multi[0]),	'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
-				'Buyer': sides[1][0], 'Seller': sides[1][1],
-				'Multiplier' : Number(multi[1]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
-				'Buyer': sides[2][0], 'Seller': sides[2][1],
-				'Multiplier' : Number(multi[2]), 'noPrice' : true, 'isValidate' : false, 'isEditable' : true
+				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
+				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
-				'Buyer': sides[3][0], 'Seller': sides[3][1],
-				'Multiplier' : Number(multi[3]), 'noPrice' : true, 'isValidate' : true, 'isEditable' : false
+				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : true, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
-				'Buyer': '', 'Seller': '',
-				'Price' : ref, 'Multiplier' : 0, 'noPrice' : false, 'isValidate' : false, 'isEditable' : false, 
+				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType, 
 			};
 			break;
 		}
@@ -743,6 +924,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			break;
 		}
 		
+		$scope.myLegData = $scope.param_myData;
+		
 		$scope.hide = function() {
 			$mdDialog.hide();
 		};
@@ -751,17 +934,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			
 			refId = new Date().getTime();
 			
-			var legs = $scope.param_myData;
-			for (var i=0; i<$scope.param_myData.length; i++) {
-				if ($scope.param_myData[i].isHide 
-					|| $scope.param_myData[i].isSingle) {
+			var legs = $scope.myLegData;
+			for (var i=0; i<$scope.myLegData.length; i++) {
+				if ($scope.myLegData[i].isHide 
+					|| $scope.myLegData[i].isSingle) {
 					legs.splice(i, 1);
 				}
 			}
 			
 			$http.post('api/sendTradeReport', {
 				'refId'  : refId,
-				'trType' : $scope.myTrType.substring(0,2),
+				'trType' : $scope.myTrType,
 				'symbol': $scope.mySymbol,
 				'qty': $scope.myQty,
 				'delta': $scope.myDelta,
@@ -772,21 +955,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				'seller': $scope.myCpCompany,
 				'legs' : legs,
 			}).then(function(result) {
-			// $http.post('api/emailInvoice', answer).then(function(result) {
-	// alert(result);
-				// vm.param_myData = result.data.data;
-			// $scope.param_myData = result.data.data;
 			});
-			
-//			$scope.param_isShowSendBtn = false;	// display send button
-//			$scope.param_isQtyValid = false;
-//			$scope.param_isDeltaValid = false;
-//			$scope.param_isFutMatValid = false;
-//			$scope.param_isLastLegPriceValid = false;
-//			$scope.myQty = '';
-//			$scope.myDelta = '';
-//			$scope.myFutMat = '';
-//			$scope.param_myData = [];
 			
 			$mdDialog.cancel();
 		};
@@ -823,20 +992,20 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				showColumnFooter : false,
 			    enableCellEditOnFocus: false,
 				columnDefs : [ 
-					{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit : false}, 
-					{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit : false}, 
-					{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-					{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-					{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit : false}, 
-					{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
-						cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="row.entity.isQtyValid === false">error_outline</i>' 
+					{field : 'UL', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false}, 
+					{field : 'Strategy', headerCellClass: 'blue-header',displayName:'Strat',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Expiry', headerCellClass: 'blue-header',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Strike', headerCellClass: 'blue-header',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Multiplier', headerCellClass: 'blue-header',width : '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Qty', headerCellClass: 'blue-header',width : '*',enableCellEdit: true, enableHiding: false,
+						cellTemplate: '<div class="ui-grid-cell-contents"><i class="material-icons" style="color:red" ng-if="!row.entity.isQtyValid">error_outline</i>' 
 							+ '{{row.entity.Qty}}</div>',
 // cellTemplate: '<div><i class="material-icons" style="color:red" ng-if="grid.appScope.param_isQtyValid === false">error_outline</i>'
 // + '{{grid.appScope.myQty}}</div>',
 					}, 
 					{field : 'isQtyValid', visible: false},
-					{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width : '*',enableCellEdit : false}, 
-					{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true,
+					{field : 'Premium', headerCellClass: 'blue-header', displayName: 'Price', width: '*',enableCellEdit: false, enableHiding: false}, 
+					{field : 'Delta', headerCellClass: 'blue-header',width : '*',enableCellEdit : true, enableHiding: false,
 // enableCellEditOnFocus: true,
 // editableCellTemplate: $scope.cellInputEditableTemplate,
 // cellTemplate: '<div><i class="material-icons" style="color:red"
@@ -865,7 +1034,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	// // ]
 	// },
 					{field : 'Ref', width : '80',enableCellEdit: false, visible: false},
-				    {field : 'FutMat', headerCellClass: 'blue-header', width : '*',
+				    {field : 'FutMat', headerCellClass: 'blue-header', width : '*', enableHiding: false,
 				    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernBrowsers"' 
 	// cellTemplate: '<div isteven-multi-select
 	// input-model="row.entity.modernBrowsers"'
@@ -875,8 +1044,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	// selection-mode="single"></div>'
 				    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
 				    },
-				    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false }, 
-				    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false },
+				    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false}, 
+				    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false},
 				 ],
 				exporterMenuPdf : false,
 		};
@@ -889,9 +1058,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		};
 		
 		$scope.afterCellEditParamGrid = function(rowEntity, colDef, newValue, oldValue) {
-			var threshold = 1000;
 			var tokens = rowEntity.Multiplier.split('X');
-//			if (rowEntity.Qty && rowEntity.Qty !== '') {
 			if (!isNaN(rowEntity.Qty)) {
 				var params = [];
 				
@@ -900,7 +1067,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				for (var i=0; i<tokens.length; i++) {
 					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
 					$scope.param_myData[i].Qty = legQty;
-					if ((legQty % 1 !== 0) || legQty > threshold) {
+					if (CFG.rule_check_qty(rowEntity.UL, legQty)) {
 						isInvalid = true;
 						$scope.param_myData[i].isQtyValid = false;
 					}
@@ -925,8 +1092,12 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				$scope.param_myData[len - 1].Qty = futQty;
 				$scope.myDelta = Number(rowEntity.Delta);
 				
-				rowEntity.isDeltaValid = (futQty % 1 === 0);
-				$scope.param_isDeltaValid = (futQty % 1 === 0);
+//				var isDigit = (futQty % 1 === 0);
+				var isDigit = CFG.rule_check_qty(rowEntity.UL, futQty);
+				rowEntity.isDeltaValid = isDigit;
+				$scope.param_isDeltaValid = isDigit;
+				rowEntity.isQtyValid = isDigit;
+				$scope.param_isQtyValid = isDigit;
 				
 				var isHide = false;
 				// update future leg
@@ -943,8 +1114,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				}
 				$scope.param_myData[$scope.param_myData.length - 1].isHide = 
 					isHide || $scope.param_myData[$scope.param_myData.length - 1].isSingle ;
-	// var side = hedgeSide(params);
-	// $scope.param_myData[$scope.param_myData.length - 1].Side = side;
 			}
 			else {
 				$scope.param_isDeltaValid = false;
@@ -955,7 +1124,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			
 			if (rowEntity.FutMat && rowEntity.FutMat !== '') {
 				$scope.param_myData[$scope.param_myData.length - 1].Expiry = rowEntity.FutMat;
-				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat);
+				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat, $scope.myInstrList);
 				$scope.param_isFutMatValid = true;
 				rowEntity.isFutMatValid = true;
 				$scope.myFutMat = rowEntity.FutMat;
@@ -965,10 +1134,18 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				rowEntity.isFutMatValid = false;
 			}
 			
+//			var accumQty = 0;
+			var maxQty = 0;
+			var maxQtyIdx = 0;
+			// split leg over 1000 qty
+			var newLegData = rebuildSplit($scope.param_myData);
+			
+			// validate splited legs
+			$scope.myLegData = newLegData;
+			
 			$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
 					&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
 			
-	// $scope.paramGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
 			 $scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
 			 if (!$scope.$$phase) {
 				 $scope.$apply();
@@ -978,6 +1155,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //		$templateCache.put('ui-grid/uiGridViewport',
 //				"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
 //		);
+		
+		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
 		
 		// ========================== gridOptions ================================
 		$scope.gridOptions = {
@@ -989,8 +1168,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				}
 			},
 	// rowEditWaitInterval : -1,
-			data : 'param_myData',
-			enableSorting : false,
+			data : 'myLegData',
+			enableSorting : true,
 			enableColumnResizing : true,
 			enableFiltering : false,
 			showGridFooter : false,
@@ -999,7 +1178,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			columnDefs : [ 
 				{field : 'Instrument', 
 					headerCellClass: 'brown-header', 
-					width : '120', enableCellEdit : false,
+					width : '120', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1007,17 +1186,42 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						return 'missing';
 					}
 				}, 
-				{field : 'UL', headerCellClass: 'brown-header', displayName : 'UL', width : '*', enableCellEdit : false	}, 
-				{field : 'Qty', headerCellClass: 'brown-header', displayName : 'Qty', width : '*', enableCellEdit : false,
+				{field : 'UL', headerCellClass: 'brown-header', width: '*', enableCellEdit: false, enableHiding: false }, 
+				{field : 'Qty', headerCellClass: 'brown-header', width: '*', enableCellEdit: false, /*enableHiding: false,*/
+//				    cellFilter: 'number: 2', 
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
-						var val = grid.getCellValue(row, col);
-						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
-							 return '';
-						return 'missing';
-					}
+						if (row.entity.displayQty === CFG.DISPLAY_QTY_ROUND_TO_MAX)
+							return 'insufficient';
+						if (row.entity.displayQty === CFG.DISPLAY_QTY_INVALID)
+							return 'missing';
+						return '';
+						
+//						var val = grid.getCellValue(row, col);
+//						if (!isNaN(val) && val > 0 && (val % 1 === 0) && val < 1001)	// decimal
+//							 return '';
+//						if (row.entity.displayQty === 1)
+//							return '';
+//						return 'missing';
+					},
+					cellTooltip : function(row, col) {
+						if (row.entity.displayQty === CFG.DISPLAY_QTY_ROUND_TO_MAX)
+							return 'Max Qty < 100. Use this leg as Qty[100] to cross';
+						return '';
+					},
+//					cellTemplate:
+//						siteNameLink
+//						templateWithTooltip
+//						'<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 2">{{row.entity.Qty}}</div>'
+//						'<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 1">{{row.entity.Qty}}</div>'
+//						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 2">'
+//						+ '<input style="background-color: red; color: white;" ng-input="row.entity.Qty" ng-model="row.entity.Qty" /></div>'
+//						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayQty === 3">{{row.entity.Qty}}'
+//						'<div><span class="formInfo"><a href="ajax.htm?width=375" class="jTip" id="one" name="Cross as 100">?</a></span></div>'
+//						'<div><span class="formInfo"><a ui-sref="ajax.htm?width=375" class="jTip" id="one" name="Cross as 100">?</a></span></div>'
+//						'<div class="ui-grid-cell-contents" ><a href="#" data-toggle="tooltip" title="Hooray!">{{row.entity.Qty}}</a></div>'
 				}, 
-				{field : 'Strike', headerCellClass: 'brown-header',  displayName : 'Strike',width : '*',enableCellEdit : false,}, 
-				{field : 'Expiry',headerCellClass: 'brown-header', displayName : 'Expiry', width : '*', enableCellEdit : false,
+				{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false}, 
+				{field : 'Expiry',headerCellClass: 'brown-header', width : '*', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1025,37 +1229,34 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						return 'missing';
 					}
 				}, 
-				{field : 'Price', headerCellClass: 'brown-header', displayName : 'Price', width : '*', /*
-																										 * enableCellEdit :
-																										 * true,
-																										 */cellFilter : 'number: 2',
+				{field : 'Price', headerCellClass: 'brown-header', width : '*', enableHiding: false,
+//enableCellEdit : true,
+ cellFilter : 'number: 2',
 				    cellEditableCondition: function ($scope) {
 				    	if ($scope.row.entity.isEditable)
 				    		return true;
 				    	return false;
 	// 'row.entity.isEditable',
 				    },
-					cellTemplate: '<div class="ui-grid-cell-contents" ng-if="row.entity.isEditable">'
-						+ '<i class="material-icons" style="color:red" ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
-						+ '{{row.entity.Price}}'
-	// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
-						+ '</div>'
-						+ '<div class="ui-grid-cell-contents" ng-if="!row.entity.isEditable">'
-						+ '<input ng-if="row.entity.isValidate" style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
-						+ '<div ng-if="!row.entity.isValidate">{{row.entity.Price}}</div>'
-						+ '</div>',
-	// cellTemplate: '<div><i class="material-icons" style="color:red"
-	// ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
-	// + '<input ng-if="row.entity.isValidate" style="background-color: red; color:
-	// white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
-	// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
-	// + '</div>',
+					cellTemplate: 
+						'<div class="ui-grid-cell-contents" style="color:red" ng-if="row.entity.displayTag === 4">'
+						+ '<i class="material-icons">error_outline</i>{{row.entity.Price}}</div>'
+						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag === 2">'
+						+ '<input style="background-color: red; color: white;" ng-input="row.entity.Price" ng-model="row.entity.Price" /></div>'
+						+ '<div class="ui-grid-cell-contents" ng-if="row.entity.displayTag === 3 || row.entity.displayTag === 1">{{row.entity.Price}}</div>'
+						
+// cellTemplate: '<div><i class="material-icons" style="color:red"
+// ng-show="!row.entity.isValidate && row.entity.noPrice">error_outline</i>'
+// + '<input ng-if="row.entity.isValidate" style="background-color: red; color:
+// white;" ng-input="row.entity.Price" ng-model="row.entity.Price" />'
+// + '<input ng-if="!row.entity.isValidate"ng-model="row.entity.Price" />'
+// + '</div>',
 				},
-	            {field : 'noPrice', headerCellClass: 'brown-header', displayName : 'noPrice', enableCellEdit : false, visible : false},
-	            {field : 'isValidate', headerCellClass: 'brown-header', displayName : 'isValidate', enableCellEdit : false, visible : false},
-	            {field : 'isEditable', headerCellClass: 'brown-header', displayName : 'isEditable', enableCellEdit : false, visible : false},
-	            {field : 'Multiplier', headerCellClass: 'brown-header', displayName : 'Multiplier',width : '*', enableCellEdit : false, visible : false},
-				{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+	            {field : 'displayTag', headerCellClass: 'brown-header', enableCellEdit : false, visible : false},
+	            {field : 'displayQty', headerCellClass: 'brown-header', enableCellEdit : false, visible : false},
+	            {field : 'isEditable', headerCellClass: 'brown-header', enableCellEdit : false, visible : false},
+	            {field : 'Multiplier', headerCellClass: 'brown-header', width : '*', enableCellEdit : false, visible : false},
+				{field : 'Buyer', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1063,7 +1264,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						return 'missing';
 					}
 				}, 
-				{field : 'Seller', headerCellClass: 'brown-header', width : '*',enableCellEdit : false,
+				{field : 'Seller', headerCellClass: 'brown-header', width : '*', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1071,6 +1272,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						return 'missing';
 					}
 				},
+				{field : 'Group', headerCellClass: 'brown-header', width : '*'	},
 			],
 	// rowTemplate: '<div><div style="height: 100%; {\'background-color\': \'\'}"
 	// ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by
@@ -1079,8 +1281,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	// exporterMenuPdf : false,
 		};
 
-//		$scope.gridOptions.data = $scope.param_myData;
-		
 		$scope.gridOptions.onRegisterApi = function(gridApi) {
 			$scope.gridApi = gridApi;
 			gridApi.edit.on.afterCellEdit($scope, $scope.afterCellEdit);
@@ -1093,20 +1293,27 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			var premium = $scope.myPremium;
 			var side = 0;
 			rowEntity.noPrice = false;
+			var iRow = -1;
 			
 			for (i = 0; i < $scope.param_myData.length; i++) 
 			{
-				if ($scope.param_myData[i].noPrice) {
-	// if (isNaN($scope.param_myData[i].Price)) {
+				if ($scope.param_myData[i].Instrument === rowEntity.Instrument) {
+					$scope.param_myData[i].Price = rowEntity.Price;
+					iRow = i;
+				}
+				if (isNaN($scope.param_myData[i].Price)) {	// initially ok, 
 					nMissLeg++;
 				}
 			}
-			if (nMissLeg > 1)
+			if (nMissLeg > 1) {	// too many missing legs
+				var newLegSplits = rebuildSplit($scope.param_myData);
+				$scope.myLegData = newLegSplits;
 				return;
+			}
 			
 			for (i = 0; i < $scope.param_myData.length - 2; i++) 
 			{
-				if (!$scope.param_myData[i].noPrice) {
+				if (!isNaN($scope.param_myData[i].Price)) {
 					params.push({
 						'side' : $scope.param_myData[i].Side,
 						'multiplier' : $scope.param_myData[i].Multiplier,
@@ -1117,22 +1324,27 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				} 
 			}
 			var iCal = $scope.param_myData.length - 2;
-	// side = $scope.param_myData[iCal].Side;
 			multi = $scope.param_myData[iCal].Multiplier;
 			var price = calRemainPrice(params, multi, premium);
-	// var price = calRemainPrice(params, multi, side, premium);
-			// calRemainPrice(params, myMultiplier, myPrice, mySide);
 			$scope.param_myData[iCal].Price = price;
-			$scope.param_myData[iCal].noPrice = false;
 			
-			if (isNaN(price) || Math.abs(price) < 0.001 || (price % 1 != 0)) {	// has decimal
-				$scope.param_myData[iCal].isValidate = true;
-				$scope.param_isLastLegPriceValid = false;
+//			if (isNaN(price) || Math.abs(price) < 0.001 || price < 0 || (price % 1 != 0)) {	// has decimal
+			if (CFG.rule_check_price($scope.param_myData[0].UL, price)) {	// has decimal
+				$scope.param_isLastLegPriceValid = true;
+				
+				for (i = 0; i < $scope.param_myData.length - 1; i++) {
+					$scope.param_myData[i].displayTag = i === iCal ? CFG.DISPLAY_PRICE_NOEDIT_OK : CFG.DISPLAY_PRICE_EDIT_OK;	// Uneditable+Valid
+				}
 			}
 			else {
-				$scope.param_myData[iCal].isValidate = false;
-				$scope.param_isLastLegPriceValid = true;
+				$scope.param_myData[iCal].isValidate = true;
+				$scope.param_isLastLegPriceValid = false;
+				$scope.param_myData[iRow].displayTag = CFG.DISPLAY_PRICE_EDIT_INVALID;	// Editable+Valid
+				$scope.param_myData[iCal].displayTag = CFG.DISPLAY_PRICE_NOEDIT_INVALID;	// Uneditable+Valid
 			}
+			
+			var newLegSplits = rebuildSplit($scope.param_myData);
+			$scope.myLegData = newLegSplits;
 			
 			$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
 					&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
@@ -1605,7 +1817,7 @@ function getMonthFromString(mmmyy){
    return -1;
  }
 
-function exchangeSymbol(ul, deriv, strike, futExp) {
+function exchangeSymbol(ul, deriv, strike, futExp, myInstrList) {
 	var m = derivLetter(deriv, futExp);
 	var y = futExp.substring(4,5);
 	var symbol = '';
@@ -1618,6 +1830,9 @@ function exchangeSymbol(ul, deriv, strike, futExp) {
 	if (strike)
 		symbol += strike;
 	symbol += m + y;
+	
+	if (myInstrList.indexOf(symbol) < 0) 
+		alert(symbol + ' not tradable');
 	return symbol;
 };
 
@@ -2082,20 +2297,7 @@ function deduceReverse(common_strat, expiry, strike, multiplier, sReverse) {
 		case 'PLDR' : 
 		case 'PS' :
 		case 'ROLL' : 
-		case 'STRG' : 
-// {
-// var strikes = strike.split('/');
-// var multipliers = multiplier.split('X');
-// var isReverse = isLegNegative(strikes, multipliers, sReverse);
-// if (isReverse)
-// return true;
-// var expiries = expiry.split('/');
-// var isReverse = isLegNegative(expiries, multipliers, sReverse);
-// if (isReverse)
-// return true;
-// break;
-// }
-		{
+		case 'STRG' : {
 			var strikes = strike.split('/');
 			var multipliers = multiplier.split('X');
 			var isNeg = isLegNegative(strikes, multipliers, sReverse);
@@ -2244,6 +2446,65 @@ function reverse(multiplier) {
 	}
 	s = str.substring(0, str.length-1);
 	return s;
+}
+
+function fill(data, array, qty, isFirstLeg, groupId) {
+	var displayQty = CFG.DISPLAY_QTY_INVALID;	// red
+	if (CFG.rule_check_qty(data.UL, qty))
+		displayQty = 1; // no problem
+	array.push({'UL' : data.UL, 'Instrument' : data.Instrument, 'Expiry' : data.Expiry, 
+		'Strike' : data.Strike, 'Qty' : qty, 'Price': data.Price,
+		'Buyer': data.Buyer, 'Seller': data.Seller, 'Multiplier': data.Multiplier, 
+		'isEditable' : !isFirstLeg ? false: data.isEditable,
+		// keep the first leg price editable
+		'displayTag' : (data.displayTag === CFG.DISPLAY_PRICE_EDIT_INVALID
+				&& !isFirstLeg) ? 1 : data.displayTag,
+		'displayQty' : data.displayQty,
+		'isLastLeg' : data.isLastLeg,		
+		'isHide' : data.isHide,
+		'isSingle' : data.isSingle,
+		'displayQty' : displayQty,
+		'isFirstSplit' : isFirstLeg,
+		'Group' : groupId,
+		});
+}
+
+function rebuildSplit(param_myData) 
+{
+	var newLegData = [];
+	var maxQty = 0;
+	var maxQtyIdx = 0;
+	var groupId = [];	// to count the number leg split
+	
+	for (var i=0; i<param_myData.length; i++) 
+	{
+		groupId.push(1);
+		
+		var legQty = param_myData[i].Qty;
+		
+		if (maxQty < legQty) {
+			maxQty = legQty;
+			maxQtyIdx = i;
+		}
+//		accumQty += legQty;
+		
+		var isFirstLeg = true;
+		var count = 1;
+		while (legQty > 1000) {
+			legQty -= 1000;
+			fill(param_myData[i], newLegData, CFG.max_leg_qty(param_myData[0].UL), isFirstLeg, groupId[i]);
+			isFirstLeg = false;
+			groupId[i]++;
+		} 
+		fill(param_myData[i], newLegData, legQty, isFirstLeg, groupId[i]);
+	}
+//	if (accumQty < 100) {
+	// change only the first appear max_qty
+	if (maxQty < CFG.min_qty(param_myData[0].UL) 
+			&& newLegData[maxQtyIdx].displayQty === CFG.DISPLAY_QTY_OK) {
+		newLegData[maxQtyIdx].displayQty = CFG.DISPLAY_QTY_ROUND_TO_MAX;
+	}
+	return newLegData;
 }
 
 //

@@ -84,6 +84,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    		if ($scope.myOtData[i].RefId === refId) {
 	    			$scope.myOtData[i].Id = id;
 	    			$scope.myOtData[i].Status = res.message.Status;
+	    			$scope.myOtData[i].InputTime = res.message.InputTime;
 	    			isExist = true;
 	    			
 	    			if (res.message.Legs) {
@@ -93,6 +94,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		    						if ($scope.myOtData[i].Legs[j].Group === res.message.Legs[k].Group) {
 		    							$scope.myOtData[i].Legs[j].Status = res.message.Legs[k].Status;
 		    							$scope.myOtData[i].Legs[j].Remark = res.message.Legs[k].Remark;
+		    							$scope.myOtData[i].Legs[j].TrType = res.message.Legs[k].TrType;
+		    							$scope.myOtData[i].Legs[j].LastUpdateTime = res.message.Legs[k].LastUpdateTime;
 		    						}
 		    					}
 		    				}
@@ -103,6 +106,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //    						if ($scope.myOtData[i].Legs[j].Group === res.message.Group) {
     							$scope.myOtData[i].Legs[j].Status = res.message.Status;
     							$scope.myOtData[i].Legs[j].Remark = res.message.Remark;
+    							$scope.myOtData[i].Legs[j].LastUpdateTime = res.message.LastUpdateTime;
 //    						}
 	    				}
 	    			}
@@ -122,6 +126,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						'FutMat':res.message.FutMat,
 						'Buyer' : res.message.Buyer,  
 						'Seller' : res.message.Seller,
+						'InputTime' : res.message.InputTime,
 //						'Premium': res.message.Premium,
 //						'Strategy': res.message.Strategy,
 //						'UL': '', 
@@ -158,6 +163,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		        				}	
 	                		},
 		                	{field:"Remark", width: '60'},
+		                	{field:"TrType", displayName: 'Cross Type', width: '60'},
+		                	{field:"LastUpdateTime", displayName: 'Last', width: '60'},
 		                ],
 		                data: data.Legs
 		        }
@@ -212,6 +219,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
 			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'InputTime', displayName: 'Input', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 		 ],
 //			exporterMenuPdf : false,
 	};
@@ -273,6 +281,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'FutMat': v[i].FutMat,   
 					'Symbol': v[i].Symbol,   
 					'Status': v[i].Status,   
+					'InputTime': v[i].InputTime,   
 					'Legs': v[i].Legs,
 				};
 				data.subGridOptions = {
@@ -303,6 +312,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	        				}	
 	                	},
 	                	{field:"Remark", width: '80'},
+	                	{field:"TrType", displayName: 'Cross Type', width: '80'},
+	                	{field:"LastUpdateTime", displayName: 'Last', width: '80'},
 	                ],
 	                'data': data.Legs
 		        }
