@@ -124,7 +124,7 @@ PipelineVentilator.prototype.QueryAllInstrument = function() {
 		
 PipelineVentilator.prototype.SendTradeReport = function(
 		refId, trType, symbol, qty, delta, price, 
-		strat, futMat, buyer, seller, legs) 
+		strat, futMat, buyer, seller, inputTime, legs) 
 {
 	
 //	logger.info("SendTradeReport " + refId + ',' + trType  + ',' +  symbol  + ',' +  qty  + ',' +  delta  + ',' +  price  + ',' +  
@@ -149,7 +149,7 @@ PipelineVentilator.prototype.SendTradeReport = function(
 		});
 	
 		oms = this.app.get('oms');
-		var block_tr = new BlockTradeReport('', refId, 'UNSENT', trType, symbol, qty, delta, price, strat, buyer, seller, futMat, '', legs);
+		var block_tr = new BlockTradeReport('', refId, 'UNSENT', trType, symbol, qty, delta, price, strat, buyer, seller, futMat, '', inputTime, legs);
 		oms.addBlockTradeReport(refId, block_tr);
 		
 		bdxService = this.app.get('broadcastService');

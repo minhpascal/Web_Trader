@@ -242,6 +242,15 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    	'T2 - Combo',
 	    	'T4 - Interbank',
 	    	];
+	    $scope.clients = [
+ 	    	'BAR', 'BNP', 'CEL', 'CFL',
+			'CIT', 'DAI', 'DEU', 'DON', 'ECL', 'GOL',
+			'HAN', 'HMC', 'HYU', 'IBK', 'JPM',
+			'KOR', 'LIQ', 'MIR', 'MOR', 'NH',
+			'NOM', 'OPT', 'UBS', 'VIV', 'SAM', 'SOC',
+			'YUA',
+	    ];
+	    
 	    $scope.myTrType = 'T2 - Combo',
 	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
 	    
@@ -262,8 +271,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myFutMat = '';
 		
 		$scope.status = '  ';
-		$scope.myCompany = 'HKCEL';
-		$scope.myCpCompany = 'HKTOM';
+		$scope.myCompany = 'CEL';
+		$scope.myCpCompany = 'CEL';
 
 		$scope.myEnv = "TESTING";
 		

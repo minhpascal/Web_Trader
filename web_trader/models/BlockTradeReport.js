@@ -1,11 +1,13 @@
 /**
  * http://usejsdoc.org/
  */
+var log4js = require('log4js');
+var logger = log4js.getLogger('Blocktradereport');
 var moment = require('moment')
 var TradeReport = require('./TradeReport')
 
 function BlockTradeReport() {
-	console.log('create Blocktradereport')
+	logger.debug('create Blocktradereport')
 };
 
 // Constructor
