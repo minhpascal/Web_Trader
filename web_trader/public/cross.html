@@ -99,19 +99,31 @@
 				 
 				 <!-- 
 				<md-input-container class="md-block" flex-gt-sm="10"> -->
+<!-- 
 				<md-input-container class="md-block">
 				<label>Buyer</label> 
 				<input  ng-model="myCompany" > 
-<!-- 			<input  ng-model="myCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> --> 
 				</md-input-container>
-				<!-- 
-				<md-input-container class="md-block" flex-gt-sm="10" >
-				 -->
 				<md-input-container class="md-block">
 				<label>Seller</label> 
-				<!--<input ng-model="myCpCompany" ng-disabled="myTrType !== 'T4 - Interbank'"> --> 
 				<input ng-model="myCpCompany"> 
 				</md-input-container>
+ -->
+ 				
+				<md-input-container class="md-block">
+		          <label>Buyer</label>
+		          <md-select ng-model="myCompany">
+		            <md-option><em></em></md-option>
+		            <md-option ng-repeat="n in clients" ng-value="n">{{n}}</md-option>
+		          </md-select>
+		        </md-input-container>
+				<md-input-container class="md-block">
+		          <label>Seller</label>
+		          <md-select ng-model="myCpCompany">
+		            <md-option><em></em></md-option>
+		            <md-option ng-repeat="n in clients" ng-value="n">{{n}}</md-option>
+		          </md-select>
+		        </md-input-container>
 
 				<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myTrType, mySymbol, myCompany, myCpCompany)">
     					Cross Detail</md-button>
