@@ -31,10 +31,11 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	this.legs = [];
 	for (i=0; i<legs.length; i++) 
 	{
-		tr = legs[i];
-		    	this.legs.push(new TradeReport(tr.Instrument, '', tr.Strike, tr.Expiry,
-				tr.Price, tr.Qty, tr.Buyer, tr.Seller, tr.Group, tr.Status,
-				tr.Remark, tr.TrType, tr.LastUpdateTime));		
+		var jsonStr = legs[i];
+    	this.legs.push(new TradeReport(jsonStr.Instrument, '', jsonStr.Strike,
+			jsonStr.Expiry, jsonStr.Price, jsonStr.Qty, jsonStr.Buyer,
+			jsonStr.Seller, jsonStr.Group, jsonStr.Status, jsonStr.Remark,
+			jsonStr.TrType, jsonStr.LastUpdateTime));		
 	}
 };
 
@@ -42,12 +43,14 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 BlockTradeReport.prototype.updateGroup = function(group, status, remark, trType, lastUpdateTime) {
 	logger.debug('updateGroup: ', group, status, remark, trType, lastUpdateTime);
 	for (var i=0; i<this.legs.length; i++) {
-		if (this.legs[i].Group === group) {
-			this.legs[i].Status = status;
-			this.legs[i].Remark = remark;
-			this.legs[i].TrType = trType;
-			this.legs[i].LastUpdateTime = moment(new Date(lastUpdateTime)).format('HH:mm:ss.SSS');
-		} 
+		var leg = this.legs[i];
+		if (leg.group === group) {
+			leg.status = status;
+			leg.remark = remark;
+			leg.trType = trType;
+			leg.lastUpdateTime = moment(new Date(lastUpdateTime)).format('HH:mm:ss.SSS');
+		}
+		logger.debug(group, leg.group, leg.status, leg.remark, leg.trType, leg.lastUpdateTime);
 	}
 };
 

@@ -194,12 +194,7 @@ logger.debug('onTradeReport 185: ', doc.tradeReport);
 				var list = doc.tradeReport.Legs;
 				for (i=0; i<list.length; i++) {
 //logger.debug('onTradeReport 195: ', list[i]);
-					var Group = list[i].Group;
-					var Status = list[i].Status;
-					var Remark = list[i].Remark;
-					var TrType = list[i].TrType;
-					var LastUpdateTime = list[i].LastUpdateTime;
-					tr.updateGroup(Group, Status, Remark, TrType, LastUpdateTime);
+					tr.updateGroup(list[i].Group, list[i].Status, list[i].Remark, list[i].TrType, list[i].LastUpdateTime);
 				}
 			}
 			bdxService = this.app.get('broadcastService');

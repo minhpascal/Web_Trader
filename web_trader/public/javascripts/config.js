@@ -4,8 +4,6 @@
 if (!window.CFG) {
     window.CFG = {};
 
-    
-    
     CFG.DISPLAY_QTY_OK = 1;
     CFG.DISPLAY_QTY_INVALID = 2;
     CFG.DISPLAY_QTY_ROUND_TO_MAX = 3;
@@ -23,7 +21,10 @@ if (!window.CFG) {
 	    	case 'HSCEI': {
 	    		return 100;
 	    	}
-	    	case 'KS200': {
+	    	case 'KS':
+    		case 'KS200':
+	    	{
+	    		return 100;
 	    	}
 	    	}
     	}
@@ -41,7 +42,10 @@ if (!window.CFG) {
     		case 'HSCEI': {
     			return 1000;
     		}
-    		case 'KS200': {
+    		case 'KS':
+    		case 'KS200':
+    		{
+    			return 1000;
     		}
     		}
     	}
@@ -61,8 +65,11 @@ if (!window.CFG) {
 	    			return true;
 	    		break;
 	    	}
-	    	case 'KS200': {
-	    		if (qty > 0 && (qty % 0.01 === 0))
+	    	case 'KS':
+    		case 'KS200':
+	    	{
+//	    	case 'KS200': {
+	    		if (qty > 0 && ((qty * 100) % 1 === 0))
 	    			return true;
 	    		break;
 	    	}
@@ -83,10 +90,37 @@ if (!window.CFG) {
     				return false;
     			break;
     		}
-    		case 'KS200': {
-    			if (isNaN(price) || Math.abs(price) < 0.0001 || price < 0 || (price % 0.01 != 0))
+    		case 'KS':
+    		case 'KS200':
+    		{
+    			if (isNaN(price) || Math.abs(price) < 0.0001 || price < 0 || ((price * 100) % 1 != 0))
     				return false;
     			break;
+    		}
+    		}
+    	}
+    	catch (err) {
+    		alert(err.message);
+    	}
+    	return true;
+    }
+    CFG.commission = function(instr, rate, notional, myLegs) {
+    	try {
+    		var ul = instr.split(' ')[0];
+    		
+    		switch (ul) {
+    		case 'HSI':
+    		case 'HSCEI': {
+        		var qty = 0;
+        		for (var i=0; i<myLegs.length; i++) {
+        			qty += Math.abs(myLegs[i].Qty);
+        		}
+        		return qty * 20;
+    		}
+    		case 'KS':
+    		case 'KS200':
+    		{
+    			return notional / rate * (0.3 / 10000);
     		}
     		}
     	}
