@@ -124,7 +124,7 @@ PipelineVentilator.prototype.QueryAllInstrument = function() {
 		
 PipelineVentilator.prototype.SendTradeReport = function(
 		refId, trType, symbol, qty, delta, price, 
-		strat, futMat, buyer, seller, inputTime, legs) 
+		strat, futMat, buyer, seller, inputTime, multiplier, legs) 
 {
 	
 //	logger.info("SendTradeReport " + refId + ',' + trType  + ',' +  symbol  + ',' +  qty  + ',' +  delta  + ',' +  price  + ',' +  
@@ -145,11 +145,12 @@ PipelineVentilator.prototype.SendTradeReport = function(
 			Price : price,
 			FutMat : futMat,
 			Symbol : symbol,
+			Multiplier : multiplier,
 			Legs : legs
 		});
 	
 		oms = this.app.get('oms');
-		var block_tr = new BlockTradeReport('', refId, 'UNSENT', trType, symbol, qty, delta, price, strat, buyer, seller, futMat, '', inputTime, legs);
+		var block_tr = new BlockTradeReport('', refId, 'UNSENT', trType, symbol, qty, delta, price, strat, buyer, seller, futMat, '', inputTime, '', multiplier, legs);
 		oms.addBlockTradeReport(refId, block_tr);
 		
 		bdxService = this.app.get('broadcastService');
@@ -181,6 +182,8 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 		var seller = doc.tradeReport.Seller;
 		var futMat = doc.tradeReport.FutMat;
 		var inputTime = doc.tradeReport.InputTime;
+		var tradeId = doc.tradeReport.TradeId;
+		var multiplier = doc.tradeReport.Multiplier;
 		
 logger.debug('onTradeReport 185: ', doc.tradeReport);
 //logger.debug('onTradeReport 185: ', refId + ',' + id + ',' + status + ',' + remark);
@@ -190,6 +193,7 @@ logger.debug('onTradeReport 185: ', doc.tradeReport);
 			tr.id = id;
 			tr.status = status;
 			tr.remark = remark;
+			tr.tradeId = tradeId;
 			if (doc.tradeReport.Legs) {
 				var list = doc.tradeReport.Legs;
 				for (i=0; i<list.length; i++) {
@@ -198,7 +202,7 @@ logger.debug('onTradeReport 185: ', doc.tradeReport);
 				}
 			}
 			bdxService = this.app.get('broadcastService');
-			bdxService.toAll(doc.tradeReport);
+			bdxService.toAll(tr.json());
 		}
 		else {
 			logger.error('order not found: ' + refId);
@@ -237,17 +241,18 @@ logger.debug('onTradeReport 185: ', doc.tradeReport);
 					});
 				}
 	
-				if (list.length > 0) {
-					var block_tr = new BlockTradeReport(id, refId, status,
-							trType, symbol, qty, delta, '', '', buyer, seller,
-							futMat, remark, inputTime, legs);
-					oms.addBlockTradeReport(refId, block_tr);
-				}
+//				if (list.length > 0) {
+//					var block_tr = new BlockTradeReport(id, refId, status,
+//							trType, symbol, qty, delta, '', '', buyer, seller,
+//							futMat, remark, inputTime, tradeId, legs);
+//					oms.addBlockTradeReport(refId, block_tr);
+//				}
 			}
-			else {
-				var block_tr = new BlockTradeReport(id, refId, status, trType, symbol, qty, delta, '', '', buyer, seller, futMat, remark, inputTime, []);
-				oms.addBlockTradeReport(refId, block_tr);
-			}
+
+			var block_tr = new BlockTradeReport(id, refId, status, trType,
+					symbol, qty, delta, '', '', buyer, seller, futMat, remark,
+					inputTime, tradeId, multiplier, []);
+			oms.addBlockTradeReport(refId, block_tr);
 		}
 	} catch (err) {
 		logger.error(err.message);

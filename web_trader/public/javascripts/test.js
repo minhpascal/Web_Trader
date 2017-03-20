@@ -86,6 +86,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    			$scope.myOtData[i].Status = res.message.Status;
 	    			$scope.myOtData[i].InputTime = res.message.InputTime;
 	    			$scope.myOtData[i].Premium = res.message.Premium;
+	    			$scope.myOtData[i].TradeId = res.message.TradeId;
+	    			$scope.myOtData[i].Multiplier = res.message.Multiplier;
 	    			isExist = true;
 	    			
 	    			if (res.message.Legs) {
@@ -133,7 +135,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //						'UL': '', 
 //						'Expiry': $scope.myExpiry,
 //						'Strike': $scope.myStrike,
-//						'Multiplier' : res.message.Multiplier,   
+						'Multiplier' : res.message.Multiplier,   
+						'TradeId' : res.message.TradeId,   
 						'Legs': res.message.Legs,
 					};
 				data.subGridOptions = {
@@ -214,13 +217,16 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					locals: {
 						'myBuyer': row.Buyer,
 						'mySeller': row.Seller,
-						'myPrice': row.Price,
+						'myPrice': row.Premium,
 						'myCompany': company,
 						'mySide': side,
 						'myQty': row.Qty,
 						'myCcy': row.Ccy,
+						'myTradeId': row.TradeId,
 						'myLegs': row.Legs,
 						'myDelta': row.Delta,
+						'myStrat': row.Strategy,
+						'myMultiplier': row.Multiplier,
 					},
 	// scope : $scope,
 	// preserveScope: true,
@@ -265,7 +271,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			},
 			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 			{field : 'InputTime', displayName: 'Input', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
-			{field : 'Price', headerCellClass: 'green-header', enableCellEdit : false, visible: false},
+			{field : 'Premium', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
+			{field : 'Strategy', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
+			{field : 'Multiplier', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
+			{field : 'TradeId', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
 		 ],
 //			exporterMenuPdf : false,
 	};
@@ -288,7 +297,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //		$scope.myFee = locals.myFee;
 		$scope.myCcy = getCurrency(locals.myLegs[0].Instrument);
 		$scope.myDelta = locals.myDelta;
+		$scope.myTradeId = locals.myTradeId;
 		$scope.myPt = getPt(locals.myLegs[0].Instrument);
+		$scope.myMultiplier = locals.myMultiplier;
+		$scope.myStrat = locals.myStrat;
+		
 //		$scope.myNotional = $scope.myRef * $scope.myQty * $scope.myPt;
 //		$scope.myPremium = $scope.myPrice * $scope.myQty * $scope.myPt;
 		
@@ -297,90 +310,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			{'Instrument': 'HSI24000L7', 'Expiry': 'DEC17', 'Strike': 24000, 'Qty': 125, 'Price': 8, 'Buyer': 'CEL', 'Seller': 'CEL'},
 			{'Instrument': 'HSIK7', 'Expiry': 'MAY17', 'Qty': 10, 'Price': 22825, 'Buyer': 'CEL', 'Seller': 'CEL'},
 		];
-		$scope.myLegsData = buildLegData($scope.myCcy, tempMyLegs, 'CR', $scope.myDelta, $scope.mySide, '1x1.25');
+//		$scope.myLegsData = buildLegData($scope.myCcy, tempMyLegs, 'CR', $scope.myDelta, $scope.mySide, '1x1.25');
+		$scope.myLegsData = buildLegData($scope.myCcy, locals.myLegs, $scope.myStrat, $scope.myDelta, $scope.mySide, $scope.myMultiplier);
 //		$scope.myLegsData = buildLegData(locals.myLegs, locals.myRef, locals.myDelta, locals.mySide, locals.myMultiplier);
 
-//		$scope.myCcy = locals.myCcy;
-		
-		
-//		$templateCache.put('ui-grid/uiGridViewport',
-//		"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
-//		);
-//		$scope.iconTemplate = '<i class="material-icons" style="color:red">error_outline</i>';
-//		
-//		str = locals.mySymbol.replace(/ +(?= )/g,'');
-//		
-//		var tokens = parseSymbol(str);
-//		$scope.myInstr = tokens[0];
-//		$scope.myExpiry = tokens[1];
-//		$scope.myStrike = tokens[2];
-//		$scope.myMultiplier = tokens[3];
-//		$scope.myStrat = tokens[4];
-//		$scope.myPremium = Number(tokens[5]);
-//		$scope.myRef = Number(tokens[6].replace(',', ''));
-//		$scope.myCompany = locals.myBuyer;
-//		$scope.myCpCompany = locals.mySeller;
-//		$scope.mySymbol = str;
-//		$scope.myTrType = locals.myTrType.substring(0,2);
-//		$scope.isSingle = true;
-//		if ($scope.myTrType === 'T2') {
-//			$scope.isSingle = false;
-//		}
-//	//$scope.mySide = !side ? SIDE.BUY : side;
-//		$scope.myUl  = $scope.myInstr;
-//		
-//		$scope.param_isShowSendBtn = false;	// display send button
-//		$scope.param_isQtyValid = false;
-//		$scope.param_isDeltaValid = false;
-//		$scope.param_isFutMatValid = false;
-//		$scope.param_isLastLegPriceValid = false;
-//		
-//		var myQty = qty;
-//		$scope.param_myData = [];
-//		$scope.myLegData = [];
-//		var strat = $scope.myStrat;
-//		var qty = [];
-//		var ul = [];
-//
-//		var strike = $scope.myStrike;
-//		var multiplier = $scope.myMultiplier;
-//		var ref = Number($scope.myRef);
-//		var sides = getSidesByParty($scope.myMultiplier, $scope.myCompany, $scope.myCpCompany);
-//		var instr = tokens[0];
-//		var futExp = '';
-//
-//		var multi = getMultiple(multiplier, strat);
-//		var strikes = getStrikes(multiplier, tokens[2], strat);
-//		
-//	//var expiry = tokens[1];
-//		var maturities = getMaturities(multiplier, tokens[1], strat);
-//		
-//		$scope.myParam = [
-//			{'UL': $scope.myUl, 'Strategy': $scope.myStrat, 'Expiry': $scope.myExpiry,
-//			'Strike': $scope.myStrike, 'Multiplier': $scope.myMultiplier, 'Premium': $scope.myPremium, 
-//			// TODO : remove from testing
-//			'Qty': $scope.myQty, 'Delta': $scope.myDelta, 'FutMat': $scope.myFutMat, 
-//			'Buyer': $scope.myCompany, 'Seller': $scope.myCpCompany,
-//			'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false,
-//			'modernBrowsers' : [
-//			    { icon: '', name: "JAN17", ticked: false  },
-//			    { icon: '', name: "FEB17", ticked: false  },
-//			    { icon: '', name: "MAR17", ticked: false  },
-//			    { icon: '', name: "APR17", ticked: false  },
-//			    { icon: '', name: "MAY17", ticked: false  },
-//			    { icon: '', name: "JUN17", ticked: false  },
-//			    { icon: '', name: "JUL17", ticked: false  },
-//			    { icon: '', name: "AUG17", ticked: false  },
-//			    { icon: '', name: "SEP17", ticked: false  },
-//			    { icon: '', name: "OCT17", ticked: false  },
-//			    { icon: '', name: "NOV17", ticked: false  },
-//			    { icon: '', name: "DEC17", ticked: false  },
-//				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
-//			], 
-//			'outputBrowsers' : [],
-//			},
-//		];
-		
 		$scope.legGrid = {
 				data : 'myLegsData',
 //					enableHorizontalScrollbar: false, 
@@ -452,35 +385,36 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //					exporterMenuPdf : false,
 			};
 		
-		$scope.sendEmail = function(ev) {
-			
-			refId = new Date().getTime();
-			
-			var legs = $scope.myLegData;
-			for (var i=0; i<$scope.myLegData.length; i++) {
-				if ($scope.myLegData[i].isHide 
-					|| $scope.myLegData[i].isSingle) {
-					legs.splice(i, 1);
-				}
-			}
-			
-			$http.post('api/sendTradeReport', {
-				'refId'  : refId,
-				'trType' : $scope.myTrType,
-				'symbol': $scope.mySymbol,
-				'qty': $scope.myQty,
-				'delta': $scope.myDelta,
-				'price': $scope.myPremium,
-				'strat' : $scope.myStrat,
-				'futMat': $scope.myFutMat,
-				'buyer': $scope.myCompany,
-				'seller': $scope.myCpCompany,
-				'legs' : legs,
-			}).then(function(result) {
-			});
-			
-			$mdDialog.cancel();
-		};
+		// TODO later
+//		$scope.sendEmail = function(ev) {
+//			
+//			refId = new Date().getTime();
+//			
+//			var legs = $scope.myLegData;
+//			for (var i=0; i<$scope.myLegData.length; i++) {
+//				if ($scope.myLegData[i].isHide 
+//					|| $scope.myLegData[i].isSingle) {
+//					legs.splice(i, 1);
+//				}
+//			}
+//			
+//			$http.post('api/sendTradeReport', {
+//				'refId'  : refId,
+//				'trType' : $scope.myTrType,
+//				'symbol': $scope.mySymbol,
+//				'qty': $scope.myQty,
+//				'delta': $scope.myDelta,
+//				'price': $scope.myPremium,
+//				'strat' : $scope.myStrat,
+//				'futMat': $scope.myFutMat,
+//				'buyer': $scope.myCompany,
+//				'seller': $scope.myCpCompany,
+//				'legs' : legs,
+//			}).then(function(result) {
+//			});
+//			
+//			$mdDialog.cancel();
+//		};
 
 		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
 		
@@ -548,7 +482,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    ];
 	    
 	    $scope.myTrType = 'T2 - Combo',
-	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
+//	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
+	    $scope.mySymbol = 'KS200 APR17/MAY17 270 1x1 CTS 100 TRADES REF 269.5 (MAR17)';
 	    
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
@@ -587,6 +522,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'Symbol': v[i].Symbol,   
 					'Status': v[i].Status,   
 					'InputTime': v[i].InputTime,   
+					'Premium': v[i].Premium,   
+					'Strategy': v[i].Strategy,   
+					'Multiplier': v[i].Multiplier,   
+					'TradeId': v[i].TradeId,   
 					'Legs': v[i].Legs,
 				};
 				data.subGridOptions = {
@@ -1267,6 +1206,7 @@ $scope.myFutMat = 'MAR17';
 				'futMat': $scope.myFutMat,
 				'buyer': $scope.myCompany,
 				'seller': $scope.myCpCompany,
+				'multiplier': $scope.myMultiplier,
 				'legs' : legs,
 			}).then(function(result) {
 			});
@@ -2120,7 +2060,8 @@ function calRemainPrice(params, myMultiplier, myPremium) {
 		sum += Number(params[i].price) * Number(params[i].multiplier);
 	}
 // var mySign = mySide === 'Sell' ? -1 : 1;
-	return (myPremium - sum) / (myMultiplier);
+	var num = (myPremium - sum) / (myMultiplier);
+	return Math.round(num * 10000000) / 10000000;		// scaling out the numeric decimal cased by /
 }
 
 function getMonthFromString(mmmyy){
@@ -2864,7 +2805,7 @@ function getClientInfo(fullName) {
 
 function getPartyList(shortName) {
 	var map = {
-			'BNP' : ['Nicolas Dujardin', 'Tester'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+			'BNP' : ['Nicolas Dujardin', 'Matthieu Barry', 'Roy Tian'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
 			'CEL' : ['Private 1', 'Private 2'] // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
 	};
 	var client = map[shortName];
@@ -2873,20 +2814,6 @@ function getPartyList(shortName) {
 	else 
 		alert('no party list: ' + shortName);
 	return null;
-}
-
-//{field : 'Type', headerCellClass: 'brown-header', width: '*', enableCellEdit : false, enableHiding: false}, 
-//{field : 'Side', headerCellClass: 'brown-header', enableCellEdit: false, enableHiding: false},
-//{field : 'Qty', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-//{field : 'XP', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-//{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-//{field : 'Instrument', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-//{field : 'Price', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-//{field : 'Premium', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-//{field : 'Ccy', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-
-function getSign(mySide, myDelta, myMultiplier) {
-	
 }
 
 function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier) {

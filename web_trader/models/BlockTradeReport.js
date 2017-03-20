@@ -11,7 +11,7 @@ function BlockTradeReport() {
 };
 
 // Constructor
-function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, remark, inputTime, legs) {
+function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, strat, buyer, seller, futMat, remark, inputTime, tradeId, multiplier, legs) {
 	this.id = id;
 	this.refId = refId;
 	this.group = 1;
@@ -27,6 +27,8 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	this.remark = remark;
 	this.futMat = futMat;
 	this.inputTime = moment(new Date(inputTime)).format('HH:mm:ss.SSS');
+	this.tradeId = tradeId;
+	this.multiplier = multiplier;
 	
 	this.legs = [];
 	for (i=0; i<legs.length; i++) 
@@ -88,6 +90,8 @@ BlockTradeReport.prototype.json = function() {
 		'Strategy': this.strat,
 		'Remark': 	this.remark,
 		'InputTime': 	this.inputTime,
+		'TradeId': 	this.tradeId,
+		'Multiplier': 	this.multiplier,
 		'Legs': [],
 	};
 	

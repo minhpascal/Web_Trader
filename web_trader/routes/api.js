@@ -58,7 +58,7 @@ router.post('/sendTradeReport', function(req, res, next) {
 		plVent.SendTradeReport(req.body.refId, req.body.trType,
 				req.body.symbol, req.body.qty, req.body.delta, req.body.price,
 				req.body.strat, req.body.futMat, req.body.buyer, req.body.seller,
-				req.body.refId, req.body.legs);
+				req.body.refId, req.body.multiplier, req.body.legs);
 	}
 	catch (err) {
 		logger.error(err.message);

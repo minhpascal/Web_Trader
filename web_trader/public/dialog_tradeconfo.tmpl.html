@@ -27,13 +27,14 @@
 		</div>
 	</md-toolbar>
 
-    <md-card>
+     <md-card>
  		<md-toolbar md-scroll-shrink>
  			<div class="md-toolbar-tools">General</div> 
 		</md-toolbar> 
  		<md-card-content layout-padding>
- <form name="userForm">
+
  			<div layout-gt-xs="row" >
+<!-- <form name="userForm" layout-gt-xs="row"> -->
 			 	<md-input-container class="md-block" > 
 					<label>Party</label> 
 					<md-select ng-model="myParty"> 
@@ -66,12 +67,13 @@
       					<div ng-message="required">This is required!</div>
       				</div>
 				</md-input-container>
+<!-- </form> -->
 			</div>
-</form>
+
 			<div layout-gt-xs="row" >
 				<md-input-container class="md-block" > 
 					<label>Price</label> 
-					<input ng-disabled="true" ng-model="myPremium">
+					<input ng-disabled="true" ng-model="myPrice">
 				</md-input-container>
 				<md-input-container class="md-block" > 
 					<label>Trade ID</label> 
@@ -99,11 +101,15 @@
 						 
 	<md-card>
 		<!-- Legs Panel -->
-		<md-card-title> 
+<!-- 		<md-card-title> 
 			<md-card-title-text>
 				<span class="md-headline">Leg Detail</span> 
 			</md-card-title-text> 
-		</md-card-title> 
+		</md-card-title>  -->
+		
+		 		<md-toolbar md-scroll-shrink>
+ 			<div class="md-toolbar-tools">Leg Detail</div> 
+		</md-toolbar> 
 		
   		<md-content layout-padding>
 		<div id="gridLeg" ui-grid="legGrid" class="myTradesGrid"  
