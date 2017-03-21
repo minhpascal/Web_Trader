@@ -131,7 +131,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						'Seller' : res.message.Seller,
 						'InputTime' : res.message.InputTime,
 						'Premium': res.message.Premium,
-//						'Strategy': res.message.Strategy,
+						'Strategy': res.message.Strategy,
 //						'UL': '', 
 //						'Expiry': $scope.myExpiry,
 //						'Strike': $scope.myStrike,
@@ -301,19 +301,38 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myPt = getPt(locals.myLegs[0].Instrument);
 		$scope.myMultiplier = locals.myMultiplier;
 		$scope.myStrat = locals.myStrat;
+		$scope.myFeeCcy = CFG.commissionCcy($scope.myCcy);
+		
+		$scope.myFee = CFG.commission($scope.myFeeCcy, 0, $scope.myRef, $scope.myQty, $scope.myPt, locals.myLegs);
+//		CFG.commission = function(instr, rate, ref, size, pt, myLegs)
 		
 //		$scope.myNotional = $scope.myRef * $scope.myQty * $scope.myPt;
 //		$scope.myPremium = $scope.myPrice * $scope.myQty * $scope.myPt;
 		
-		tempMyLegs = [
-			{'Instrument': 'HSI22000L7', 'Expiry': 'DEC17', 'Strike': 22000, 'Qty': 100, 'Price': 20, 'Buyer': 'CEL', 'Seller': 'CEL'},
-			{'Instrument': 'HSI24000L7', 'Expiry': 'DEC17', 'Strike': 24000, 'Qty': 125, 'Price': 8, 'Buyer': 'CEL', 'Seller': 'CEL'},
-			{'Instrument': 'HSIK7', 'Expiry': 'MAY17', 'Qty': 10, 'Price': 22825, 'Buyer': 'CEL', 'Seller': 'CEL'},
-		];
+//		tempMyLegs = [
+//			{'Instrument': 'HSI22000L7', 'Expiry': 'DEC17', 'Strike': 22000, 'Qty': 100, 'Price': 20, 'Buyer': 'CEL', 'Seller': 'CEL'},
+//			{'Instrument': 'HSI24000L7', 'Expiry': 'DEC17', 'Strike': 24000, 'Qty': 125, 'Price': 8, 'Buyer': 'CEL', 'Seller': 'CEL'},
+//			{'Instrument': 'HSIK7', 'Expiry': 'MAY17', 'Qty': 10, 'Price': 22825, 'Buyer': 'CEL', 'Seller': 'CEL'},
+//		];
 //		$scope.myLegsData = buildLegData($scope.myCcy, tempMyLegs, 'CR', $scope.myDelta, $scope.mySide, '1x1.25');
-		$scope.myLegsData = buildLegData($scope.myCcy, locals.myLegs, $scope.myStrat, $scope.myDelta, $scope.mySide, $scope.myMultiplier);
+		$scope.myLegsData = buildLegData($scope.myCcy, locals.myLegs, $scope.myStrat, $scope.myDelta, $scope.mySide, $scope.myMultiplier, 1, $scope.myPt);
 //		$scope.myLegsData = buildLegData(locals.myLegs, locals.myRef, locals.myDelta, locals.mySide, locals.myMultiplier);
 
+		$scope.updatePremium = function(rate) {
+			$scope.myRate = rate;
+			$scope.myFee = CFG.commission($scope.myFeeCcy, rate, $scope.myRef, $scope.myQty, $scope.myPt, $scope.myLegsData);
+//			var len = $scope.myLegsData.length;
+//			
+//			var i = 0;
+//			for (var i = 0; i<len - 1; i++) {
+//				var leg = $scope.myLegsData[i];
+//				var premium = leg.Qty * leg.Price * $scope.myPt * $scope.myRate;
+//				premium = Math.round(premium * 1000) / 1000;
+//				leg.Premium = premium;
+//			}
+//			$scope.legGridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+		}
+		
 		$scope.legGrid = {
 				data : 'myLegsData',
 //					enableHorizontalScrollbar: false, 
@@ -379,43 +398,47 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
 					{field : 'Product', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
 					{field : 'Price', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
-					{field : 'Premium', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+					{field : 'Premium', headerCellClass: 'brown-header', width : '*', cellFilter: 'currency:"" : 0 ', enableCellEdit : false, enableHiding: false},
 					{field : 'Ccy', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
 				 ],
 //					exporterMenuPdf : false,
 			};
 		
 		// TODO later
-//		$scope.sendEmail = function(ev) {
-//			
-//			refId = new Date().getTime();
-//			
-//			var legs = $scope.myLegData;
-//			for (var i=0; i<$scope.myLegData.length; i++) {
-//				if ($scope.myLegData[i].isHide 
-//					|| $scope.myLegData[i].isSingle) {
-//					legs.splice(i, 1);
-//				}
-//			}
-//			
-//			$http.post('api/sendTradeReport', {
-//				'refId'  : refId,
-//				'trType' : $scope.myTrType,
-//				'symbol': $scope.mySymbol,
-//				'qty': $scope.myQty,
-//				'delta': $scope.myDelta,
-//				'price': $scope.myPremium,
-//				'strat' : $scope.myStrat,
-//				'futMat': $scope.myFutMat,
-//				'buyer': $scope.myCompany,
-//				'seller': $scope.myCpCompany,
-//				'legs' : legs,
-//			}).then(function(result) {
-//			});
-//			
-//			$mdDialog.cancel();
-//		};
+		$scope.preview = function(ev) {
+			
+			refId = new Date().getTime();
+			
+			var legs = $scope.myLegData;
+			for (var i=0; i<$scope.myLegData.length; i++) {
+				if ($scope.myLegData[i].isHide 
+					|| $scope.myLegData[i].isSingle) {
+					legs.splice(i, 1);
+				}
+			}
+			
+			$http.post('api/previewTradeConfo', {
+				'refId'  : refId,
+				'trType' : $scope.myTrType,
+				'symbol': $scope.mySymbol,
+				'qty': $scope.myQty,
+				'delta': $scope.myDelta,
+				'price': $scope.myPremium,
+				'strat' : $scope.myStrat,
+				'futMat': $scope.myFutMat,
+				'buyer': $scope.myCompany,
+				'seller': $scope.myCpCompany,
+				'legs' : legs,
+			}).then(function(result) {
+			});
+			
+			$mdDialog.cancel();
+		};
 
+		$scope.legGrid.onRegisterApi = function(gridApi) {
+			$scope.legGridApi = gridApi;
+		};
+		
 		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
 		
 		$scope.hide = function() {
@@ -502,7 +525,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myFutMat = '';
 		
 		$scope.status = '  ';
-		$scope.myCompany = 'Celera';
+		$scope.myCompany = 'BNP Paris';
 		$scope.myCpCompany = 'Celera';
 
 		$scope.myEnv = "TESTING";
@@ -2816,11 +2839,11 @@ function getPartyList(shortName) {
 	return null;
 }
 
-function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier) {
+function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier, myRate, myPt) {
 	var signs = deduceSign(myMultiplier, myStrat, myDelta, mySide);
 	
 	var len = myLegs.length;
-	var pt = 50;
+	
 	var legData = [];
 	
 	var i = 0;
@@ -2831,10 +2854,12 @@ function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier) {
 		if (letter > 'M') {
 			type = 'Put';
 		}
-		var premium = leg.Qty * leg.Price * pt;
+		var premium = leg.Qty * leg.Price * myPt * myRate;
 		
 		if (signs[i] < 0) 
 			premium = premium * -1;
+		
+		premium = Math.round(premium * 1000) / 1000;
 		
 		legData.push({
 			'Type': 	'Leg ' + (i + 1),
@@ -2856,7 +2881,7 @@ function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier) {
 		'Expiry': 	myLegs[i].Expiry,
 		'Product':	'Future',
 		'Price':	myLegs[i].Price,
-		'Premium':	premium,
+		'Premium':	null,
 		'Ccy':		myCcy,
 	});
 

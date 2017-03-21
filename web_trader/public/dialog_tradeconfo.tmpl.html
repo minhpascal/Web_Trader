@@ -12,13 +12,13 @@
 						<md-icon md-svg-src="img/icons/ic_email_24px.svg"></md-icon>
 					</md-button>
 					<md-menu-content />
-						<!-- <md-menu-item> <md-button class="md-fab md-primary" aria-label="Use Android"> 
+				<!-- <md-menu-item> <md-button class="md-fab md-primary" aria-label="Use Android"> 
 							<md-icon md-svg-src="img/icons/ic_email_24px.svg"></md-icon> 
 						</md-button> </md-menu-item> 
 					<md-menu-content /> -->
 			 	</md-menu>
 			 	<md-menu>
-					<md-button class="md-fab orevie wmd-primary" aria-label="Use Android" ng-click="$mdMenu.preview()"> 
+					<md-button class="md-fab orevie wmd-primary" aria-label="Use Android" ng-click="preview()"> 
 						<md-icon md-svg-src="img/icons/ic_fullscreen_24px.svg"></md-icon> 
 					</md-button>
 					<md-menu-content />
@@ -50,18 +50,18 @@
 					</md-select>
 				</md-input-container>
 				<md-input-container class="md-block" ng-if="myCcy !== 'HKD'"> 
-					<label>Rate</label>
-					<input type="number" required name="rate" ng-model="myRate" maxlength="10">
+					<label>Exchange Rate</label>
+					<input type="number" required name="rate" ng-model="myRate" ng-change="updatePremium(myRate)" maxlength="10">
 					<div ng-messages="userForm.rate.$error">
       					<div ng-message="required">This is required!</div>
       				</div>
 				</md-input-container>
-				<md-input-container class="md-block" > 
+<!-- 				<md-input-container class="md-block" > 
 					<label max-length="50">Ccy</label>
 					<input ng-disabled="true" ng-model="myCcy">
-				</md-input-container>
+				</md-input-container> -->
 				<md-input-container class="md-block" flex> 
-					<label>Fee</label>
+					<label>Brokerage Fee ({{myFeeCcy}})</label>
 					<input type="number" required name="fee" ng-model="myFee" maxlength="15">
 					<div ng-messages="userForm.fee.$error">
       					<div ng-message="required">This is required!</div>

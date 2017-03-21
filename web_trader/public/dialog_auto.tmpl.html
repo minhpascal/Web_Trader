@@ -1,3 +1,5 @@
+<script src="bower_components/angular-pdf/dist/angular-pdf.js"></script>
+
 <md-dialog flex="90" aria-label="Crossing">
 	<!-- 
         <md-toolbar flex layout="row" layout-align="center">
@@ -29,3 +31,8 @@
 			<p>isShowSend : {{isShowSendBtn}}</p>
 			 -->
 </md-dialog>
+
+<!-- <div class="wrapper" ng-controller="DocCtrl"> -->
+<div class="wrapper" >
+    <ng-pdf template-url="/partials/viewer.html" debug="true"></ng-pdf>
+</div>

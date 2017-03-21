@@ -7,6 +7,7 @@
   "pipeline_port": 11101,
   "sink_ip": "127.0.0.1",
   "sink_port": 11102,
+  "pdf_dir": "/home/lloyd/git/Web_Trader/web_trader/pdf/",
   "scripts": {
     "start": "node ./bin/www"
   },

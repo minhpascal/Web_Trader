@@ -13,6 +13,7 @@ var r_cross = require('./routes/cross');
 var r_test = require('./routes/test');
 var r_script = require('./routes/script');
 var r_api = require('./routes/api');
+var r_pdf = require('./routes/pdf');
 
 var PipelineVentilator = require('./controllers/PipelineVentilator');
 var PipelineSink = require('./controllers/PipelineSink');
@@ -48,6 +49,7 @@ app.use('/api', r_api);
 app.use('/cross', r_cross);
 app.use('/test', r_test);
 app.use('/script', r_script);
+app.use('/pdf', r_pdf);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -104,23 +104,29 @@ if (!window.CFG) {
     	}
     	return true;
     }
-    CFG.commission = function(instr, rate, notional, myLegs) {
+    CFG.commission = function(tradeCcy, rate, ref, size, pt, myLegs) {
     	try {
-    		var ul = instr.split(' ')[0];
+    		var ccy = CFG.commissionCcy(tradeCcy);
     		
-    		switch (ul) {
-    		case 'HSI':
-    		case 'HSCEI': {
+//    		var ul = instr.split(' ')[0];
+    		var notional = ref * size * pt;
+    		
+    		switch (ccy) {
+//    		case 'HSI':
+//    		case 'HSCEI': {
+    		case 'HKD': {
         		var qty = 0;
         		for (var i=0; i<myLegs.length; i++) {
         			qty += Math.abs(myLegs[i].Qty);
         		}
         		return qty * 20;
     		}
-    		case 'KS':
-    		case 'KS200':
-    		{
-    			return notional / rate * (0.3 / 10000);
+//    		case 'KS':
+//    		case 'KS200':
+    		case 'USD': {
+    			var comm = notional / rate * (0.3 / 10000);
+    			comm = Math.round(comm * 100) / 100;
+    			return comm;
     		}
     		}
     	}
@@ -128,6 +134,33 @@ if (!window.CFG) {
     		alert(err.message);
     	}
     	return true;
+    }
+    CFG.commissionCcy = function(tradeCcy) {
+		switch (tradeCcy) {
+		case 'KRW': 
+			return 'USD';
+		}
+		return tradeCcy;
+    }
+    CFG.point = function(instr) {
+    	try {
+    		var ul = instr.split(' ')[0];
+    		
+    		switch (ul) {
+    		case 'HSI':
+    		case 'HSCEI': {
+    			return 50;
+    		}
+    		case 'KS':
+    		case 'KS200':
+    		{
+    			return 500000;	// 500,000 KRW/PT
+    		}
+    		}
+    		
+    	} catch (err) {
+    		alert(err.message);
+    	}
     }
 //    my_project.some_function = function(){};
 }

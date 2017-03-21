@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<!-- <title>AngularJS PDFJS Directive</title> -->
+<link rel="stylesheet" href="stylesheets/pdf-viewer.css">
+</head>
+<body ng-app="App">
+	<div class="wrapper" ng-controller="DocCtrl">
+		<!-- 		<h1>{{pdfName}}</h1> -->
+		<ng-pdf template-url="template/pdf_viewer.html" canvasid="pdf"
+			scale="page-fit" page=1></ng-pdf>
+	</div>
+	<script src="bower_components/angular-pdf/pdf.js"></script>
+	<script src="bower_components/angular-pdf/angular.min.js"></script>
+	<script src="pdf.js"></script>
+	<script src="javascripts/controllers/docCtrl.js"></script>
+	<script src="bower_components/angular-pdf/angular-pdf.min.js"></script>
+</body>
+</html>
