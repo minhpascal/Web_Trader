@@ -124,6 +124,9 @@ if (!window.CFG) {
 //    		case 'KS':
 //    		case 'KS200':
     		case 'USD': {
+    			if (rate === 0) {
+    				return null;
+    			}
     			var comm = notional / rate * (0.3 / 10000);
     			comm = Math.round(comm * 100) / 100;
     			return comm;

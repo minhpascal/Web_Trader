@@ -17,7 +17,7 @@ router.get('/*', function(req, res, next) {
 	var url = req.url;
 	var file = url.replace('/','');
 	
-	var tempFile = pjson.pdf_dir + file;
+	var tempFile = pjson.temp_dir + file;
 //	  var tempFile = "/home/lloyd/git/Web_Trader/web_trader/public/javascripts/pdf/" + file;
 	fs.readFile(tempFile, function (err, data){
 		res.contentType("application/pdf");

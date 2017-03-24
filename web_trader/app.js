@@ -17,11 +17,15 @@ var r_pdf = require('./routes/pdf');
 
 var PipelineVentilator = require('./controllers/PipelineVentilator');
 var PipelineSink = require('./controllers/PipelineSink');
+var RrClient = require('./controllers/RrClient');
 var OMS = require('./controllers/OMS');
+var revision = require('child_process').execSync('git rev-parse HEAD').toString().trim();
+var pjson = require('./package.json');
 
 var app = express();
 var plVent = new PipelineVentilator(app);
 var plSink = new PipelineSink(app);
+var rrClient = new RrClient(app);
 var oms = new OMS(app);
 var broadcastService;
 
@@ -32,8 +36,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.set('plVent', plVent);
 app.set('plSink', plSink);
+app.set('rrClient', rrClient);
 app.set('map_blockTr', map_blockTr);
 app.set('oms', oms);
+app.set('revision', revision);
+app.set('env', pjson.env);
 
 
 // uncomment after placing your favicon in /public
@@ -82,12 +89,14 @@ app.use(function(err, req, res, next) {
   });
 });
 
+rrClient.Connect();
 // program start
 plVent.Bind();
 //plSink.Bind();
 
 plVent.QueryAllTradeReport();
 plVent.QueryAllInstrument();
+plVent.QueryAllAccount();
 
 //setInterval(function() {
 //	plVent.SOD();

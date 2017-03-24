@@ -6,6 +6,7 @@ var zmq = require('zmq');
 var pjson = require('../package.json');
 
 var BlockTradeReport = require('../models/BlockTradeReport');
+var Account = require('../models/Account');
 var Cmmf = require('../models/Cmmf');
 
 // custom
@@ -29,7 +30,7 @@ MessageType = {
 };
 
 Command = {
-		ALL_HISTORICAL_TRADE: 'A',
+		ACCOUNT: 'A',
 		ORDER_REQUEST: 'O',
 		TRADE_REPORT: 'R',
 		INSTRUMENT_UPDATE: 'P',
@@ -120,6 +121,11 @@ PipelineVentilator.prototype.QueryAllTradeReport = function() {
 PipelineVentilator.prototype.QueryAllInstrument = function() {
 	logger.info("QueryAllInstrument");
 	sender.send("TOQP");
+}
+
+PipelineVentilator.prototype.QueryAllAccount = function() {
+	logger.info("QueryAllAccount");
+	sender.send("TOQA");
 }
 		
 PipelineVentilator.prototype.SendTradeReport = function(
@@ -278,15 +284,41 @@ PipelineVentilator.prototype.onQueryAllInstrument = function(doc) {
 logger.info('instr: ', instr);			
 			var Symbol = instr.Symbol;
 			var Status = instr.Status;
+			var Type = instr.InstrumentType;
+			var Expiry = instr.Expiry;
 //			if (Symbol.startWith('HHI') || Symbol.startWith('HSI'))
-				oms.addInstrument(Symbol, Status);
+				oms.addInstrument(Symbol, Status, Type, Expiry);
 			} catch (err) {
 				logger.error(instr + "," + err.message);
 			}
 		}
 }
 
-//onPipelineVentilator.prototype.onInstrumentUpdate = function(doc) {
+PipelineVentilator.prototype.onQueryAccount = function(doc) {
+	logger.info('onQueryAccount: ', doc);
+
+	oms = this.app.get('oms');
+	var size = doc.Size;
+	var l = doc.Lists;
+	for (var i = 0; i < size; i++) {
+		try {
+			var item = JSON.parse(l[i]);
+			var id = item.id;
+			var code = item.code;
+			var company = item.company;
+			var profiles = item.profiles;
+			var traders = item.traders;
+			var acc = new Account(id, code, company, profiles, traders);
+			logger.info('i, account: ', i, acc);
+			
+			oms.addAccount(code, acc);
+		} catch (err) {
+			logger.error(err.message);
+		}
+	}
+}
+
+// onPipelineVentilator.prototype.onInstrumentUpdate = function(doc) {
 //	logger.info('onInstrumentUpdate: ', doc);
 //	
 //	try {
@@ -332,6 +364,10 @@ receiver.on('message', function(buf) {
 			}
 			case Command.INSTRUMENT_UPDATE: {
 				that.onQueryAllInstrument(json);
+				break;
+			}
+			case Command.ACCOUNT: {
+				that.onQueryAccount(json);
 				break;
 			}
 			default : {

@@ -42,6 +42,21 @@ router.get('/getInstrument', function(req, res, next) {
 	console.log('api/getInstrument ' + {data:v});
 });
 
+router.get('/getAccounts', function(req, res, next) {
+	console.log('api/getAccounts ');	
+	var oms = req.app.get('oms');
+	var v = oms.getAllAccounts();
+	
+//	list = [];
+//	for (i=0; i<v.length; i++) {
+//		data = v[i].json();
+//		list.push(data);
+//	}
+	
+	res.send({data:v});
+	console.log('api/getInstrument ' + {data:v});
+});
+
 router.post('/sendTradeReport', function(req, res, next) {
 	console.log('api/sendTradeReport ' + req.body.trType  + ',' + JSON.stringify(req.body.legs));
 	
@@ -59,6 +74,61 @@ router.post('/sendTradeReport', function(req, res, next) {
 				req.body.symbol, req.body.qty, req.body.delta, req.body.price,
 				req.body.strat, req.body.futMat, req.body.buyer, req.body.seller,
 				req.body.refId, req.body.multiplier, req.body.legs);
+	}
+	catch (err) {
+		logger.error(err.message);
+	}
+	
+	res.send('succ');
+//	res.sendStatus(refId);
+});
+
+router.get('/getInfo', function(req, res, next) {
+	var env = req.app.get('env');
+	var revision = req.app.get('revision');
+	res.send({
+		data:req.connection.remoteAddress,
+		revision: revision,
+		env: env
+	});
+	console.log('api/getInfo ' + req.connection.remoteAddress + ', ' + revision + ', ' + env);
+});
+
+router.post('/createTradeConfo', function(req, res, next) {
+	console.log('api/createTradeConfo ' 
+			, req.body.refId 
+			, req.body.symbol 
+			, req.body.company 
+			, req.body.cpCompany 
+			, req.body.trader 
+			, req.body.profile 
+			, req.body.isFinal 
+			, req.body.rate 
+			, req.body.notional 
+			, req.body.price 
+			, req.body.tradeId 
+			, req.body.ref 
+			, req.body.side 
+			, req.body.qty 
+			, req.body.delta 
+			, req.body.fee 
+			, req.body.multiplier 
+			, JSON.stringify(req.body.legs));
+	
+	if (req.url === '/favicon.ico') {
+		res.writeHead(200, {'Content-Type': 'image/x-icon'} );
+		res.end();
+		console.log('favicon requested');
+		return;
+	}
+	
+	var rrClient = req.app.get('rrClient');
+	
+	try {
+		rrClient.CreateTradeConfo(req.body.refId, req.body.symbol, req.body.company, req.body.cpCompany,
+				req.body.trader, req.body.profile, req.body.isFinal, req.body.rate, req.body.notional, req.body.price,
+				req.body.tradeId, req.body.ref, req.body.side, req.body.qty,
+				req.body.delta, req.body.fee, req.body.multiplier, req.body.legs);
 	}
 	catch (err) {
 		logger.error(err.message);

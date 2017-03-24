@@ -30,6 +30,7 @@ function OMS(_app) {
 	
 	this.map = {};
 	this.mapInstruments = {};
+	this.mapAccounts = {};
 };
 
 OMS.prototype.getOrderId = function(callback) {
@@ -67,15 +68,31 @@ OMS.prototype.getAllInstrument = function() {
 	logger.info("getAllInstrument");
 	var list = [];
 	for (var key in this.mapInstruments) {
-			list.push(key);
+		list.push(key.json());
 //			console.log(key + " -> " + this.mapInstruments[key]);
 	}
 	return list;
 };
 
-OMS.prototype.addInstrument = function(symbol, status) {
+OMS.prototype.addInstrument = function(symbol, status, type, expiry) {
 	logger.info("add instrument ", symbol, status);
-	this.mapInstruments[symbol] = status;
+	this.mapInstruments[symbol] = new Instrument(symbol, status, type, expiry);
 };
+
+OMS.prototype.getAllAccounts = function() {
+	logger.info("getAllAccounts");
+	var list = [];
+	for (var key in this.mapAccounts) {
+		list.push(this.mapAccounts[key]);
+//			console.log(key + " -> " + this.mapInstruments[key]);
+	}
+	return list;
+};
+
+OMS.prototype.addAccount = function(code, account) {
+	logger.info("add account ", code, account);
+	this.mapAccounts[code] = account;
+};
+
 
 module.exports = OMS;

@@ -13,6 +13,7 @@ angular
 })
 
 var SIDE = {BUY : 'BUY', SELL : 'SELL'};
+var accountMap = {};
 
 var app = angular.module('app', [ 
 	'ngMaterial', 
@@ -29,6 +30,7 @@ var app = angular.module('app', [
 	'ngAnimate' ,
 	'btford.socket-io',
 	'isteven-multi-select',
+	'pdf',
 	]);
 //	  .config(function ($stateProvider) {
 //
@@ -179,8 +181,39 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		catch (err) {
 			alert(err.message);
 		}
-
     });
+    
+    socket.on('update:tradeconfo', function (res) {
+    	try {
+//    		console.log(res.message.RefId);
+// $scope.message = data.id + ',' + data.refId + ',' + data.status;
+	    	var refId = Number(res.message.RefId);
+	    	var isExist = false;
+	    	for (var i=0; i<$scope.myOtData.length; i++) {
+	    		if ($scope.myOtData[i].RefId === refId) {
+	    			$scope.myOtData[i].Trader = res.message.Trader;
+	    			$scope.myOtData[i].Profile = res.message.Profile;
+	    			$scope.myOtData[i].IsFinal = res.message.IsFinal;
+	    			$scope.myOtData[i].Rate = res.message.Rate;
+	    			$scope.myOtData[i].TradeId = res.message.TradeId;
+	    			$scope.myOtData[i].Fee = res.message.Fee;
+	    			break;
+	    		}
+	    	}
+    	}
+		catch (err) {
+			alert(err.message);
+		}
+    });
+    
+	$http.get('api/getInfo').then(function(result) {
+		var tokens = result.data.data.split(':');
+		$scope.myIp = tokens[3];
+		$scope.myRevision = result.data.revision;
+		$scope.myEnv = result.data.env;
+	}, function(e) {
+		alert("error get info");
+	});
     
     // ======================== otGridOptions start ================================
 	$scope.otGridOptions = {
@@ -204,7 +237,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			showRow: function(row) {
 				return true;
 			},
-		    buyerClick: function(ev, row, company, side) {
+		    buyerClick: function(ev, row, company, cpCompany, side) {
 //		    	alert('buyerClick');
 		    	
 				$mdDialog.show({
@@ -215,14 +248,16 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					clickOutsideToClose: false,
 					fullscreen : false,
 					locals: {
+						'myRefId': row.RefId,
+						'mySymbol': row.Symbol,
 						'myBuyer': row.Buyer,
 						'mySeller': row.Seller,
 						'myPrice': row.Premium,
 						'myCompany': company,
+						'myCpCompany': cpCompany,
 						'mySide': side,
 						'myQty': row.Qty,
-						'myCcy': row.Ccy,
-						'myTradeId': row.TradeId,
+//						'myTradeId': row.TradeId,
 						'myLegs': row.Legs,
 						'myDelta': row.Delta,
 						'myStrat': row.Strategy,
@@ -267,7 +302,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //				cellTemplate:'<div ng-click=\"grid.appScope.buyerClick()\">{{row.entity.Buyer}}</div>'
 //					cellTemplate:'<div ng-click=\"grid.appScope.buyerClick()\">{{row.entity.Buyer}}</div>'
 //					cellTemplate:'<div><button ng-click="{{grid.appScope.buyerClick()">{{row.entity.Buyer}}</button></div>'
-				cellTemplate:'<div><button type="button" class="btn btn-warning" ng-click="grid.appScope.buyerClick(event, row.entity, row.entity.Buyer, \'Buy\')">{{row.entity.Buyer}}</button></div>'
+				cellTemplate:'<div><button type="button" class="btn btn-warning" ng-click="grid.appScope.buyerClick(event, row.entity, row.entity.Buyer, row.entity.Seller, \'Buy\')">{{row.entity.Buyer}}</button></div>'
 			},
 			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 			{field : 'InputTime', displayName: 'Input', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
@@ -280,6 +315,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	};
 	
 	// ====================== TdDialogController start ===========================
+	function PdfViewerDialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) { 
+	}
+	
+	// ====================== TdDialogController start ===========================
 	function TdDialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) 
 	{
 		$scope.myTdStatus = '';
@@ -288,21 +327,25 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myTradeId = locals.myTradeId;
 		$scope.myPrice = locals.myPrice;
 		
+		$scope.myRefId = locals.myRefId;
 		$scope.tdStatus = ['Final', 'Partial'];
+		$scope.mySymbol = locals.mySymbol;
 		$scope.myCompany = locals.myCompany;
-		$scope.parties = getPartyList(locals.myCompany);
+		$scope.myCpCompany = locals.myCpCompany;
+		$scope.traders = getPartyList(locals.myCompany);
+		$scope.profiles = getProfileList(locals.myCompany);
 		$scope.myParty = '';
 		$scope.mySide = locals.mySide;
 		$scope.myQty = locals.myQty;
 //		$scope.myFee = locals.myFee;
 		$scope.myCcy = getCurrency(locals.myLegs[0].Instrument);
 		$scope.myDelta = locals.myDelta;
-		$scope.myTradeId = locals.myTradeId;
+//		$scope.myTradeId = locals.myTradeId;
 		$scope.myPt = getPt(locals.myLegs[0].Instrument);
 		$scope.myMultiplier = locals.myMultiplier;
 		$scope.myStrat = locals.myStrat;
 		$scope.myFeeCcy = CFG.commissionCcy($scope.myCcy);
-		
+		$scope.myNotional = $scope.myRef * $scope.myQty * $scope.myPt;
 		$scope.myFee = CFG.commission($scope.myFeeCcy, 0, $scope.myRef, $scope.myQty, $scope.myPt, locals.myLegs);
 //		CFG.commission = function(instr, rate, ref, size, pt, myLegs)
 		
@@ -331,6 +374,69 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //				leg.Premium = premium;
 //			}
 //			$scope.legGridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+		};
+		
+		$scope.preview = function(ev) {
+//		    	alert('buyerClick');
+		    
+			$http.post('api/createTradeConfo', {
+				'refId'  : $scope.myRefId,
+				'symbol'  : $scope.mySymbol,
+				'company'  : $scope.myCompany,
+				'cpCompany'  : $scope.myCpCompany,
+				'trader' : $scope.myTrader,
+				'profile' : $scope.myProfile,
+				'isFinal': $scope.myTdStatus === 'Final' ? true : false,
+				'rate': $scope.myRate,
+				'notional': $scope.myNotional,
+				'price': $scope.myPrice,
+				'tradeId': $scope.myTradeId,
+				'ref': $scope.myRef,
+				'side' : $scope.mySide,
+				'qty': $scope.myQty,
+				'delta': $scope.myDelta,
+				'fee': $scope.myFee,
+				'multiplier': $scope.myMultiplier,
+				'legs' : $scope.myLegsData,
+			}).then(function(result) {
+			});
+			
+			$mdDialog.show({
+				controller : PdfViewerDialogController,
+				templateUrl : 'pdf.tmpl.html',
+				parent : angular.element(document.body),
+				targetEvent: ev,
+				clickOutsideToClose: true,
+				fullscreen : false,
+				locals: {
+//					'myBuyer': row.Buyer,
+//					'mySeller': row.Seller,
+//					'myPrice': row.Premium,
+//					'myCompany': company,
+//					'mySide': side,
+//					'myQty': row.Qty,
+//					'myCcy': row.Ccy,
+//					'myTradeId': row.TradeId,
+//					'myLegs': row.Legs,
+//					'myDelta': row.Delta,
+//					'myStrat': row.Strategy,
+//					'myMultiplier': row.Multiplier,
+				},
+// scope : $scope,
+// preserveScope: true,
+			// Only for -xs, -sm breakpoints.
+			})
+			.then(function(answer) {	// either OK / Cancel -> succ
+				if (answer === 'Cancel') {
+					$scope.status = 'cancelled';	
+				}
+				else {
+					$scope.status = 'generate pdf ' + answer;
+				}
+			}, function() { // fail , press outside or close dialog box
+				$scope.status = 'close ';
+// $mdDialog.destroy();
+			});
 		}
 		
 		$scope.legGrid = {
@@ -404,37 +510,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //					exporterMenuPdf : false,
 			};
 		
-		// TODO later
-		$scope.preview = function(ev) {
-			
-			refId = new Date().getTime();
-			
-			var legs = $scope.myLegData;
-			for (var i=0; i<$scope.myLegData.length; i++) {
-				if ($scope.myLegData[i].isHide 
-					|| $scope.myLegData[i].isSingle) {
-					legs.splice(i, 1);
-				}
-			}
-			
-			$http.post('api/previewTradeConfo', {
-				'refId'  : refId,
-				'trType' : $scope.myTrType,
-				'symbol': $scope.mySymbol,
-				'qty': $scope.myQty,
-				'delta': $scope.myDelta,
-				'price': $scope.myPremium,
-				'strat' : $scope.myStrat,
-				'futMat': $scope.myFutMat,
-				'buyer': $scope.myCompany,
-				'seller': $scope.myCpCompany,
-				'legs' : legs,
-			}).then(function(result) {
-			});
-			
-			$mdDialog.cancel();
-		};
-
 		$scope.legGrid.onRegisterApi = function(gridApi) {
 			$scope.legGridApi = gridApi;
 		};
@@ -475,43 +550,45 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    	'T4 - Interbank',
 	    	];
 	    
-	    $scope.clients = [
-		    'Barclays Bank',
-		    'BNP Paris',
-		    'Celera',
-		    'Citigroup',
-		    'Credit Suisse',
-		    'Deutsche Bank',
-		    'Goldman Sachs',
-		    'HSBC',
-		    'Hyundai',
-		    'IBK',
-		    'JP Morgan',
-		    'KIS',
-		    'Merrill Lynch',
-		    'Morgan Stanley',
-		    'Natixis',
-		    'NH',
-		    'Nomura',
-		    'Optiver',
-		    'Samsung',
-		    'SG Exo',
-		    'SG Paris',
-		    'Shinhan Bank',
-		    'UBS AG',
-		    'Woori Bank WP',
-		    'Yuanta D Yoon',
-		    'Yuanta GY Kim',
-	    ];
+//	    $scope.clients = [
+//		    'Barclays Bank',
+//		    'BNP Paris',
+//		    'Celera',
+//		    'Citigroup',
+//		    'Credit Suisse',
+//		    'Deutsche Bank',
+//		    'Goldman Sachs',
+//		    'HSBC',
+//		    'Hyundai',
+//		    'IBK',
+//		    'JP Morgan',
+//		    'KIS',
+//		    'Merrill Lynch',
+//		    'Morgan Stanley',
+//		    'Natixis',
+//		    'NH',
+//		    'Nomura',
+//		    'Optiver',
+//		    'Samsung',
+//		    'SG Exo',
+//		    'SG Paris',
+//		    'Shinhan Bank',
+//		    'UBS AG',
+//		    'Woori Bank WP',
+//		    'Yuanta D Yoon',
+//		    'Yuanta GY Kim',
+//	    ];
 	    
 	    $scope.myTrType = 'T2 - Combo',
 //	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-	    $scope.mySymbol = 'KS200 APR17/MAY17 270 1x1 CTS 100 TRADES REF 269.5 (MAR17)';
+	    $scope.mySymbol = 'KS200 APR17/MAY17 270 1x1 CTS 100 REF 269.5 (MAR17)';
 	    
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
 	    
 	    $scope.myInstrList = [];
+
+	    $scope.myAccountMap = {};
 	    
 //	    // RESET when enter controller
 //		$scope.param_isShowSendBtn = false;	// display send button
@@ -528,7 +605,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myCompany = 'BNP Paris';
 		$scope.myCpCompany = 'Celera';
 
-		$scope.myEnv = "TESTING";
+		$scope.myEnv = "unknown";
+		$scope.myRevision = 'unknown';
 		
 		$http.get('api/getTradeReport').then(function(result) {
 			v = result.data.data;
@@ -596,6 +674,22 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			}
 			$scope.myInstrList = result.data.data;
 		});
+		
+		$http.get('api/getAccounts').then(function(result) {
+//			v = result.data.data;
+//			var data = [];
+//			for (var i=0; i<v.length; i++) {
+//				data.push(v[i]);
+//			}
+			var l = result.data.data;
+			$scope.clients = [];
+			for (var i=0; i<l.length; i++) {
+				$scope.clients.push(l[i].company);
+				$scope.myAccountMap[l[i].company] = l[i];
+				accountMap[l[i].code] = l[i];
+			}
+			$scope.clients.sort();
+		});
 //	}
 	
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
@@ -615,9 +709,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return false;
 				}
 			}
-			
-			var companyInfo = getClientInfo(company);
-			var cpCompanyInfo = getClientInfo(cpCompany);
+
+			var companyInfo = $scope.myAccountMap[company];
+			var cpCompanyInfo = $scope.myAccountMap[cpCompany];
+//			var companyInfo = getClientInfo(company);
+//			var cpCompanyInfo = getClientInfo(cpCompany);
 			
 			$mdDialog.show({
 				controller : DialogController,
@@ -628,8 +724,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				fullscreen : false,
 				locals: {
 					'myTrType': $scope.myTrType,
-					'myBuyer': companyInfo.short,
-					'mySeller': cpCompanyInfo.short,
+					'myBuyer': companyInfo,
+					'mySeller': cpCompanyInfo,
 //					'myBuyer': $scope.myCompany,
 //					'mySeller': $scope.myCpCompany,
 					'mySymbol': $scope.mySymbol,
@@ -691,8 +787,8 @@ $scope.myFutMat = 'MAR17';
 		$scope.myStrat = tokens[4];
 		$scope.myPremium = Number(tokens[5]);
 		$scope.myRef = Number(tokens[6].replace(',', ''));
-		$scope.myCompany = locals.myBuyer;
-		$scope.myCpCompany = locals.mySeller;
+		$scope.myCompany = locals.myBuyer.code;
+		$scope.myCpCompany = locals.mySeller.code;
 		$scope.mySymbol = str;
 		$scope.myTrType = locals.myTrType.substring(0,2);
 		$scope.isSingle = true;
@@ -2827,15 +2923,29 @@ function getClientInfo(fullName) {
 }
 
 function getPartyList(shortName) {
-	var map = {
-			'BNP' : ['Nicolas Dujardin', 'Matthieu Barry', 'Roy Tian'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
-			'CEL' : ['Private 1', 'Private 2'] // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
-	};
-	var client = map[shortName];
-	if (client)
-		return client;
+//	var map = {
+//			'BNP' : ['Nicolas Dujardin', 'Matthieu Barry', 'Roy Tian'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//			'CEL' : ['Private 1', 'Private 2'] // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//	};
+	var traders = accountMap[shortName].traders;
+	if (traders)
+		return traders;
 	else 
-		alert('no party list: ' + shortName);
+		alert('no trades found : ' + shortName);
+	return null;
+}
+
+function getProfileList(shortName) {
+//	var map = {
+//			'BNP' : ['Nicolas Dujardin', 'Matthieu Barry', 'Roy Tian'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//			'CEL' : ['Private 1', 'Private 2'] // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//	};
+	var l = accountMap[shortName].profiles;
+	if (l) {
+		return l;
+	}
+	else 
+		alert('no profiles found : ' + shortName);
 	return null;
 }
 

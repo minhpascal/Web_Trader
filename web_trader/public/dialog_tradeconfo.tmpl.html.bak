@@ -37,29 +37,17 @@
 <!-- <form name="userForm" layout-gt-xs="row"> -->
 			 	<md-input-container class="md-block" > 
 					<label>Party</label> 
-					<md-select ng-model="myTrader"> 
+					<md-select ng-model="myParty"> 
 						<md-option><em></em></md-option> 
-						<md-option ng-repeat="n in traders" ng-value="n">{{n}}</md-option>
+						<md-option ng-repeat="n in parties" ng-value="n">{{n}}</md-option>
 					</md-select> 
 				</md-input-container>
-			 	<md-input-container class="md-block" > 
-					<label>Profiles</label> 
-					<md-select ng-model="myProfile"> 
-						<md-option><em></em></md-option> 
-						<md-option ng-repeat="n in profiles" ng-value="n">{{n}}</md-option>
-					</md-select> 
-				</md-input-container>
-				
 				<md-input-container class="md-block"> 
 					<label>Partial / Final</label> 
 					<md-select ng-model="myTdStatus">
 						<md-option><em></em></md-option>
 						<md-option ng-repeat="n in tdStatus" ng-value="n">{{n}}</md-option>
 					</md-select>
-				</md-input-container>
-				<md-input-container class="md-block" > 
-					<label>Trade ID</label> 
-					<input type="number" required ng-model="myTradeId" minlength="5">
 				</md-input-container>
 				<md-input-container class="md-block" ng-if="myCcy !== 'HKD'"> 
 					<label>Exchange Rate</label>
@@ -86,6 +74,10 @@
 				<md-input-container class="md-block" > 
 					<label>Price</label> 
 					<input ng-disabled="true" ng-model="myPrice">
+				</md-input-container>
+				<md-input-container class="md-block" > 
+					<label>Trade ID</label> 
+					<input ng-disabled="true" ng-model="myTradeId">
 				</md-input-container>
 				<md-input-container class="md-block" > 
 					<label>Ref</label> 

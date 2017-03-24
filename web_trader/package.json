@@ -3,11 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "port": 4058,
+  "rrserver_ip": "127.0.0.1",
+  "rrserver_port": 11201,
   "pipeline_ip": "127.0.0.1",
   "pipeline_port": 11101,
   "sink_ip": "127.0.0.1",
   "sink_port": 11102,
-  "pdf_dir": "/home/lloyd/git/Web_Trader/web_trader/pdf/",
+  "temp_dir": "/home/lloyd/cmsfo/temp/",
+  "env": "Testing",
   "scripts": {
     "start": "node ./bin/www"
   },

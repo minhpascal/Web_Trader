@@ -20,5 +20,13 @@ BroadcastService.prototype.toAll = function(msg) {
 	});
 };
 
+BroadcastService.prototype.updateTradeConfo = function(msg) {
+	
+	console.log('Broadcast update trade confo to all clients');
+	this.io.sockets.emit('update:tradeconfo', {
+		message: msg
+	});
+};
+
 // export the class
 module.exports = BroadcastService;
