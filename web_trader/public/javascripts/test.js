@@ -314,8 +314,37 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			exporterMenuPdf : false,
 	};
 	
-	// ====================== TdDialogController start ===========================
+	// ====================== PdfViewerDialogController start ===========================
 	function PdfViewerDialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) { 
+		$scope.pdfName = 'Relativity: The Special and General Theory by Albert Einstein';
+		$scope.pdfUrl = 'pdf/' + locals.myFile;
+//		$scope.pdfUrl = 'pdf/CELERAEQ-2017-12952_HSI24000L7_HKCEL.pdf';
+		$scope.pdfPassword = 'test';
+		$scope.scroll = 0;
+		$scope.loading = 'loading';
+		$scope.getNavStyle = function(scroll) {
+			if (scroll > 100)
+				return 'pdf-controls fixed';
+			else
+				return 'pdf-controls';
+		}
+		$scope.onError = function(error) {
+			console.log(error);
+		}
+		$scope.onLoad = function() {
+			$scope.loading = '';
+		}
+		$scope.onProgress = function(progressData) {
+			console.log(progressData);
+		};
+		$scope.onPassword = function(updatePasswordFn,
+				passwordResponse) {
+			if (passwordResponse === PDFJS.PasswordResponses.NEED_PASSWORD) {
+				updatePasswordFn($scope.pdfPassword);
+			} else if (passwordResponse === PDFJS.PasswordResponses.INCORRECT_PASSWORD) {
+				console.log('Incorrect password')
+			}
+		};
 	}
 	
 	// ====================== TdDialogController start ===========================
@@ -398,44 +427,53 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				'fee': $scope.myFee,
 				'multiplier': $scope.myMultiplier,
 				'legs' : $scope.myLegsData,
-			}).then(function(result) {
-			});
-			
-			$mdDialog.show({
-				controller : PdfViewerDialogController,
-				templateUrl : 'pdf.tmpl.html',
-				parent : angular.element(document.body),
-				targetEvent: ev,
-				clickOutsideToClose: true,
-				fullscreen : false,
-				locals: {
-//					'myBuyer': row.Buyer,
-//					'mySeller': row.Seller,
-//					'myPrice': row.Premium,
-//					'myCompany': company,
-//					'mySide': side,
-//					'myQty': row.Qty,
-//					'myCcy': row.Ccy,
-//					'myTradeId': row.TradeId,
-//					'myLegs': row.Legs,
-//					'myDelta': row.Delta,
-//					'myStrat': row.Strategy,
-//					'myMultiplier': row.Multiplier,
-				},
-// scope : $scope,
-// preserveScope: true,
-			// Only for -xs, -sm breakpoints.
-			})
-			.then(function(answer) {	// either OK / Cancel -> succ
-				if (answer === 'Cancel') {
-					$scope.status = 'cancelled';	
-				}
-				else {
-					$scope.status = 'generate pdf ' + answer;
-				}
-			}, function() { // fail , press outside or close dialog box
-				$scope.status = 'close ';
-// $mdDialog.destroy();
+			}).then(function successCallback(response) {
+				console.log(response.data);
+				alert(response.data);
+				
+				$mdDialog.show({
+					controller : PdfViewerDialogController,
+					templateUrl : 'pdf.tmpl.html',
+					parent : angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose: true,
+					fullscreen : false,
+					locals: {
+						'myFile': response.data
+//						'myBuyer': row.Buyer,
+//						'mySeller': row.Seller,
+//						'myPrice': row.Premium,
+//						'myCompany': company,
+//						'mySide': side,
+//						'myQty': row.Qty,
+//						'myCcy': row.Ccy,
+//						'myTradeId': row.TradeId,
+//						'myLegs': row.Legs,
+//						'myDelta': row.Delta,
+//						'myStrat': row.Strategy,
+//						'myMultiplier': row.Multiplier,
+					},
+	// scope : $scope,
+	// preserveScope: true,
+				// Only for -xs, -sm breakpoints.
+				})
+				.then(function(answer) {	// either OK / Cancel -> succ
+					if (answer === 'Cancel') {
+						$scope.status = 'cancelled';	
+					}
+					else {
+						$scope.status = 'generate pdf ' + answer;
+					}
+				}, function() { // fail , press outside or close dialog box
+					$scope.status = 'close ';
+	// $mdDialog.destroy();
+				});
+				
+				
+				
+			} , function errorCallback(response) {
+				console.log(response.data.file);
+				alert(response.data.file);
 			});
 		}
 		

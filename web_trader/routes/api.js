@@ -6,6 +6,8 @@ var path = require('path');
 var BlockTradeReport = require('../models/BlockTradeReport');
 var TradeReport = require('../models/TradeReport');
 var Cmmf = require('../models/Cmmf');
+var pjson = require('../package.json');
+
 
 // local variable
 var app = require('../app');
@@ -114,6 +116,12 @@ router.post('/createTradeConfo', function(req, res, next) {
 			, req.body.fee 
 			, req.body.multiplier 
 			, JSON.stringify(req.body.legs));
+	var code = req.body.side === 'Buy' ? req.body.company : req.body.cpCompany;
+	new Date().getYear();
+	var file = /* pjson.temp_dir + '/' + */
+			'CELERAEQ-' + new Date().getYear()
+			+ '-' + req.body.tradeId + " "
+			+ req.body.symbol.replace(/\//g, "_") + " " + code + ".pdf";
 	
 	if (req.url === '/favicon.ico') {
 		res.writeHead(200, {'Content-Type': 'image/x-icon'} );
@@ -122,10 +130,11 @@ router.post('/createTradeConfo', function(req, res, next) {
 		return;
 	}
 	
-	var rrClient = req.app.get('rrClient');
+	var plVent = req.app.get('plVent');
+//	var rrClient = req.app.get('rrClient');
 	
 	try {
-		rrClient.CreateTradeConfo(req.body.refId, req.body.symbol, req.body.company, req.body.cpCompany,
+		plVent.CreateTradeConfo(req.body.refId, req.body.symbol, req.body.company, req.body.cpCompany,
 				req.body.trader, req.body.profile, req.body.isFinal, req.body.rate, req.body.notional, req.body.price,
 				req.body.tradeId, req.body.ref, req.body.side, req.body.qty,
 				req.body.delta, req.body.fee, req.body.multiplier, req.body.legs);
@@ -134,7 +143,7 @@ router.post('/createTradeConfo', function(req, res, next) {
 		logger.error(err.message);
 	}
 	
-	res.send('succ');
+	res.send(file);
 //	res.sendStatus(refId);
 });
 

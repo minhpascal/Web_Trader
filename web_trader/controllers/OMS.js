@@ -1,6 +1,9 @@
 // Connects REQ socket to tcp://localhost:5555
 var log4js = require('log4js');
+var Instrument = require('../models/Instrument');
+
 var logger = log4js.getLogger('OMS');
+
 
 var zmq = require('zmq');
 var pjson = require('../package.json');
