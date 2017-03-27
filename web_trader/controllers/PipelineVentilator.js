@@ -38,6 +38,7 @@ Command = {
 	};
 
 var JSON_TAG = {
+	MARKET : "Market", 
 	SYMBOL : "Symbol", 
 	EXPIRY : "Expiry", 
 	STRIKE : "Strike", 
@@ -281,13 +282,14 @@ PipelineVentilator.prototype.onQueryAllInstrument = function(doc) {
 		for (i=0; i<size; i++) {
 			try {
 			var instr = list[i];
-logger.info('instr: ', instr);			
+//logger.info('instr: ', instr);			
+			var Market = instr.Market;
 			var Symbol = instr.Symbol;
 			var Status = instr.Status;
 			var Type = instr.InstrumentType;
 			var Expiry = instr.Expiry;
 //			if (Symbol.startWith('HHI') || Symbol.startWith('HSI'))
-				oms.addInstrument(Symbol, Status, Type, Expiry);
+				oms.addInstrument(Market, Symbol, Status, Type, Expiry);
 			} catch (err) {
 				logger.error(instr + "," + err.message);
 			}

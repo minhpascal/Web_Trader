@@ -71,15 +71,18 @@ OMS.prototype.getAllInstrument = function() {
 	logger.info("getAllInstrument");
 	var list = [];
 	for (var key in this.mapInstruments) {
-		list.push(key.json());
+		list.push(this.mapInstruments[key].json());
 //			console.log(key + " -> " + this.mapInstruments[key]);
 	}
 	return list;
 };
 
-OMS.prototype.addInstrument = function(symbol, status, type, expiry) {
-	logger.info("add instrument ", symbol, status);
-	this.mapInstruments[symbol] = new Instrument(symbol, status, type, expiry);
+OMS.prototype.addInstrument = function(market, symbol, status, type, expiry) {
+
+	this.mapInstruments[symbol] = new Instrument(market, symbol, status, type, expiry);
+
+logger.info("add instrument ", market, symbol, status, type, expiry);
+
 };
 
 OMS.prototype.getAllAccounts = function() {

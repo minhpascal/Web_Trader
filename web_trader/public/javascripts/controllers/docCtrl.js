@@ -1,6 +1,6 @@
 app.controller('DocCtrl', function($scope) {
 	$scope.pdfName = 'Relativity: The Special and General Theory by Albert Einstein';
-	$scope.pdfUrl = 'pdf/CELERAEQ-2017-12952_HSI24000L7_HKCEL.pdf';
+	$scope.pdfUrl = 'pdf/CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf';
 	$scope.pdfPassword = 'test';
 	$scope.scroll = 0;
 	$scope.loading = 'loading';

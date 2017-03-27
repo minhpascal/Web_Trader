@@ -6,7 +6,8 @@ function Instrument() {
 };
 
 // Constructor
-function Instrument(symbol, status, type, expiry) {
+function Instrument(market, symbol, status, type, expiry) {
+	this.market = market;
 	this.symbol = symbol;
 	this.status = status;
 	this.type = type;
@@ -23,6 +24,7 @@ Instrument.prototype.setStatus = function(status) {
 
 Instrument.prototype.json = function() {
 	data = {
+		'Market': this.market,
 		'Symbol' : 	this.symbol,
 		'Status' : 	this.status,
 		'InstrumentType' : 	this.type,

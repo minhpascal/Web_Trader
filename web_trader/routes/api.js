@@ -7,6 +7,7 @@ var BlockTradeReport = require('../models/BlockTradeReport');
 var TradeReport = require('../models/TradeReport');
 var Cmmf = require('../models/Cmmf');
 var pjson = require('../package.json');
+var fs = require('fs');
 
 
 // local variable
@@ -30,7 +31,7 @@ logger.debug('api/getTradeReport 2: ', data);
 });
 
 router.get('/getInstrument', function(req, res, next) {
-	console.log('api/getInstrument ');	
+//	logger.info('api/getInstrument ');	
 	var oms = req.app.get('oms');
 	var v = oms.getAllInstrument();
 	
@@ -41,7 +42,7 @@ router.get('/getInstrument', function(req, res, next) {
 //	}
 	
 	res.send({data:v});
-	console.log('api/getInstrument ' + {data:v});
+	logger.info('api/getInstrument ' + {data:v});
 });
 
 router.get('/getAccounts', function(req, res, next) {
@@ -143,8 +144,16 @@ router.post('/createTradeConfo', function(req, res, next) {
 		logger.error(err.message);
 	}
 	
-	res.send(file);
+//	res.send(file);
 //	res.sendStatus(refId);
+	
+//	var file = req.body.symbol.replace('/','');
+//	var tempFile = pjson.temp_dir + file;
+    var tempFile = pjson.temp_dir + 'CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf'
+	fs.readFile(tempFile, function (err, data){
+		res.contentType("application/pdf");
+		res.send(data);
+	});
 });
 
 

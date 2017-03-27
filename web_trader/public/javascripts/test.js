@@ -620,11 +620,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    $scope.myTrType = 'T2 - Combo',
 //	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
 	    $scope.mySymbol = 'KS200 APR17/MAY17 270 1x1 CTS 100 REF 269.5 (MAR17)';
-	    
+	    $scope.myMarket = toMarket($scope.mySymbol);
+	    	
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
 	    
 	    $scope.myInstrList = [];
+	    $scope.myMarket2FutMat = {};
 
 	    $scope.myAccountMap = {};
 	    
@@ -711,6 +713,23 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //				data.push(v[i]);
 //			}
 			$scope.myInstrList = result.data.data;
+			
+			var len = $scope.myInstrList.length;
+			for (var i=0; i<len; i++) {
+				var instr = $scope.myInstrList[i];
+				if (instr.InstrumentType === 'Future') {
+					var l = $scope.myMarket2FutMat[instr.Market];
+					var dExpiry = moment(instr.Expiry);
+					if (l) {
+						l.push(dExpiry);
+					}
+					else {
+						$scope.myMarket2FutMat[instr.Market] = [];
+						$scope.myMarket2FutMat[instr.Market].push(dExpiry);
+					}
+				}
+			}
+			console.log('done');
 		});
 		
 		$http.get('api/getAccounts').then(function(result) {
@@ -730,10 +749,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		});
 //	}
 	
+		
+		
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
 		try {
 			var str = symbol.replace(/ +(?= )/g,'');
+			var market = toMarket(symbol)
 			var tokens = parseSymbol(str);
 			var myStrat = tokens[4];
 			if (trType.indexOf('T2') < 0) {
@@ -752,6 +774,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			var cpCompanyInfo = $scope.myAccountMap[cpCompany];
 //			var companyInfo = getClientInfo(company);
 //			var cpCompanyInfo = getClientInfo(cpCompany);
+			
+			var instrList = getAllFutureExpiry(market, $scope.myMarket2FutMat, $scope.iconTemplate);
 			
 			$mdDialog.show({
 				controller : DialogController,
@@ -774,7 +798,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'myStrat': $scope.myStrat,
 					'myPremium': $scope.myPremium,
 					'myRef': $scope.myRef,
-					'myInstrList': $scope.myInstrList,
+					'myInstrList': instrList,
 				},
 // scope : $scope,
 // preserveScope: true,
@@ -806,7 +830,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 // TODO: remove		
 $scope.myDelta = 10;
 $scope.myQty = 100;
-$scope.myFutMat = 'MAR17';
+//$scope.myFutMat = 'MAR17';
+$scope.myFutMat = '';
 
 		$scope.myInstrList = locals.myInstrList;
 		
@@ -869,21 +894,22 @@ $scope.myFutMat = 'MAR17';
 			'Qty': $scope.myQty, 'Delta': $scope.myDelta, 'FutMat': $scope.myFutMat, 
 			'Buyer': $scope.myCompany, 'Seller': $scope.myCpCompany,
 			'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false,
-			'modernBrowsers' : [
-			    { icon: '', name: "JAN17", ticked: false  },
-			    { icon: '', name: "FEB17", ticked: false  },
-			    { icon: '', name: "MAR17", ticked: false  },
-			    { icon: '', name: "APR17", ticked: false  },
-			    { icon: '', name: "MAY17", ticked: false  },
-			    { icon: '', name: "JUN17", ticked: false  },
-			    { icon: '', name: "JUL17", ticked: false  },
-			    { icon: '', name: "AUG17", ticked: false  },
-			    { icon: '', name: "SEP17", ticked: false  },
-			    { icon: '', name: "OCT17", ticked: false  },
-			    { icon: '', name: "NOV17", ticked: false  },
-			    { icon: '', name: "DEC17", ticked: false  },
-				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
-			], 
+			'modernBrowsers' : $scope.myInstrList,
+//			'modernBrowsers' : [
+//			    { icon: '', name: "JAN17", ticked: false  },
+//			    { icon: '', name: "FEB17", ticked: false  },
+//			    { icon: '', name: "MAR17", ticked: false  },
+//			    { icon: '', name: "APR17", ticked: false  },
+//			    { icon: '', name: "MAY17", ticked: false  },
+//			    { icon: '', name: "JUN17", ticked: false  },
+//			    { icon: '', name: "JUL17", ticked: false  },
+//			    { icon: '', name: "AUG17", ticked: false  },
+//			    { icon: '', name: "SEP17", ticked: false  },
+//			    { icon: '', name: "OCT17", ticked: false  },
+//			    { icon: '', name: "NOV17", ticked: false  },
+//			    { icon: '', name: "DEC17", ticked: false  },
+//				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
+//			], 
 			'outputBrowsers' : [],
 			},
 		];
@@ -3086,6 +3112,54 @@ function getPt(instrument) {
 	return 1;
 }
 
+function getAllFutureExpiry(market, myMarket2FutMat, iconTemplate) {
+	
+	
+	modernBrowsers = [];
+	
+//	var prefix = symbol.split(' ')[0].substring(0, 2);
+	var l = myMarket2FutMat[market];
+	var len = l.length;
+	l.sort(function(o1, o2) {
+		return o1 - o2;
+	});
+	
+	for (var i=0; i<len; i++) {
+		var expiry = l[i];
+		try {
+//			if (instr.Symbol.startsWith(prefix)
+//					&& instr.InstrumentType === 'Future') {
+				modernBrowsers.push({
+//					icon: '', name: instr.Expiry.substring(3, 6) + instr.Expiry.substring(7, 9), ticked: false
+					icon: '', name: expiry.format('MMMYY').toUpperCase(), ticked: false
+				});
+//			}
+		} catch (err){
+			alert(err);
+		}
+	};
+	
+	modernBrowsers.push({ 
+		icon: iconTemplate, 
+		name: '', ticked: true , disabled: true 
+	});
+	
+	return modernBrowsers;
+}
+
+function toMarket(symbol) {
+	var _2 = symbol.substring(0, 2);
+	switch (_2) {
+	case 'HS':
+	case 'HH':
+	case 'MC':
+	case 'MH':
+		return 'HK';
+	case 'KS':
+		return 'KR';	
+	}
+	return 'JP'; 
+}
 
 //
 // function calRemainPrice(params, myMultiplier, mySide, myPremium) {
