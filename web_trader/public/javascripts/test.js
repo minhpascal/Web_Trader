@@ -14,6 +14,7 @@ angular
 
 var SIDE = {BUY : 'BUY', SELL : 'SELL'};
 var accountMap = {};
+var myMkt2Expiry = {};
 
 var app = angular.module('app', [ 
 	'ngMaterial', 
@@ -239,7 +240,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			},
 		    buyerClick: function(ev, row, company, cpCompany, side) {
 //		    	alert('buyerClick');
-		    	
+		    	try {
 				$mdDialog.show({
 					controller : TdDialogController,
 					templateUrl : 'dialog_tradeconfo.tmpl.html',
@@ -278,7 +279,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					$scope.status = 'close ';
 	// $mdDialog.destroy();
 				});
-		    	
+		    	}
+		    	catch (err) {
+		    		alert(err);
+		    	}
 		    },
 		},
 		columnDefs : [ 
@@ -315,9 +319,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	};
 	
 	// ====================== PdfViewerDialogController start ===========================
-	function PdfViewerDialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) { 
+	function PdfViewerDialogController($scope, $mdDialog, $http, locals/*, uiGridConstants, $templateCache*/) { 
 		$scope.pdfName = 'Relativity: The Special and General Theory by Albert Einstein';
 		$scope.pdfUrl = 'pdf/' + locals.myFile;
+//		$scope.pdfUrl = 'api/pdf/' + locals.myFile;
+//		$scope.pdfUrl = 'pdf/CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf';
 //		$scope.pdfUrl = 'pdf/CELERAEQ-2017-12952_HSI24000L7_HKCEL.pdf';
 		$scope.pdfPassword = 'test';
 		$scope.scroll = 0;
@@ -345,7 +351,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				console.log('Incorrect password')
 			}
 		};
-	}
+	};
 	
 	// ====================== TdDialogController start ===========================
 	function TdDialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) 
@@ -359,6 +365,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myRefId = locals.myRefId;
 		$scope.tdStatus = ['Final', 'Partial'];
 		$scope.mySymbol = locals.mySymbol;
+		$scope.myMarket = toMarket($scope.mySymbol);
 		$scope.myCompany = locals.myCompany;
 		$scope.myCpCompany = locals.myCpCompany;
 		$scope.traders = getPartyList(locals.myCompany);
@@ -381,15 +388,16 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //		$scope.myNotional = $scope.myRef * $scope.myQty * $scope.myPt;
 //		$scope.myPremium = $scope.myPrice * $scope.myQty * $scope.myPt;
 		
-//		tempMyLegs = [
+//		$scope.myLegsData = [
 //			{'Instrument': 'HSI22000L7', 'Expiry': 'DEC17', 'Strike': 22000, 'Qty': 100, 'Price': 20, 'Buyer': 'CEL', 'Seller': 'CEL'},
 //			{'Instrument': 'HSI24000L7', 'Expiry': 'DEC17', 'Strike': 24000, 'Qty': 125, 'Price': 8, 'Buyer': 'CEL', 'Seller': 'CEL'},
 //			{'Instrument': 'HSIK7', 'Expiry': 'MAY17', 'Qty': 10, 'Price': 22825, 'Buyer': 'CEL', 'Seller': 'CEL'},
 //		];
-//		$scope.myLegsData = buildLegData($scope.myCcy, tempMyLegs, 'CR', $scope.myDelta, $scope.mySide, '1x1.25');
-		$scope.myLegsData = buildLegData($scope.myCcy, locals.myLegs, $scope.myStrat, $scope.myDelta, $scope.mySide, $scope.myMultiplier, 1, $scope.myPt);
-//		$scope.myLegsData = buildLegData(locals.myLegs, locals.myRef, locals.myDelta, locals.mySide, locals.myMultiplier);
+		
+		$scope.myLegsData = buildLegData($scope.myMarket, $scope.myCcy, locals.myLegs, $scope.myStrat, 
+			$scope.myDelta, $scope.mySide, $scope.myMultiplier, 1, $scope.myPt);
 
+	
 		$scope.updatePremium = function(rate) {
 			$scope.myRate = rate;
 			$scope.myFee = CFG.commission($scope.myFeeCcy, rate, $scope.myRef, $scope.myQty, $scope.myPt, $scope.myLegsData);
@@ -429,7 +437,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				'legs' : $scope.myLegsData,
 			}).then(function successCallback(response) {
 				console.log(response.data);
-				alert(response.data);
+				alert('Create file at ' + response.data);
 				
 				$mdDialog.show({
 					controller : PdfViewerDialogController,
@@ -440,18 +448,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					fullscreen : false,
 					locals: {
 						'myFile': response.data
-//						'myBuyer': row.Buyer,
-//						'mySeller': row.Seller,
-//						'myPrice': row.Premium,
-//						'myCompany': company,
-//						'mySide': side,
-//						'myQty': row.Qty,
-//						'myCcy': row.Ccy,
-//						'myTradeId': row.TradeId,
-//						'myLegs': row.Legs,
-//						'myDelta': row.Delta,
-//						'myStrat': row.Strategy,
-//						'myMultiplier': row.Multiplier,
+//						'myFile': 'CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf',
 					},
 	// scope : $scope,
 	// preserveScope: true,
@@ -488,52 +485,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				showGridFooter : false,
 				showColumnFooter : false,
 			    enableCellEditOnFocus: false,
+				appScopeProvider: {
+					showRow: function(row) {
+						return true;
+					}
+				},
 //			    expandableRowTemplate: 'expandableRowTemplate.html',
 //			    expandableRowHeight: 150,
 			    //subGridVariable will be available in subGrid scope
 //			    expandableRowScope: {
 //			      subGridVariable: 'subGridScopeVariable',
 //			    },
-//				appScopeProvider: {
-//					showRow: function(row) {
-//						return true;
-//					},
-//				    buyerClick: function(ev, row, company, side) {
-////				    	alert('buyerClick');
-//				    	
-//						$mdDialog.show({
-//							controller : TdDialogController,
-//							templateUrl : 'dialog_tradeconfo.tmpl.html',
-//							parent : angular.element(document.body),
-//							targetEvent: ev,
-//							clickOutsideToClose: false,
-//							fullscreen : false,
-//							locals: {
-//								'myBuyer': row.Buyer,
-//								'mySeller': row.Seller,
-//								'myPremium': row.Premium,
-//								'myCompany': company,
-//								'mySide': side,
-//								'myQty': row.Qty,
-//								'myCcy': row.Ccy,
-//								'myLegs': row.Legs
-//							},
-//						// Only for -xs, -sm breakpoints.
-//						})
-//						.then(function(answer) {	// either OK / Cancel -> succ
-//							if (answer === 'Cancel') {
-//								$scope.status = 'cancelled';	
-//							}
-//							else {
-//								$scope.status = 'Trade Report sent ' + answer;
-//							}
-//						}, function() { // fail , press outside or close dialog box
-//							$scope.status = 'close ';
-//			// $mdDialog.destroy();
-//						});
-//				    	
-//				    },
-//				},
 				columnDefs : [ 
 					{field : 'Type', headerCellClass: 'brown-header', width: '*', enableCellEdit : false, enableHiding: false}, 
 					{field : 'Side', headerCellClass: 'brown-header', enableCellEdit: false, enableHiding: false},
@@ -552,7 +514,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			$scope.legGridApi = gridApi;
 		};
 		
-		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
+		/*var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';*/
 		
 		$scope.hide = function() {
 			$mdDialog.hide();
@@ -619,7 +581,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    
 	    $scope.myTrType = 'T2 - Combo',
 //	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-	    $scope.mySymbol = 'KS200 APR17/MAY17 270 1x1 CTS 100 REF 269.5 (MAR17)';
+	    $scope.mySymbol = 'KS200 JUN17/SEP17 270 1x1 CTS 100 REF 269.5 (MAR17)';
 	    $scope.myMarket = toMarket($scope.mySymbol);
 	    	
 	    $scope.myOtData = [];
@@ -729,7 +691,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					}
 				}
 			}
-			console.log('done');
+//			console.log('done');
 		});
 		
 		$http.get('api/getAccounts').then(function(result) {
@@ -749,7 +711,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		});
 //	}
 	
-		
+		$http.get('api/getExpiry').then(function(result) {
+			$scope.myList = result.data.data;
+			
+			var len = $scope.myList.length;
+			for (var i=0; i<len; i++) {
+				var item = $scope.myList[i];
+				var l = $scope.myMarket2FutMat[item.key];
+				myMkt2Expiry[item.key] = item.expiry;
+			}
+			console.log('done');
+		});
 		
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
@@ -3013,7 +2985,7 @@ function getProfileList(shortName) {
 	return null;
 }
 
-function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier, myRate, myPt) {
+function buildLegData(myMarket, myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier, myRate, myPt) {
 	var signs = deduceSign(myMultiplier, myStrat, myDelta, mySide);
 	
 	var len = myLegs.length;
@@ -3034,12 +3006,17 @@ function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier, myR
 			premium = premium * -1;
 		
 		premium = Math.round(premium * 1000) / 1000;
+		var expiry = myMkt2Expiry[myMarket + leg.Expiry];
+		if (!expiry) {
+			alert('leg expiry not exist : ' +  leg.Expiry);
+		}
 		
 		legData.push({
 			'Type': 	'Leg ' + (i + 1),
 			'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
 			'Qty': 		leg.Qty,
-			'Expiry':	leg.Expiry,
+			'Expiry':	expiry,
+//			'Expiry':	leg.Expiry,
 			'Strike': 	leg.Strike,
 			'Product':	type,
 			'Price':	leg.Price,
@@ -3048,11 +3025,13 @@ function buildLegData(myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier, myR
 		});
 	}
 	
+	var expiry = myMkt2Expiry[myMarket + myLegs[i].Expiry];
+	
 	legData.push({
 		'Type': 	'Hedge',
 		'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
 		'Qty': 		myLegs[i].Qty,
-		'Expiry': 	myLegs[i].Expiry,
+		'Expiry': 	expiry,
 		'Product':	'Future',
 		'Price':	myLegs[i].Price,
 		'Premium':	null,

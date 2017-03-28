@@ -97,6 +97,7 @@ plVent.Bind();
 plVent.QueryAllTradeReport();
 plVent.QueryAllInstrument();
 plVent.QueryAllAccount();
+plVent.QueryAllExpiryDate();
 
 //setInterval(function() {
 //	plVent.SOD();

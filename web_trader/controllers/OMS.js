@@ -1,5 +1,7 @@
 // Connects REQ socket to tcp://localhost:5555
 var log4js = require('log4js');
+var moment = require('moment');
+
 var Instrument = require('../models/Instrument');
 
 var logger = log4js.getLogger('OMS');
@@ -34,6 +36,7 @@ function OMS(_app) {
 	this.map = {};
 	this.mapInstruments = {};
 	this.mapAccounts = {};
+	this.mapExpirys = {};
 };
 
 OMS.prototype.getOrderId = function(callback) {
@@ -83,6 +86,29 @@ OMS.prototype.addInstrument = function(market, symbol, status, type, expiry) {
 
 logger.info("add instrument ", market, symbol, status, type, expiry);
 
+};
+
+OMS.prototype.getAllExpiry = function() {
+	logger.info("getAllExpiry");
+	var list = [];
+	for (var key in this.mapExpirys) {
+		var d = this.mapExpirys[key];
+		list.push({
+			key: key,
+			expiry: moment(d).format('DD-MMM-YY')
+		});
+//			console.log(key + " -> " + this.mapInstruments[key]);
+	}
+	return list;
+};
+
+OMS.prototype.addExpiry = function(market, expiry) {
+	var d = new Date(expiry);
+	var key = market + moment(d).format('MMMYY').toUpperCase();
+	
+	this.mapExpirys[key] = d;
+	
+	logger.info("add Expiry ", key, market, d);
 };
 
 OMS.prototype.getAllAccounts = function() {

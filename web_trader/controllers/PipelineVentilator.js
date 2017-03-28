@@ -35,6 +35,7 @@ Command = {
 		TRADE_REPORT: 'R',
 		INSTRUMENT_UPDATE: 'P',
 		HKEX_ADMIN_COMMAND: 'H',
+		EXPIRY_DATE: 'X',
 	};
 
 var JSON_TAG = {
@@ -127,6 +128,11 @@ PipelineVentilator.prototype.QueryAllInstrument = function() {
 PipelineVentilator.prototype.QueryAllAccount = function() {
 	logger.info("QueryAllAccount");
 	sender.send("TOQA");
+}
+
+PipelineVentilator.prototype.QueryAllExpiryDate = function() {
+	logger.info("QueryAllExpiryDate");
+	sender.send("TOQX");
 }
 		
 PipelineVentilator.prototype.SendTradeReport = function(
@@ -320,6 +326,27 @@ PipelineVentilator.prototype.onQueryAccount = function(doc) {
 	}
 }
 
+PipelineVentilator.prototype.onQueryAllExpiryDate = function(doc) {
+	logger.info('onQueryAllExpiryDate: ', doc);
+	
+		oms = this.app.get('oms');
+		var instruments = [];
+		var size = doc.Size;
+		var list = doc.ExpiryDates;
+		for (i=0; i<size; i++) {
+			try {
+				var expiry = list[i];
+	//logger.info('instr: ', instr);			
+				var Market = expiry.Market;
+				var d = expiry.Expiry;
+				oms.addExpiry(Market, d);
+			} catch (err) {
+				logger.error(expiry + "," + err.message);
+			}
+		}
+}
+
+
 // onPipelineVentilator.prototype.onInstrumentUpdate = function(doc) {
 //	logger.info('onInstrumentUpdate: ', doc);
 //	
@@ -348,9 +375,10 @@ PipelineVentilator.prototype.onQueryAccount = function(doc) {
 //	}
 //};
 
-PipelineVentilator.prototype.CreateTradeConfo = function(
-		refId, symbol, company, cpCompany,
-		trader, profile, isFinal, rate, notional, price, tradeId, ref, side, qty, delta, fee, multiplier, legs) {
+PipelineVentilator.prototype.CreateTradeConfo = function(refId, symbol,
+		company, cpCompany, trader, profile, isFinal, rate, notional, price,
+		tradeId, ref, side, qty, delta, fee, multiplier, file, legs) 
+		{
 	var msg = JSON.stringify({
 		'Symbol': symbol, 
 		'Company': company,
@@ -369,17 +397,11 @@ PipelineVentilator.prototype.CreateTradeConfo = function(
 		'Fee': fee,
 		'Multiplier': multiplier,
 //		'Legs': JSON.stringify(legs),
+		'File': file,
 		'Legs': legs,
 	});
 	logger.info("CreateTradeConfo " + msg);
 	sender.send("TOTF" + msg);
-	
-	$scope.myOtData[i].Trader = res.message.Trader;
-	$scope.myOtData[i].Profile = res.message.Profile;
-	$scope.myOtData[i].IsFinal = res.message.IsFinal;
-	$scope.myOtData[i].Rate = res.message.Rate;
-	$scope.myOtData[i].TradeId = res.message.TradeId;
-	$scope.myOtData[i].Fee = res.message.Fee;
 	
 	bdxService = this.app.get('broadcastService');
 	var bd = JSON.stringify({
@@ -419,6 +441,10 @@ receiver.on('message', function(buf) {
 			}
 			case Command.ACCOUNT: {
 				that.onQueryAccount(json);
+				break;
+			}
+			case Command.EXPIRY_DATE: {
+				that.onQueryAllExpiryDate(json);
 				break;
 			}
 			default : {

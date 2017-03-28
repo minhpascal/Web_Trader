@@ -22,18 +22,19 @@
 		</div>
 	</md-toolbar> -->
      <md-card>
-<form name="userForm" >
+<!--  		<md-toolbar md-scroll-shrink>
+ 			<div class="md-toolbar-tools">General</div> 
+		</md-toolbar>  -->
+		
 	<md-toolbar class="md-hue-2">
 		<div class="md-toolbar-tools">
-			<h2 flex md-truncate>Trade Confirmation</h2>
+			<h2 flex md-truncate>Toolbar with Disabled/Enabled Icon Buttons</h2>
 			<span flex></span>
 			<md-button class="md-fab md-primary" aria-label="Use Android" ng-click="$mdMenu.send()"> 
-			    <md-tooltip md-direction="bottom">Email</md-tooltip>
-<!-- 			    <md-icon ng-style="{color: #00A}" class="material-icons step" ng-class="font-size: 24px;" ng-bind="email"></md-icon> -->
+			    <md-icon ng-style="{color: #00A}" class="material-icons step" ng-class="font-size: 24px;" ng-bind="email"></md-icon>
 				<md-icon md-svg-src="img/icons/ic_email_24px.svg"></md-icon>
 			</md-button>
-			<md-button class="md-fab orevie wmd-primary" aria-label="Use Android" ng-click="preview($event)">
-				<md-tooltip md-direction=""bottom"">Preview</md-tooltip> 
+			<md-button class="md-fab orevie wmd-primary" aria-label="Use Android" ng-click="preview($event)"> 
 				<md-icon md-svg-src="img/icons/ic_fullscreen_24px.svg"></md-icon> 
 			</md-button>
 		</div>
@@ -42,7 +43,7 @@
  		<md-card-content layout-padding>
 
  			<div layout-gt-xs="row" >
-
+<!-- <form name="userForm" layout-gt-xs="row"> -->
 			 	<md-input-container class="md-block" > 
 					<label>Party</label> 
 					<md-select ng-model="myTrader"> 
@@ -87,6 +88,7 @@
       					<div ng-message="required">This is required!</div>
       				</div>
 				</md-input-container>
+<!-- </form> -->
 			</div>
 
 			<div layout-gt-xs="row" >
@@ -127,5 +129,4 @@
 			</div>
 		</md-content>
 	</md-card>
-</form>
 </md-dialog>
