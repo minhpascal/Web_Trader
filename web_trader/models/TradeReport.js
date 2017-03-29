@@ -9,9 +9,10 @@ function TradeReport() {
 };
 
 // Constructor
-function TradeReport(ul, type, strike, expiry, price, qty,
+function TradeReport(instr, ul, type, strike, expiry, price, qty,
 		buyer, seller, group, status, remark, trType, lastUpdateTime) {
 	// always initialize all instance properties
+	this.instr = instr;
 	this.ul = ul;
 	this.type = type;
 	this.strike = strike;
@@ -47,7 +48,8 @@ function TradeReport(ul, type, strike, expiry, price, qty,
 // class methods
 TradeReport.prototype.json = function() {
 	var j = {
-			"Instrument":this.ul, 
+			"Instrument":this.instr, 
+			"UL":this.ul, 
 			"Strike":this.strike, 
 			"Expiry":this.expiry, 
 			"Price":this.price, 

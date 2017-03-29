@@ -32,6 +32,7 @@ var app = angular.module('app', [
 	'btford.socket-io',
 	'isteven-multi-select',
 	'pdf',
+//	'material.svgAssetsCache',
 	]);
 //	  .config(function ($stateProvider) {
 //
@@ -51,10 +52,10 @@ app.factory('socket', function (socketFactory) {
 	value('version', '0.1');
 
 app.controller('AppCtrl', ['$scope', '$http', '$mdDialog', 
-	'uiGridConstants', 'socket',
+	'uiGridConstants', 'socket',/* '$timeout', '$mdSidenav', '$log',*/ 
 //	'$templateCache', 
 	function($scope, $http, $mdDialog 
-		,uiGridConstants, socket
+		,uiGridConstants, socket/*, $timeout, $mdSidenav, $log*/
 //		,	$templateCache
 		) {
 	
@@ -151,7 +152,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 							}
 						},
 		                columnDefs: [ 
-		                	{name:"Instrument", field:"Instrument", width: '120'}, 
+		                	{name:"Instrument", field:"Instrument", width: '120', visible: false}, 
+		                	{name:"UL", field:"UL", width: '120'}, 
 		                	{name:"Expiry", field:"Expiry", width: '80'},
 		                	{name:"Strike", field:"Strike", width: '80'},
 		                	{name:"Qty", field:"Qty", width: '80'},
@@ -247,7 +249,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					parent : angular.element(document.body),
 					targetEvent: ev,
 					clickOutsideToClose: false,
-					fullscreen : false,
+					fullscreen : true,
+					autoWrap: false,
 					locals: {
 						'myRefId': row.RefId,
 						'mySymbol': row.Symbol,
@@ -394,6 +397,12 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			{'Instrument': 'HSIK7', 'Expiry': 'MAY17', 'Qty': 10, 'Price': 22825, 'Buyer': 'CEL', 'Seller': 'CEL'},
 //		];
 		
+$scope.myTrader = 'Ki Hong Kim';
+$scope.myProfile = 'NH KIS';
+$scope.myTdStatus = 'Final';
+$scope.myTradeId = 12345;
+$scope.myRate = 1130;
+		
 		$scope.myLegsData = buildLegData($scope.myMarket, $scope.myCcy, locals.myLegs, $scope.myStrat, 
 			$scope.myDelta, $scope.mySide, $scope.myMultiplier, 1, $scope.myPt);
 
@@ -446,6 +455,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					targetEvent: ev,
 					clickOutsideToClose: true,
 					fullscreen : false,
+                    autoWrap: true,
+                    skipHide: true, // this line does the trick
 					locals: {
 						'myFile': response.data
 //						'myFile': 'CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf',
@@ -581,7 +592,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    
 	    $scope.myTrType = 'T2 - Combo',
 //	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-	    $scope.mySymbol = 'KS200 JUN17/SEP17 270 1x1 CTS 100 REF 269.5 (MAR17)';
+//	    $scope.mySymbol = 'KS200 JUN17/SEP17 270 1x1 CTS 100 REF 269.5 (MAR17)';
+	    $scope.mySymbol = 'KS200 DEC17/JUN18 240 PS 2.65 REF 284 (JUN17)';
 	    $scope.myMarket = toMarket($scope.mySymbol);
 	    	
 	    $scope.myOtData = [];
@@ -640,7 +652,8 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						}
 					},
 	                columnDefs: [ 
-	                	{name:"Instrument", field:"Instrument", width: '120'}, 
+	                	{name:"Instrument", field:"Instrument", width: '120', visible: false}, 
+	                	{name:"UL", field:"UL", width: '120'}, 
 	                	{name:"Expiry", field:"Expiry", width: '80'},
 	                	{name:"Strike", field:"Strike", width: '80'},
 	                	{name:"Qty", field:"Qty", width: '80'},
@@ -748,6 +761,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //			var cpCompanyInfo = getClientInfo(cpCompany);
 			
 			var instrList = getAllFutureExpiry(market, $scope.myMarket2FutMat, $scope.iconTemplate);
+			var hedgeList = getAllHedge(market, $scope.iconTemplate);
 			
 			$mdDialog.show({
 				controller : DialogController,
@@ -771,6 +785,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'myPremium': $scope.myPremium,
 					'myRef': $scope.myRef,
 					'myInstrList': instrList,
+					'myHedgeList': hedgeList,
 				},
 // scope : $scope,
 // preserveScope: true,
@@ -800,11 +815,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
 // TODO: remove		
-$scope.myDelta = 10;
-$scope.myQty = 100;
+//$scope.myDelta = 10;
+//$scope.myQty = 100;
 //$scope.myFutMat = 'MAR17';
-$scope.myFutMat = '';
 
+		$scope.myHedgeList = locals.myHedgeList;
 		$scope.myInstrList = locals.myInstrList;
 		
 		$templateCache.put('ui-grid/uiGridViewport',
@@ -812,7 +827,9 @@ $scope.myFutMat = '';
 		);
 		$scope.iconTemplate = '<i class="material-icons" style="color:red">error_outline</i>';
 		
-		str = locals.mySymbol.replace(/ +(?= )/g,'');
+		var str = locals.mySymbol.replace(/ +(?= )/g,'');
+
+//		$scope.myFutMat = getFutMat(str);
 		
 		var tokens = parseSymbol(str);
 		$scope.myInstr = tokens[0];
@@ -842,6 +859,7 @@ $scope.myFutMat = '';
 		var myQty = qty;
 		$scope.param_myData = [];
 		$scope.myLegData = [];
+
 		var strat = $scope.myStrat;
 		var qty = [];
 		var ul = [];
@@ -851,7 +869,7 @@ $scope.myFutMat = '';
 		var ref = Number($scope.myRef);
 		var sides = getSidesByParty($scope.myMultiplier, $scope.myCompany, $scope.myCpCompany);
 		var instr = tokens[0];
-		var futExp = '';
+		var futExp = $scope.myFutMat;
 
 		var multi = getMultiple(multiplier, strat);
 		var strikes = getStrikes(multiplier, tokens[2], strat);
@@ -866,6 +884,9 @@ $scope.myFutMat = '';
 			'Qty': $scope.myQty, 'Delta': $scope.myDelta, 'FutMat': $scope.myFutMat, 
 			'Buyer': $scope.myCompany, 'Seller': $scope.myCpCompany,
 			'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false,
+			'Hedge': 'Future',
+			'modernHedgeChoose' : $scope.myHedgeList,
+			'outputHedgeChoose' : [],
 			'modernBrowsers' : $scope.myInstrList,
 //			'modernBrowsers' : [
 //			    { icon: '', name: "JAN17", ticked: false  },
@@ -1147,21 +1168,48 @@ $scope.myFutMat = '';
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[3] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1342,11 +1390,17 @@ $scope.myFutMat = '';
 			
 			refId = new Date().getTime();
 			
-			var legs = $scope.myLegData;
+//			var legs = $scope.myLegData;
+//			for (var i=0; i<$scope.myLegData.length; i++) {
+//				if ($scope.myLegData[i].isHide 
+//					|| $scope.myLegData[i].isSingle) {
+//					legs.splice(i, 1);
+//				}
+//			}
+			var legs = [];
 			for (var i=0; i<$scope.myLegData.length; i++) {
-				if ($scope.myLegData[i].isHide 
-					|| $scope.myLegData[i].isSingle) {
-					legs.splice(i, 1);
+				if (!$scope.myLegData[i].isHide) {
+					legs.push($scope.myLegData[i]);
 				}
 			}
 			
@@ -1375,7 +1429,7 @@ $scope.myFutMat = '';
 					showRow: function(row) {
 						return true;
 					},
-					fClick: function( rowEntity ) {           
+					fClick: function( rowEntity ) {
 						mb = rowEntity.modernBrowsers;
 						if (!rowEntity.isFutMatValid) {	// first set FutMat
 							last = mb.length - 1;
@@ -1389,6 +1443,16 @@ $scope.myFutMat = '';
 							mb[i].icon = '';
 						}
 					    $scope.afterCellEditParamGrid(rowEntity);
+					},
+					hClick: function( rowEntity ) {     
+						mb = rowEntity.modernHedgeChoose;
+						for (var i=0; i<mb.length; i++) {
+							if (mb[i].ticked) {
+								rowEntity.Hedge = mb[i].name;
+							}
+							mb[i].icon = '';
+						}
+						$scope.afterCellEditParamGrid(rowEntity);
 					},
 				},
 				enableHorizontalScrollbar: false, 
@@ -1453,6 +1517,12 @@ $scope.myFutMat = '';
 	// selection-mode="single"></div>'
 				    		+ ' on-item-click="grid.appScope.fClick( row.entity )" selection-mode="single"></div>'
 				    },
+				    {field : 'Hedge', headerCellClass: 'blue-header', width : '*', enableHiding: false,
+				    	cellTemplate: '<div><isteven-multi-select input-model="row.entity.modernHedgeChoose"' 
+				    		+ ' output-model="row.entity.outputHedgeChoose" button-label="icon name" item-label="name" '
+				    		+ ' tick-property="ticked" disable-property="disabled"'
+				    		+ ' on-item-click="grid.appScope.hClick( row.entity )" selection-mode="single"></div>'
+				    },
 				    {field : 'Buyer', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false}, 
 				    {field : 'Seller', headerCellClass: 'blue-header', width : '*', enableCellEdit: false, enableHiding: false},
 				 ],
@@ -1467,73 +1537,75 @@ $scope.myFutMat = '';
 		};
 		
 		$scope.afterCellEditParamGrid = function(rowEntity, colDef, newValue, oldValue) {
-			var tokens = rowEntity.Multiplier.split('X');
-			if (!isNaN(rowEntity.Qty)) {
-				var params = [];
-				
-				// update legs qty
-				var isInvalid = false;
-				for (var i=0; i<tokens.length; i++) {
-					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
-					$scope.param_myData[i].Qty = legQty;
-					if (CFG.rule_check_qty(rowEntity.UL, legQty)) {
-						isInvalid = true;
-						$scope.param_myData[i].isQtyValid = false;
-					}
-				}
+			
+//			var tokens = rowEntity.Multiplier.split('X');
+//			if (!isNaN(rowEntity.Qty)) {
+//				var params = [];
+//				
+//				// update legs qty
+//				var isInvalid = false;
+//				for (var i=0; i<tokens.length; i++) {
+//					var legQty = rowEntity.Qty * Math.abs(Number(tokens[i]));
+//					$scope.param_myData[i].Qty = legQty;
+//					if (CFG.rule_check_qty(rowEntity.UL, legQty)) {
+//						isInvalid = true;
+//						$scope.param_myData[i].isQtyValid = false;
+//					}
+//				}
 				// parameter qty 
-				rowEntity.isQtyValid = !isInvalid;
-				$scope.param_isQtyValid = !isInvalid;
-				$scope.myQty = Number(rowEntity.Qty);
-			}
-			else {
-				$scope.param_isQtyValid = false;
-				$scope.myQty = rowEntity.Qty;
-				for (var i=0; i<tokens.length; i++) {
-					$scope.param_myData[i].Qty = undefined;
-				}
-			}
+//				rowEntity.isQtyValid = !isInvalid;
+//				$scope.param_isQtyValid = !isInvalid;
+//				$scope.myQty = Number(rowEntity.Qty);
+//			}
+//			else {
+//				$scope.param_isQtyValid = false;
+//				$scope.myQty = rowEntity.Qty;
+//				for (var i=0; i<tokens.length; i++) {
+//					$scope.param_myData[i].Qty = undefined;
+//				}
+//			}
 			
-			if (!isNaN(rowEntity.Delta)/* && rowEntity.Delta !== ''*/) {
-				var len = $scope.param_myData.length;
-				var delta = Number(rowEntity.Delta);
-				var futQty = Number(rowEntity.Qty) * Math.abs(delta) * 0.01;
-				$scope.param_myData[len - 1].Qty = futQty;
-				$scope.myDelta = Number(rowEntity.Delta);
-				
-//				var isDigit = (futQty % 1 === 0);
-				var isDigit = CFG.rule_check_qty(rowEntity.UL, futQty);
-				rowEntity.isDeltaValid = isDigit;
-				$scope.param_isDeltaValid = isDigit;
-				rowEntity.isQtyValid = isDigit;
-				$scope.param_isQtyValid = isDigit;
-				
-				var isHide = false;
-				// update future leg
-				if (delta < 0) {
-					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCompany;
-					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCpCompany;
-				}
-				else if (delta === 0){
-					isHide = true;
-				}
-				else {
-					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCpCompany;
-					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCompany;
-				}
-				$scope.param_myData[$scope.param_myData.length - 1].isHide = 
-					isHide || $scope.param_myData[$scope.param_myData.length - 1].isSingle ;
-			}
-			else {
-				$scope.param_isDeltaValid = false;
-				rowEntity.isDeltaValid = false;
-				$scope.myDelta = undefined;
-				$scope.param_myData[$scope.param_myData.length - 1].isHide = false;
-			}
+//			if (!isNaN(rowEntity.Delta)/* && rowEntity.Delta !== ''*/) {
+//				var len = $scope.param_myData.length;
+//				var delta = Number(rowEntity.Delta);
+//				var futQty = Number(rowEntity.Qty) * Math.abs(delta) * 0.01;
+////				$scope.param_myData[len - 1].Qty = futQty;
+//				$scope.myDelta = Number(rowEntity.Delta);
+//				
+////				var isDigit = (futQty % 1 === 0);
+//				var isDigit = CFG.rule_check_qty(rowEntity.UL, futQty);
+//				rowEntity.isDeltaValid = isDigit;
+//				$scope.param_isDeltaValid = isDigit;
+//				rowEntity.isQtyValid = isDigit;
+//				$scope.param_isQtyValid = isDigit;
+//				
+//				var isHide = false;
+////				// update future leg
+////				if (delta < 0) {
+////					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCompany;
+////					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCpCompany;
+////				}
+////				else if (delta === 0){
+////					isHide = true;
+////				}
+////				else {
+////					$scope.param_myData[$scope.param_myData.length - 1].Buyer = $scope.myCpCompany;
+////					$scope.param_myData[$scope.param_myData.length - 1].Seller = $scope.myCompany;
+////				}
+////				$scope.param_myData[$scope.param_myData.length - 1].isHide = 
+////					isHide || $scope.param_myData[$scope.param_myData.length - 1].isSingle ;
+//			}
+//			else {
+//				$scope.param_isDeltaValid = false;
+//				rowEntity.isDeltaValid = false;
+//				$scope.myDelta = undefined;
+////				$scope.param_myData[$scope.param_myData.length - 1].isHide = false;
+//			}
 			
+			// update future leg maturity
 			if (rowEntity.FutMat && rowEntity.FutMat !== '') {
-				$scope.param_myData[$scope.param_myData.length - 1].Expiry = rowEntity.FutMat;
-				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat, $scope.myInstrList);
+//				$scope.param_myData[$scope.param_myData.length - 1].Expiry = rowEntity.FutMat;
+//				$scope.param_myData[$scope.param_myData.length - 1].Instrument = exchangeSymbol($scope.myInstr, 'F', 0, rowEntity.FutMat, $scope.myInstrList);
 				$scope.param_isFutMatValid = true;
 				rowEntity.isFutMatValid = true;
 				$scope.myFutMat = rowEntity.FutMat;
@@ -1543,10 +1615,15 @@ $scope.myFutMat = '';
 				rowEntity.isFutMatValid = false;
 			}
 			
+			updateHedgeLeg($scope, rowEntity, $scope.param_myData, rowEntity.Qty, 
+					rowEntity.Delta, rowEntity.Hedge, rowEntity.FutMat, 
+					rowEntity.Buyer, rowEntity.Seller);
+			
 //			var accumQty = 0;
 			var maxQty = 0;
 			var maxQtyIdx = 0;
 			// split leg over 1000 qty
+			
 			var newLegData = rebuildSplit($scope.param_myData);
 			
 			// validate splited legs
@@ -1565,7 +1642,7 @@ $scope.myFutMat = '';
 //				"<div class=\"ui-grid-viewport\" ng-style=\"colContainer.getViewportStyle()\"><div class=\"ui-grid-canvas\"><div ng-repeat=\"(rowRenderIndex, row) in rowContainer.renderedRows track by $index\" ng-if=\"grid.appScope.showRow(row.entity)\" class=\"ui-grid-row\" ng-style=\"Viewport.rowStyle(rowRenderIndex)\"><div ui-grid-row=\"row\" row-render-index=\"rowRenderIndex\"></div></div></div></div>"
 //		);
 		
-		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
+//		var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';
 		
 		// ========================== gridOptions ================================
 		$scope.gridOptions = {
@@ -1587,7 +1664,8 @@ $scope.myFutMat = '';
 			columnDefs : [ 
 				{field : 'Instrument', 
 					headerCellClass: 'brown-header', 
-					width : '120', enableCellEdit : false, enableHiding: false,
+//					visible : false,
+					width : '120', enableCellEdit : false, enableHiding: false, visible: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
 						if (val)
@@ -1697,20 +1775,45 @@ $scope.myFutMat = '';
 
 		$scope.afterCellEdit = function(rowEntity, coldef, newValue, oldValue) {
 			var nMissLeg = 0;
-			params = [];
+			var params = [];
 			var multi = 0;
 			var premium = $scope.myPremium;
 			var side = 0;
 			rowEntity.noPrice = false;
 			var iRow = -1;
 			
-			for (i = 0; i < $scope.param_myData.length; i++) 
-			{
-				if ($scope.param_myData[i].Instrument === rowEntity.Instrument) {
-					$scope.param_myData[i].Price = rowEntity.Price;
-					iRow = i;
+			if (rowEntity.Hedge !== '') {	// hedge legs
+				if (CFG.rule_check_price($scope.param_myData[0].UL, rowEntity.Price)) {
+					rowEntity.displayTag = CFG.DISPLAY_PRICE_EDIT_OK;
 				}
-				if (isNaN($scope.param_myData[i].Price)) {	// initially ok, 
+				else {
+					rowEntity.displayTag = CFG.DISPLAY_PRICE_EDIT_INVALID;
+				}
+				
+				var isValid = true;
+				for (var i = 0; i < $scope.param_myData.length; i++) {
+					if (!$scope.param_myData[i].isHide) {
+						isValid &= 
+							($scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_NOEDIT_OK 
+								|| $scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_EDIT_OK);
+					}
+				}
+				$scope.param_isLastLegPriceValid = isValid;
+				$scope.param_isShowSendBtn = ($scope.param_isQtyValid && $scope.param_isDeltaValid 
+						&& $scope.param_isFutMatValid && $scope.param_isLastLegPriceValid);
+				
+				$scope.gridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+				return;
+			}			
+			
+			for (var i = 0; i < $scope.param_myData.length; i++) 
+			{
+//				if ($scope.param_myData[i].Instrument === rowEntity.Instrument) {
+//					$scope.param_myData[i].Price = rowEntity.Price;
+//					iRow = i;
+//				}
+				if ($scope.param_myData[i].Hedge === '' 
+					&& isNaN($scope.param_myData[i].Price)) {	// initially ok, 
 					nMissLeg++;
 				}
 			}
@@ -1720,9 +1823,12 @@ $scope.myFutMat = '';
 				return;
 			}
 			
-			for (i = 0; i < $scope.param_myData.length - 2; i++) 
+			var iCal = $scope.param_myData.length - 2;
+			for (var i = 0; i < $scope.param_myData.length; i++) 
 			{
-				if (!isNaN($scope.param_myData[i].Price)) {
+				if ($scope.param_myData[i].Hedge === ''
+					&& !$scope.param_myData[i].isLastLeg
+					&& !isNaN($scope.param_myData[i].Price) ) {	// price is valid
 					params.push({
 						'side' : $scope.param_myData[i].Side,
 						'multiplier' : $scope.param_myData[i].Multiplier,
@@ -1730,9 +1836,11 @@ $scope.myFutMat = '';
 						'option' : $scope.param_myData[i].UL.split(' ')[1],
 						'qty' : $scope.param_myData[i].Qty
 					});
-				} 
+				}
+				if ($scope.param_myData[i].isLastLeg) {
+					iCal = i;
+				}
 			}
-			var iCal = $scope.param_myData.length - 2;
 			multi = $scope.param_myData[iCal].Multiplier;
 			var price = calRemainPrice(params, multi, premium);
 			$scope.param_myData[iCal].Price = price;
@@ -1741,8 +1849,16 @@ $scope.myFutMat = '';
 			if (CFG.rule_check_price($scope.param_myData[0].UL, price)) {	// has decimal
 				$scope.param_isLastLegPriceValid = true;
 				
-				for (i = 0; i < $scope.param_myData.length - 1; i++) {
-					$scope.param_myData[i].displayTag = i === iCal ? CFG.DISPLAY_PRICE_NOEDIT_OK : CFG.DISPLAY_PRICE_EDIT_OK;	// Uneditable+Valid
+				for (var i = 0; i < $scope.param_myData.length; i++) {
+					if ($scope.param_myData[i].Hedge === '') {
+						$scope.param_myData[i].displayTag = i === iCal ? CFG.DISPLAY_PRICE_NOEDIT_OK : CFG.DISPLAY_PRICE_EDIT_OK;	// Uneditable+Valid
+					}
+					
+					if (!$scope.param_myData[i].isHide) {
+						$scope.param_isLastLegPriceValid &= 
+							($scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_NOEDIT_OK 
+								|| $scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_EDIT_OK);
+					}
 				}
 			}
 			else {
@@ -2526,6 +2642,17 @@ function getSidesByParty(term, buyer, seller) {
 	return multi;
 }
 
+function getFutMat(symbol) {
+	var tokens = symbol.split('(');
+	if (tokens && tokens.length > 0) {
+		var term = tokens[1].replace(')', '');
+		if (isNaN(term) && term.length == 5) {
+				return term;
+		}
+	}
+	return '';
+}
+
 function getMaturities(term, sExpiry, strat) {
 	var ary = [];
 	
@@ -2884,6 +3011,10 @@ function fill(data, array, qty, isFirstLeg, groupId) {
 
 function rebuildSplit(param_myData) 
 {
+	// TODO: testing
+	return param_myData;
+	
+	
 	var newLegData = [];
 	var maxQty = 0;
 	var maxQtyIdx = 0;
@@ -3126,6 +3257,22 @@ function getAllFutureExpiry(market, myMarket2FutMat, iconTemplate) {
 	return modernBrowsers;
 }
 
+function getAllHedge(market, iconTemplate) {
+	
+	modernBrowsers = [];
+	modernBrowsers.push({icon: '', name: 'Future', ticked: true});
+	modernBrowsers.push({icon: '', name: 'Mini', ticked: false});
+	if (market === 'KR')
+		modernBrowsers.push({icon: '', name: 'Synthetic', ticked: false});
+	
+//	modernBrowsers.push({ 
+//		icon: iconTemplate, 
+//		name: '', ticked: true , disabled: true 
+//	});
+	
+	return modernBrowsers;
+}
+
 function toMarket(symbol) {
 	var _2 = symbol.substring(0, 2);
 	switch (_2) {
@@ -3138,6 +3285,139 @@ function toMarket(symbol) {
 		return 'KR';	
 	}
 	return 'JP'; 
+}
+
+function updateHedgeLeg($scope, rowEntity, myLegData, qty, delta, hedge, futMat, myBuyer, mySeller) {
+	var len = myLegData.length;
+	
+	var buyer = mySeller;
+	var seller = myBuyer;
+	
+	if (delta < 0) {
+		buyer = myBuyer;
+		seller = mySeller;
+	}
+
+	var futQty = undefined;
+	if (!isNaN(delta) && delta !== '') {
+		futQty = Number(qty) * Math.abs(delta) * 0.01;
+	}
+	
+	var isQtyValid = true;
+	var isPriceValid = true;
+	
+	
+	for (var i=0; i<len; i++) {
+		switch (myLegData[i].Hedge) {
+			case 'Future':
+			case 'Mini':
+			{
+				myLegData[i].Buyer = buyer;
+				myLegData[i].Seller = seller;
+				
+				
+				myLegData[i].Expiry = futMat;
+				if (futQty)
+					myLegData[i].Qty = (myLegData[i].Hedge === 'Mini' ? futQty * 5 : futQty);
+				
+				if (delta === 0) {
+					myLegData[i].isHide = true;
+				}
+				else {
+					myLegData[i].isHide = myLegData[i].isSingle || (hedge !== myLegData[i].Hedge);
+				}
+
+				if (CFG.rule_check_qty(myLegData[i].UL, futQty)) {
+					myLegData[i].isQtyValid = true;
+					myLegData[i].displayQty = CFG.DISPLAY_QTY_OK;
+				}
+				else {
+					if (!myLegData[i].isHide) {
+						isQtyValid = false;
+					}
+					myLegData[i].displayQty = CFG.DISPLAY_QTY_INVALID;
+				}
+				
+				if (!myLegData[i].isHide && 
+					($scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_NOEDIT_INVALID 
+					|| $scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_EDIT_INVALID)) {
+					isPriceValid = false;
+				}
+				
+				break;
+			}
+			case 'Synthetic': 
+			{
+				if (myLegData[i].UL.split(' ')[2] === 'Call') {
+					myLegData[i].Buyer = buyer;
+					myLegData[i].Seller = seller;
+				}
+				else if (myLegData[i].UL.split(' ')[2] === 'Put') {	// Put
+					myLegData[i].Buyer = seller;
+					myLegData[i].Seller = buyer;
+				}
+				
+				myLegData[i].Expiry = futMat;
+				if (futQty) {
+					myLegData[i].Qty = futQty;
+				}
+				
+				// update is hide
+				if (delta === 0) {
+					myLegData[i].isHide = true;
+				}
+				else {
+					myLegData[i].isHide = myLegData[i].isSingle || (hedge !== myLegData[i].Hedge);
+				}
+				
+				if (CFG.rule_check_qty(myLegData[i].UL, futQty)) {
+					myLegData[i].isQtyValid = true;
+					myLegData[i].displayQty = CFG.DISPLAY_QTY_OK;
+				}
+				else {
+					if (!myLegData[i].isHide)
+						isQtyValid = false;
+					myLegData[i].displayQty = CFG.DISPLAY_QTY_INVALID;
+				}
+				
+				if (!myLegData[i].isHide && 
+					($scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_NOEDIT_INVALID 
+					|| $scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_EDIT_INVALID)) {
+					isPriceValid = false;
+				}
+				
+				break;
+			}
+			default: {
+				myLegData[i].Qty = qty;
+				if (CFG.rule_check_qty(myLegData[i].UL, qty)) {
+					myLegData[i].isQtyValid = true;
+					myLegData[i].displayQty = CFG.DISPLAY_QTY_OK;
+				}
+				else {
+					isQtyValid = false;
+					myLegData[i].displayQty = CFG.DISPLAY_QTY_INVALID;
+				}
+				
+				if (!myLegData[i].isHide && 
+						($scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_NOEDIT_INVALID 
+						|| $scope.param_myData[i].displayTag == CFG.DISPLAY_PRICE_EDIT_INVALID)) {
+					isPriceValid = false;
+				}
+			}
+		} 
+	}
+	$scope.param_isQtyValid = isQtyValid;
+	// parameter qty 
+	rowEntity.isQtyValid = isQtyValid;
+	$scope.myQty = Number(qty);
+	
+	
+	$scope.param_isDeltaValid = isQtyValid;
+	rowEntity.isDeltaValid = isQtyValid;
+	$scope.myDelta = delta;
+	
+	$scope.param_isLastLegPriceValid = isPriceValid;
 }
 
 //

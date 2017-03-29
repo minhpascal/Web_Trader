@@ -13,11 +13,13 @@ angular
 })
 
 var SIDE = {BUY : 'BUY', SELL : 'SELL'};
+var accountMap = {};
+var myMkt2Expiry = {};
 
 var app = angular.module('app', [ 
 	'ngMaterial', 
 	'ngMessages', 
-	'ngTouch', 
+//	'ngTouch', 
 	'ui.grid', 
 	'ui.grid.edit', 
 	'ui.grid.rowEdit', 
@@ -29,6 +31,7 @@ var app = angular.module('app', [
 	'ngAnimate' ,
 	'btford.socket-io',
 	'isteven-multi-select',
+	'pdf',
 	]);
 //	  .config(function ($stateProvider) {
 //
@@ -85,6 +88,9 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    			$scope.myOtData[i].Id = id;
 	    			$scope.myOtData[i].Status = res.message.Status;
 	    			$scope.myOtData[i].InputTime = res.message.InputTime;
+	    			$scope.myOtData[i].Premium = res.message.Premium;
+	    			$scope.myOtData[i].TradeId = res.message.TradeId;
+	    			$scope.myOtData[i].Multiplier = res.message.Multiplier;
 	    			isExist = true;
 	    			
 	    			if (res.message.Legs) {
@@ -127,12 +133,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 						'Buyer' : res.message.Buyer,  
 						'Seller' : res.message.Seller,
 						'InputTime' : res.message.InputTime,
-//						'Premium': res.message.Premium,
-//						'Strategy': res.message.Strategy,
+						'Premium': res.message.Premium,
+						'Strategy': res.message.Strategy,
 //						'UL': '', 
 //						'Expiry': $scope.myExpiry,
 //						'Strike': $scope.myStrike,
-//						'Multiplier' : res.message.Multiplier,   
+						'Multiplier' : res.message.Multiplier,   
+						'TradeId' : res.message.TradeId,   
 						'Legs': res.message.Legs,
 					};
 				data.subGridOptions = {
@@ -175,9 +182,41 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		catch (err) {
 			alert(err.message);
 		}
-
     });
     
+    socket.on('update:tradeconfo', function (res) {
+    	try {
+//    		console.log(res.message.RefId);
+// $scope.message = data.id + ',' + data.refId + ',' + data.status;
+	    	var refId = Number(res.message.RefId);
+	    	var isExist = false;
+	    	for (var i=0; i<$scope.myOtData.length; i++) {
+	    		if ($scope.myOtData[i].RefId === refId) {
+	    			$scope.myOtData[i].Trader = res.message.Trader;
+	    			$scope.myOtData[i].Profile = res.message.Profile;
+	    			$scope.myOtData[i].IsFinal = res.message.IsFinal;
+	    			$scope.myOtData[i].Rate = res.message.Rate;
+	    			$scope.myOtData[i].TradeId = res.message.TradeId;
+	    			$scope.myOtData[i].Fee = res.message.Fee;
+	    			break;
+	    		}
+	    	}
+    	}
+		catch (err) {
+			alert(err.message);
+		}
+    });
+    
+	$http.get('api/getInfo').then(function(result) {
+		var tokens = result.data.data.split(':');
+		$scope.myIp = tokens[3];
+		$scope.myRevision = result.data.revision;
+		$scope.myEnv = result.data.env;
+	}, function(e) {
+		alert("error get info");
+	});
+    
+    // ======================== otGridOptions start ================================
 	$scope.otGridOptions = {
 		data : 'myOtData',
 //			enableHorizontalScrollbar: false, 
@@ -198,7 +237,53 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		appScopeProvider: {
 			showRow: function(row) {
 				return true;
-			}
+			},
+		    buyerClick: function(ev, row, company, cpCompany, side) {
+//		    	alert('buyerClick');
+		    	try {
+				$mdDialog.show({
+					controller : TdDialogController,
+					templateUrl : 'dialog_tradeconfo.tmpl.html',
+					parent : angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose: false,
+					fullscreen : false,
+					locals: {
+						'myRefId': row.RefId,
+						'mySymbol': row.Symbol,
+						'myBuyer': row.Buyer,
+						'mySeller': row.Seller,
+						'myPrice': row.Premium,
+						'myCompany': company,
+						'myCpCompany': cpCompany,
+						'mySide': side,
+						'myQty': row.Qty,
+//						'myTradeId': row.TradeId,
+						'myLegs': row.Legs,
+						'myDelta': row.Delta,
+						'myStrat': row.Strategy,
+						'myMultiplier': row.Multiplier,
+					},
+	// scope : $scope,
+	// preserveScope: true,
+				// Only for -xs, -sm breakpoints.
+				})
+				.then(function(answer) {	// either OK / Cancel -> succ
+					if (answer === 'Cancel') {
+						$scope.status = 'cancelled';	
+					}
+					else {
+						$scope.status = 'Trade Report sent ' + answer;
+					}
+				}, function() { // fail , press outside or close dialog box
+					$scope.status = 'close ';
+	// $mdDialog.destroy();
+				});
+		    	}
+		    	catch (err) {
+		    		alert(err);
+		    	}
+		    },
 		},
 		columnDefs : [ 
 			{field : 'Id', headerCellClass: 'green-header', width: '*', enableCellEdit : false, enableHiding: false}, 
@@ -217,23 +302,245 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			{field : 'Qty', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
 			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false, enableHiding: false},
 			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
-			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false,
+//				cellTemplate:'<div ng-click=\"grid.appScope.buyerClick()\">{{row.entity.Buyer}}</div>'
+//					cellTemplate:'<div ng-click=\"grid.appScope.buyerClick()\">{{row.entity.Buyer}}</div>'
+//					cellTemplate:'<div><button ng-click="{{grid.appScope.buyerClick()">{{row.entity.Buyer}}</button></div>'
+				cellTemplate:'<div><button type="button" class="btn btn-warning" ng-click="grid.appScope.buyerClick(event, row.entity, row.entity.Buyer, row.entity.Seller, \'Buy\')">{{row.entity.Buyer}}</button></div>'
+			},
 			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 			{field : 'InputTime', displayName: 'Input', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'Premium', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
+			{field : 'Strategy', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
+			{field : 'Multiplier', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
+			{field : 'TradeId', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
 		 ],
 //			exporterMenuPdf : false,
 	};
 	
+	// ====================== PdfViewerDialogController start ===========================
+	function PdfViewerDialogController($scope, $mdDialog, $http, locals/*, uiGridConstants, $templateCache*/) { 
+		$scope.pdfName = 'Relativity: The Special and General Theory by Albert Einstein';
+		$scope.pdfUrl = 'pdf/' + locals.myFile;
+//		$scope.pdfUrl = 'api/pdf/' + locals.myFile;
+//		$scope.pdfUrl = 'pdf/CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf';
+//		$scope.pdfUrl = 'pdf/CELERAEQ-2017-12952_HSI24000L7_HKCEL.pdf';
+		$scope.pdfPassword = 'test';
+		$scope.scroll = 0;
+		$scope.loading = 'loading';
+		$scope.getNavStyle = function(scroll) {
+			if (scroll > 100)
+				return 'pdf-controls fixed';
+			else
+				return 'pdf-controls';
+		}
+		$scope.onError = function(error) {
+			console.log(error);
+		}
+		$scope.onLoad = function() {
+			$scope.loading = '';
+		}
+		$scope.onProgress = function(progressData) {
+			console.log(progressData);
+		};
+		$scope.onPassword = function(updatePasswordFn,
+				passwordResponse) {
+			if (passwordResponse === PDFJS.PasswordResponses.NEED_PASSWORD) {
+				updatePasswordFn($scope.pdfPassword);
+			} else if (passwordResponse === PDFJS.PasswordResponses.INCORRECT_PASSWORD) {
+				console.log('Incorrect password')
+			}
+		};
+	};
+	
+	// ====================== TdDialogController start ===========================
+	function TdDialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) 
+	{
+		$scope.myTdStatus = '';
+		var nLegs = locals.myLegs.length;
+		$scope.myRef = locals.myLegs[nLegs-1].Price;
+		$scope.myTradeId = locals.myTradeId;
+		$scope.myPrice = locals.myPrice;
+		
+		$scope.myRefId = locals.myRefId;
+		$scope.tdStatus = ['Final', 'Partial'];
+		$scope.mySymbol = locals.mySymbol;
+		$scope.myMarket = toMarket($scope.mySymbol);
+		$scope.myCompany = locals.myCompany;
+		$scope.myCpCompany = locals.myCpCompany;
+		$scope.traders = getPartyList(locals.myCompany);
+		$scope.profiles = getProfileList(locals.myCompany);
+		$scope.myParty = '';
+		$scope.mySide = locals.mySide;
+		$scope.myQty = locals.myQty;
+//		$scope.myFee = locals.myFee;
+		$scope.myCcy = getCurrency(locals.myLegs[0].Instrument);
+		$scope.myDelta = locals.myDelta;
+//		$scope.myTradeId = locals.myTradeId;
+		$scope.myPt = getPt(locals.myLegs[0].Instrument);
+		$scope.myMultiplier = locals.myMultiplier;
+		$scope.myStrat = locals.myStrat;
+		$scope.myFeeCcy = CFG.commissionCcy($scope.myCcy);
+		$scope.myNotional = $scope.myRef * $scope.myQty * $scope.myPt;
+		$scope.myFee = CFG.commission($scope.myFeeCcy, 0, $scope.myRef, $scope.myQty, $scope.myPt, locals.myLegs);
+//		CFG.commission = function(instr, rate, ref, size, pt, myLegs)
+		
+//		$scope.myNotional = $scope.myRef * $scope.myQty * $scope.myPt;
+//		$scope.myPremium = $scope.myPrice * $scope.myQty * $scope.myPt;
+		
+//		$scope.myLegsData = [
+//			{'Instrument': 'HSI22000L7', 'Expiry': 'DEC17', 'Strike': 22000, 'Qty': 100, 'Price': 20, 'Buyer': 'CEL', 'Seller': 'CEL'},
+//			{'Instrument': 'HSI24000L7', 'Expiry': 'DEC17', 'Strike': 24000, 'Qty': 125, 'Price': 8, 'Buyer': 'CEL', 'Seller': 'CEL'},
+//			{'Instrument': 'HSIK7', 'Expiry': 'MAY17', 'Qty': 10, 'Price': 22825, 'Buyer': 'CEL', 'Seller': 'CEL'},
+//		];
+		
+		$scope.myLegsData = buildLegData($scope.myMarket, $scope.myCcy, locals.myLegs, $scope.myStrat, 
+			$scope.myDelta, $scope.mySide, $scope.myMultiplier, 1, $scope.myPt);
+
+	
+		$scope.updatePremium = function(rate) {
+			$scope.myRate = rate;
+			$scope.myFee = CFG.commission($scope.myFeeCcy, rate, $scope.myRef, $scope.myQty, $scope.myPt, $scope.myLegsData);
+//			var len = $scope.myLegsData.length;
+//			
+//			var i = 0;
+//			for (var i = 0; i<len - 1; i++) {
+//				var leg = $scope.myLegsData[i];
+//				var premium = leg.Qty * leg.Price * $scope.myPt * $scope.myRate;
+//				premium = Math.round(premium * 1000) / 1000;
+//				leg.Premium = premium;
+//			}
+//			$scope.legGridApi.core.notifyDataChange( uiGridConstants.dataChange.ALL);
+		};
+		
+		$scope.preview = function(ev) {
+//		    	alert('buyerClick');
+		    
+			$http.post('api/createTradeConfo', {
+				'refId'  : $scope.myRefId,
+				'symbol'  : $scope.mySymbol,
+				'company'  : $scope.myCompany,
+				'cpCompany'  : $scope.myCpCompany,
+				'trader' : $scope.myTrader,
+				'profile' : $scope.myProfile,
+				'isFinal': $scope.myTdStatus === 'Final' ? true : false,
+				'rate': $scope.myRate,
+				'notional': $scope.myNotional,
+				'price': $scope.myPrice,
+				'tradeId': $scope.myTradeId,
+				'ref': $scope.myRef,
+				'side' : $scope.mySide,
+				'qty': $scope.myQty,
+				'delta': $scope.myDelta,
+				'fee': $scope.myFee,
+				'multiplier': $scope.myMultiplier,
+				'legs' : $scope.myLegsData,
+			}).then(function successCallback(response) {
+				console.log(response.data);
+				alert('Create file at ' + response.data);
+				
+				$mdDialog.show({
+					controller : PdfViewerDialogController,
+					templateUrl : 'pdf.tmpl.html',
+					parent : angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose: true,
+					fullscreen : false,
+					locals: {
+						'myFile': response.data
+//						'myFile': 'CELERAEQ-2017-11222 KS200 APR17_MAY17 270 1x1 CTS 100 REF 269.5 (MAR17) SAMSUNG.pdf',
+					},
+	// scope : $scope,
+	// preserveScope: true,
+				// Only for -xs, -sm breakpoints.
+				})
+				.then(function(answer) {	// either OK / Cancel -> succ
+					if (answer === 'Cancel') {
+						$scope.status = 'cancelled';	
+					}
+					else {
+						$scope.status = 'generate pdf ' + answer;
+					}
+				}, function() { // fail , press outside or close dialog box
+					$scope.status = 'close ';
+	// $mdDialog.destroy();
+				});
+				
+				
+				
+			} , function errorCallback(response) {
+				console.log(response.data.file);
+				alert(response.data.file);
+			});
+		}
+		
+		$scope.legGrid = {
+				data : 'myLegsData',
+//					enableHorizontalScrollbar: false, 
+//					enableVerticalScrollbar: false,
+//						rowEditWaitInterval : -1,
+				enableSorting : true,
+				enableColumnResizing : true,
+				enableFiltering : false,
+				showGridFooter : false,
+				showColumnFooter : false,
+			    enableCellEditOnFocus: false,
+				appScopeProvider: {
+					showRow: function(row) {
+						return true;
+					}
+				},
+//			    expandableRowTemplate: 'expandableRowTemplate.html',
+//			    expandableRowHeight: 150,
+			    //subGridVariable will be available in subGrid scope
+//			    expandableRowScope: {
+//			      subGridVariable: 'subGridScopeVariable',
+//			    },
+				columnDefs : [ 
+					{field : 'Type', headerCellClass: 'brown-header', width: '*', enableCellEdit : false, enableHiding: false}, 
+					{field : 'Side', headerCellClass: 'brown-header', enableCellEdit: false, enableHiding: false},
+					{field : 'Qty', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+					{field : 'Expiry', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+					{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+					{field : 'Product', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+					{field : 'Price', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+					{field : 'Premium', headerCellClass: 'brown-header', width : '*', cellFilter: 'currency:"" : 0 ', enableCellEdit : false, enableHiding: false},
+					{field : 'Ccy', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false},
+				 ],
+//					exporterMenuPdf : false,
+			};
+		
+		$scope.legGrid.onRegisterApi = function(gridApi) {
+			$scope.legGridApi = gridApi;
+		};
+		
+		/*var siteNameLink = '<div class="ui-grid-cell-contents" title="{{COL_FIELD}}"><a	ui-sref="sites.site_card({siteid: row.entity._id})">{{COL_FIELD}}</a></div>';*/
+		
+		$scope.hide = function() {
+			$mdDialog.hide();
+		};
+
+		$scope.cancel = function() {
+			$mdDialog.cancel();
+		};
+
+		$scope.answer = function(answer) {
+			$mdDialog.hide(answer);
+		};
+	};
+	// ====================== TdDialogController end ===========================
+    // ======================== otGridOptions ================================
+	
 //	$scope.otGridOptions.data = $scope.myOtData;
 	$scope.otGridOptions.onRegisterApi = function(gridApi) {
 		$scope.otGridApi = gridApi;
-	}
+	};
     $scope.expandAllRows = function() {
         $scope.otGridApi.expandable.expandAllRows();
-    }
+    };
     $scope.collapseAllRows = function() {
         $scope.otGridApi.expandable.collapseAllRows();
-    }
+    };
     
 //	if (!$scope.isInit) {
 	    // cross detail scope data
@@ -242,22 +549,48 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 	    	'T2 - Combo',
 	    	'T4 - Interbank',
 	    	];
-	    $scope.clients = [
- 	    	'BAR', 'BNP', 'CEL', 'CFL',
-			'CIT', 'DAI', 'DEU', 'DON', 'ECL', 'GOL',
-			'HAN', 'HMC', 'HYU', 'IBK', 'JPM',
-			'KOR', 'LIQ', 'MIR', 'MOR', 'NH',
-			'NOM', 'OPT', 'UBS', 'VIV', 'SAM', 'SOC',
-			'YUA',
-	    ];
+	    
+//	    $scope.clients = [
+//		    'Barclays Bank',
+//		    'BNP Paris',
+//		    'Celera',
+//		    'Citigroup',
+//		    'Credit Suisse',
+//		    'Deutsche Bank',
+//		    'Goldman Sachs',
+//		    'HSBC',
+//		    'Hyundai',
+//		    'IBK',
+//		    'JP Morgan',
+//		    'KIS',
+//		    'Merrill Lynch',
+//		    'Morgan Stanley',
+//		    'Natixis',
+//		    'NH',
+//		    'Nomura',
+//		    'Optiver',
+//		    'Samsung',
+//		    'SG Exo',
+//		    'SG Paris',
+//		    'Shinhan Bank',
+//		    'UBS AG',
+//		    'Woori Bank WP',
+//		    'Yuanta D Yoon',
+//		    'Yuanta GY Kim',
+//	    ];
 	    
 	    $scope.myTrType = 'T2 - Combo',
-	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-	    
+//	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
+	    $scope.mySymbol = 'KS200 JUN17/SEP17 270 1x1 CTS 100 REF 269.5 (MAR17)';
+	    $scope.myMarket = toMarket($scope.mySymbol);
+	    	
 	    $scope.myOtData = [];
 	    $scope.sides = [SIDE.BUY, SIDE.SELL];
 	    
 	    $scope.myInstrList = [];
+	    $scope.myMarket2FutMat = {};
+
+	    $scope.myAccountMap = {};
 	    
 //	    // RESET when enter controller
 //		$scope.param_isShowSendBtn = false;	// display send button
@@ -271,10 +604,11 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		$scope.myFutMat = '';
 		
 		$scope.status = '  ';
-		$scope.myCompany = 'CEL';
-		$scope.myCpCompany = 'CEL';
+		$scope.myCompany = 'BNP Paris';
+		$scope.myCpCompany = 'Celera';
 
-		$scope.myEnv = "TESTING";
+		$scope.myEnv = "unknown";
+		$scope.myRevision = 'unknown';
 		
 		$http.get('api/getTradeReport').then(function(result) {
 			v = result.data.data;
@@ -291,6 +625,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'Symbol': v[i].Symbol,   
 					'Status': v[i].Status,   
 					'InputTime': v[i].InputTime,   
+					'Premium': v[i].Premium,   
+					'Strategy': v[i].Strategy,   
+					'Multiplier': v[i].Multiplier,   
+					'TradeId': v[i].TradeId,   
 					'Legs': v[i].Legs,
 				};
 				data.subGridOptions = {
@@ -337,13 +675,59 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 //				data.push(v[i]);
 //			}
 			$scope.myInstrList = result.data.data;
+			
+			var len = $scope.myInstrList.length;
+			for (var i=0; i<len; i++) {
+				var instr = $scope.myInstrList[i];
+				if (instr.InstrumentType === 'Future') {
+					var l = $scope.myMarket2FutMat[instr.Market];
+					var dExpiry = moment(instr.Expiry);
+					if (l) {
+						l.push(dExpiry);
+					}
+					else {
+						$scope.myMarket2FutMat[instr.Market] = [];
+						$scope.myMarket2FutMat[instr.Market].push(dExpiry);
+					}
+				}
+			}
+//			console.log('done');
+		});
+		
+		$http.get('api/getAccounts').then(function(result) {
+//			v = result.data.data;
+//			var data = [];
+//			for (var i=0; i<v.length; i++) {
+//				data.push(v[i]);
+//			}
+			var l = result.data.data;
+			$scope.clients = [];
+			for (var i=0; i<l.length; i++) {
+				$scope.clients.push(l[i].company);
+				$scope.myAccountMap[l[i].company] = l[i];
+				accountMap[l[i].code] = l[i];
+			}
+			$scope.clients.sort();
 		});
 //	}
 	
+		$http.get('api/getExpiry').then(function(result) {
+			$scope.myList = result.data.data;
+			
+			var len = $scope.myList.length;
+			for (var i=0; i<len; i++) {
+				var item = $scope.myList[i];
+				var l = $scope.myMarket2FutMat[item.key];
+				myMkt2Expiry[item.key] = item.expiry;
+			}
+			console.log('done');
+		});
+		
 	$scope.showCrossDetail = function(ev, trType, symbol, company, cpCompany) 
 	{
 		try {
 			var str = symbol.replace(/ +(?= )/g,'');
+			var market = toMarket(symbol)
 			var tokens = parseSymbol(str);
 			var myStrat = tokens[4];
 			if (trType.indexOf('T2') < 0) {
@@ -357,6 +741,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					return false;
 				}
 			}
+
+			var companyInfo = $scope.myAccountMap[company];
+			var cpCompanyInfo = $scope.myAccountMap[cpCompany];
+//			var companyInfo = getClientInfo(company);
+//			var cpCompanyInfo = getClientInfo(cpCompany);
+			
+			var instrList = getAllFutureExpiry(market, $scope.myMarket2FutMat, $scope.iconTemplate);
 			
 			$mdDialog.show({
 				controller : DialogController,
@@ -367,8 +758,10 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 				fullscreen : false,
 				locals: {
 					'myTrType': $scope.myTrType,
-					'myBuyer': $scope.myCompany,
-					'mySeller': $scope.myCpCompany,
+					'myBuyer': companyInfo,
+					'mySeller': cpCompanyInfo,
+//					'myBuyer': $scope.myCompany,
+//					'mySeller': $scope.myCpCompany,
 					'mySymbol': $scope.mySymbol,
 					'myInstr': $scope.myInstr,
 					'myExpiry': $scope.Expiry,
@@ -377,7 +770,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					'myStrat': $scope.myStrat,
 					'myPremium': $scope.myPremium,
 					'myRef': $scope.myRef,
-					'myInstrList': $scope.myInstrList,
+					'myInstrList': instrList,
 				},
 // scope : $scope,
 // preserveScope: true,
@@ -400,14 +793,17 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		}
 	};
 	
+	// ====================== DialogController start ===========================
 	function DialogController($scope, $mdDialog, $http, locals, uiGridConstants, $templateCache) 
 	{
 		$scope.myQty = '';
 		$scope.myDelta = '';
 		$scope.myFutMat = '';
+// TODO: remove		
 $scope.myDelta = 10;
 $scope.myQty = 100;
-$scope.myFutMat = 'MAR17';
+//$scope.myFutMat = 'MAR17';
+$scope.myFutMat = '';
 
 		$scope.myInstrList = locals.myInstrList;
 		
@@ -426,8 +822,8 @@ $scope.myFutMat = 'MAR17';
 		$scope.myStrat = tokens[4];
 		$scope.myPremium = Number(tokens[5]);
 		$scope.myRef = Number(tokens[6].replace(',', ''));
-		$scope.myCompany = locals.myBuyer;
-		$scope.myCpCompany = locals.mySeller;
+		$scope.myCompany = locals.myBuyer.code;
+		$scope.myCpCompany = locals.mySeller.code;
 		$scope.mySymbol = str;
 		$scope.myTrType = locals.myTrType.substring(0,2);
 		$scope.isSingle = true;
@@ -470,21 +866,22 @@ $scope.myFutMat = 'MAR17';
 			'Qty': $scope.myQty, 'Delta': $scope.myDelta, 'FutMat': $scope.myFutMat, 
 			'Buyer': $scope.myCompany, 'Seller': $scope.myCpCompany,
 			'Ref': $scope.myRef, 'isQtyValid' : false, 'isDeltaValid' : false,
-			'modernBrowsers' : [
-			    { icon: '', name: "JAN17", ticked: false  },
-			    { icon: '', name: "FEB17", ticked: false  },
-			    { icon: '', name: "MAR17", ticked: false  },
-			    { icon: '', name: "APR17", ticked: false  },
-			    { icon: '', name: "MAY17", ticked: false  },
-			    { icon: '', name: "JUN17", ticked: false  },
-			    { icon: '', name: "JUL17", ticked: false  },
-			    { icon: '', name: "AUG17", ticked: false  },
-			    { icon: '', name: "SEP17", ticked: false  },
-			    { icon: '', name: "OCT17", ticked: false  },
-			    { icon: '', name: "NOV17", ticked: false  },
-			    { icon: '', name: "DEC17", ticked: false  },
-				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
-			], 
+			'modernBrowsers' : $scope.myInstrList,
+//			'modernBrowsers' : [
+//			    { icon: '', name: "JAN17", ticked: false  },
+//			    { icon: '', name: "FEB17", ticked: false  },
+//			    { icon: '', name: "MAR17", ticked: false  },
+//			    { icon: '', name: "APR17", ticked: false  },
+//			    { icon: '', name: "MAY17", ticked: false  },
+//			    { icon: '', name: "JUN17", ticked: false  },
+//			    { icon: '', name: "JUL17", ticked: false  },
+//			    { icon: '', name: "AUG17", ticked: false  },
+//			    { icon: '', name: "SEP17", ticked: false  },
+//			    { icon: '', name: "OCT17", ticked: false  },
+//			    { icon: '', name: "NOV17", ticked: false  },
+//			    { icon: '', name: "DEC17", ticked: false  },
+//				{ icon: $scope.iconTemplate, name: '', ticked: true , disabled: true },
+//			], 
 			'outputBrowsers' : [],
 			},
 		];
@@ -964,6 +1361,7 @@ $scope.myFutMat = 'MAR17';
 				'futMat': $scope.myFutMat,
 				'buyer': $scope.myCompany,
 				'seller': $scope.myCpCompany,
+				'multiplier': $scope.myMultiplier,
 				'legs' : legs,
 			}).then(function(result) {
 			});
@@ -991,7 +1389,7 @@ $scope.myFutMat = 'MAR17';
 							mb[i].icon = '';
 						}
 					    $scope.afterCellEditParamGrid(rowEntity);
-					}
+					},
 				},
 				enableHorizontalScrollbar: false, 
 				enableVerticalScrollbar: false,
@@ -1817,7 +2215,8 @@ function calRemainPrice(params, myMultiplier, myPremium) {
 		sum += Number(params[i].price) * Number(params[i].multiplier);
 	}
 // var mySign = mySide === 'Sell' ? -1 : 1;
-	return (myPremium - sum) / (myMultiplier);
+	var num = (myPremium - sum) / (myMultiplier);
+	return Math.round(num * 10000000) / 10000000;		// scaling out the numeric decimal cased by /
 }
 
 function getMonthFromString(mmmyy){
@@ -1838,11 +2237,14 @@ function exchangeSymbol(ul, deriv, strike, futExp, myInstrList) {
 	else if (ul === 'HSI') {
 		symbol += 'HSI';
 	}
+	else if (ul.startsWith('KS') >= 0) {
+		symbol += 'KS';
+	}
 	if (strike)
 		symbol += strike;
 	symbol += m + y;
 	
-	if (myInstrList.indexOf(symbol) < 0) 
+	if (ul.startsWith('KS') < 0 && myInstrList.indexOf(symbol) < 0) 
 		alert(symbol + ' not tradable');
 	return symbol;
 };
@@ -2516,6 +2918,226 @@ function rebuildSplit(param_myData)
 		newLegData[maxQtyIdx].displayQty = CFG.DISPLAY_QTY_ROUND_TO_MAX;
 	}
 	return newLegData;
+}
+
+function getClientInfo(fullName) {
+
+    var map = {
+		'Barclays Bank' : { short : 'BARC', cpty: 002, acct: 008211000391 },
+		'BNP Paris' : { short : 'BNP', cpty: 067, acct: 000001108608 },
+		'Citigroup' : { short : 'CITI', cpty: 037, acct: 000001112879 },
+		'Celera' : { short : 'CEL', cpty: '', acct: '' },
+		'Credit Suisse' : { short : 'CS', cpty: '', acct: '' },
+		'Deutsche Bank' : { short : 'DB', cpty: '', acct: '' },
+		'Goldman Sachs' : { short : 'GS', cpty: '', acct: '' },
+		'HSBC' : { short : 'HSBC', cpty: '', acct: '' },
+		'Hyundai' : { short : 'HYUN', cpty: '', acct: '' },
+		'IBK' : { short : 'IBK', cpty: 068, acct: 000999250301 },
+		'JP Morgan' : { short : 'JP', cpty: 033, acct: 000001000528 },
+		'KIS' : { short : 'KIS', cpty: 003, acct: 102130040000 },
+		'Merrill Lynch' : { short : 'ML', cpty: '', acct: '' },
+		'Morgan Stanley' : { short : 'MS', cpty: 036, acct: 000001000001 },
+		'Natixis' : { short : 'NAT', cpty: '', acct: '' },
+		'NH' : { short : 'NH', cpty: '', acct: '' },
+		'Nomura' : { short : 'NOM', cpty: 054, acct: 000001710362 },
+		'Optiver' : { short : 'NH Fut', cpty: 082, acct: 000001009148 },
+		'Samsung' : { short : 'SAMS', cpty: 030, acct: 999999230301 },
+		'SG Exo' : { short : 'SG', cpty: 048, acct: 000001702699 },
+		'SG Paris' : { short : 'SG', cpty: 048, acct: 000001000005 },
+		'Shinhan Bank' : { short : 'SHIB', cpty: 002, acct: 008011227540 },
+		'UBS AG' : { short : 'UBS', cpty: 043, acct: 000001112186 },
+		'Woori Bank WP' : { short : 'WOO', cpty: 030, acct: 004919303303 },
+		'Yuanta D Yoon' : { short : 'YUAN', cpty: 024, acct: 999999130164 },
+		'Yuanta GY Kim' : { short : 'YUAN', cpty: 024, acct: 999999130391 },
+    };
+    var client = map[fullName];
+    if (client)
+    	return client;
+    else 
+    	alert('no such client info: ' + fullName);
+    return null;
+}
+
+function getPartyList(shortName) {
+//	var map = {
+//			'BNP' : ['Nicolas Dujardin', 'Matthieu Barry', 'Roy Tian'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//			'CEL' : ['Private 1', 'Private 2'] // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//	};
+	var traders = accountMap[shortName].traders;
+	if (traders)
+		return traders;
+	else 
+		alert('no trades found : ' + shortName);
+	return null;
+}
+
+function getProfileList(shortName) {
+//	var map = {
+//			'BNP' : ['Nicolas Dujardin', 'Matthieu Barry', 'Roy Tian'], // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//			'CEL' : ['Private 1', 'Private 2'] // <nicolas.dujardin@asia.bnpparibas.com, +852=21085585>', cc: cpty: '', acct: '' },
+//	};
+	var l = accountMap[shortName].profiles;
+	if (l) {
+		return l;
+	}
+	else 
+		alert('no profiles found : ' + shortName);
+	return null;
+}
+
+function buildLegData(myMarket, myCcy, myLegs, myStrat, myDelta, mySide, myMultiplier, myRate, myPt) {
+	var signs = deduceSign(myMultiplier, myStrat, myDelta, mySide);
+	
+	var len = myLegs.length;
+	
+	var legData = [];
+	
+	var i = 0;
+	for (i = 0; i<len - 1; i++) {
+		var leg = myLegs[i];
+		var letter = leg.Instrument.charAt(leg.Instrument.length-2);
+		var type = 'Call';
+		if (letter > 'M') {
+			type = 'Put';
+		}
+		var premium = leg.Qty * leg.Price * myPt * myRate;
+		
+		if (signs[i] < 0) 
+			premium = premium * -1;
+		
+		premium = Math.round(premium * 1000) / 1000;
+		var expiry = myMkt2Expiry[myMarket + leg.Expiry];
+		if (!expiry) {
+			alert('leg expiry not exist : ' +  leg.Expiry);
+		}
+		
+		legData.push({
+			'Type': 	'Leg ' + (i + 1),
+			'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
+			'Qty': 		leg.Qty,
+			'Expiry':	expiry,
+//			'Expiry':	leg.Expiry,
+			'Strike': 	leg.Strike,
+			'Product':	type,
+			'Price':	leg.Price,
+			'Premium':	premium,
+			'Ccy':		myCcy,
+		});
+	}
+	
+	var expiry = myMkt2Expiry[myMarket + myLegs[i].Expiry];
+	
+	legData.push({
+		'Type': 	'Hedge',
+		'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
+		'Qty': 		myLegs[i].Qty,
+		'Expiry': 	expiry,
+		'Product':	'Future',
+		'Price':	myLegs[i].Price,
+		'Premium':	null,
+		'Ccy':		myCcy,
+	});
+
+	return legData;
+}
+
+function deduceSign(signedTerm, strat, delta, side) {
+	var multi = [];
+	var tokens = [];
+	
+	if (signedTerm.indexOf('X') > 0) {
+		tokens = signedTerm.split('X');
+	} else {
+		var t = getDefaultMultiplier(strat);
+		tokens = t.split('X');
+	}
+	
+	var isReverse = false;
+	if ( side === 'Sell' ) {
+		isReverse = true;
+	}
+	
+	for (j = 0; j < tokens.length; j++) {
+		if (isReverse)
+			multi.push(tokens[j] * -1);
+		else {
+			multi.push(tokens[j]);
+		}
+	}
+	
+	// future leg
+	if ( (side === 'Buy' && delta >= 0)
+			|| (side === 'Sell' && delta < 0) ) {
+		multi.push(-1);
+	}
+	
+	return multi;
+}
+
+function getCurrency(instrument) {
+	if (instrument.startsWith('KS'))
+		return 'KRW';
+	else 
+		return 'HKD';
+}
+
+function getPt(instrument) {
+	var startWith = instrument.substring(0,2);
+	switch (startWith) {
+		case 'KS': return 500000;
+		case 'HS': return 50;
+		case 'MC': return 10;
+	}
+	return 1;
+}
+
+function getAllFutureExpiry(market, myMarket2FutMat, iconTemplate) {
+	
+	
+	modernBrowsers = [];
+	
+//	var prefix = symbol.split(' ')[0].substring(0, 2);
+	var l = myMarket2FutMat[market];
+	var len = l.length;
+	l.sort(function(o1, o2) {
+		return o1 - o2;
+	});
+	
+	for (var i=0; i<len; i++) {
+		var expiry = l[i];
+		try {
+//			if (instr.Symbol.startsWith(prefix)
+//					&& instr.InstrumentType === 'Future') {
+				modernBrowsers.push({
+//					icon: '', name: instr.Expiry.substring(3, 6) + instr.Expiry.substring(7, 9), ticked: false
+					icon: '', name: expiry.format('MMMYY').toUpperCase(), ticked: false
+				});
+//			}
+		} catch (err){
+			alert(err);
+		}
+	};
+	
+	modernBrowsers.push({ 
+		icon: iconTemplate, 
+		name: '', ticked: true , disabled: true 
+	});
+	
+	return modernBrowsers;
+}
+
+function toMarket(symbol) {
+	var _2 = symbol.substring(0, 2);
+	switch (_2) {
+	case 'HS':
+	case 'HH':
+	case 'MC':
+	case 'MH':
+		return 'HK';
+	case 'KS':
+		return 'KR';	
+	}
+	return 'JP'; 
 }
 
 //

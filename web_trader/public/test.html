@@ -9,33 +9,42 @@
 	href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
 <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"> -->
-<link rel="stylesheet" type="text/css" href="stylesheets/bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" href="stylesheets/bootstrap-theme.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="stylesheets/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css"
+	href="stylesheets/bootstrap-theme.min.css" />
 <link rel="stylesheet" type="text/css" href="stylesheets/dialog.css" />
 <link rel="stylesheet" type="text/css" href="stylesheets/tradeconfo.css" />
 <link rel="stylesheet" type="text/css" href="stylesheets/invoice.css" />
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
 <!-- <title>AngularJS PDFJS Directive</title> -->
 <link rel="stylesheet" href="stylesheets/pdf-viewer.css">
 
 <!--
     Your HTML content here
   -->
-  
+
 <!-- external tools lib -->
-<script	src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+<script
+	src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
 
 <!-- Angular Material requires Angular.js Libraries -->
-<script	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
 <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-touch.js"></script>-->
-<script	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
-<script	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
-<script	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
 
 <!-- Angular Material Library -->
-<script	src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
 
-<!-- angularjs multiselect -->  
+<!-- angularjs multiselect -->
 <link rel="stylesheet" href="stylesheets/isteven-multi-select.css">
 <script type="text/javascript" src="javascripts/isteven-multi-select.js"></script>
 
@@ -44,48 +53,35 @@
 <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
 <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
 <script src="javascripts/angular-ui-grid/ui-grid.js"></script>
-<link rel="stylesheet" type="text/css" href="javascripts/angular-ui-grid/ui-grid.css" />
+<link rel="stylesheet" type="text/css"
+	href="javascripts/angular-ui-grid/ui-grid.css" />
 
 <!-- socket io -->
 <script src="/socket.io/socket.io.js"></script>
-<script src="bower_components/angular-socket-io/socket.js"></script>  
+<script src="bower_components/angular-socket-io/socket.js"></script>
+
+<script src="bower_components/angular-pdf/pdf.js"></script>
+<!-- <script src="bower_components/angular-pdf/angular.min.js"></script> -->
+<!-- <script src="pdf.js"></script> 
+<script src="javascripts/controllers/docCtrl.js"></script>-->
+<script src="bower_components/angular-pdf/angular-pdf.min.js"></script>
 
 <script type="text/javascript" src="javascripts/config.js"></script>
 <script type="text/javascript" src="javascripts/test.js"></script>
 
-
-<script src="bower_components/angular-pdf/pdf.js"></script>
-<!-- <script src="bower_components/angular-pdf/angular.min.js"></script> -->
-<!-- <script src="pdf.js"></script> -->
-<script src="javascripts/controllers/docCtrl.js"></script>
-<script src="bower_components/angular-pdf/angular-pdf.min.js"></script>
-	
-
-<!--<script type="text/javascript" src="javascripts/datepicker.js"></script>-->
-<!-- 
-    <script type="text/javascript"  src="javascripts/ng-grid-debug.js"></script>
- -->
- <!-- 
-<script type="text/javascript"  src="js/jquery.js"></script>
-<script type="text/javascript"  src="js/jtip.js"></script>
-  -->
-  
 </head>
 <body ng-app="app">
-	<div ng-controller="AppCtrl as pc" class="md-padding"	id="popupContainer" ng-cloak>
-	
-	<div>Environment: <font class="myEnv_Testing">{{myEnv}}</font> 
-		Revision: {{myRevision}}</font> 
-	</div>
-	
-	<md-card > 
-		<md-card-title> 
-			<md-card-title-text>
-				<span class="md-headline">Trade Report Parameters</span> 
-			</md-card-title-text> 
-		</md-card-title> 
-		<md-card-content layout-padding>
-			<!-- 
+	<div ng-controller="AppCtrl as pc" class="md-padding"
+		id="popupContainer" ng-cloak>
+
+		<div>
+			Environment: <font class="myEnv_Testing">{{myEnv}}</font> Revision:
+			{{myRevision}}</font>
+		</div>
+
+		<md-card> <md-card-title> <md-card-title-text>
+		<span class="md-headline">Trade Report Parameters</span> </md-card-title-text> </md-card-title> <md-card-content
+			layout-padding> <!-- 
 				<md-input-container class="md-block" ng-show="disabled" flex> 
 					<label>Instrument</label> 
 					<md-select ng-model="myType"> 
@@ -93,31 +89,26 @@
 					<md-option ng-repeat="n in instruments" ng-value="n">{{n}}</md-option>
 					</md-select>
 				</md-input-container>
-				 -->
-				 <!-- 
+				 --> <!-- 
 				<md-input-container class="md-block" flex-gt-sm="10" >
-				 --> 
-				<md-input-container  class="md-block" > 
-				<!-- <md-input-container  class="md-block">-->
-					<label>Symbol</label> 
-					<input min-width="500" ng-model="mySymbol" required>
-					<div class="hint" >Instrument Expiry Strike Multiplier Strategy Premium REF</div>
-				    <div ng-messages="userForm.symbol.$error" role="alert">
-     					<div ng-message="required"">This is required</div>
-   					</div> 
-				</md-input-container>
-				<div layout-gt-xs="row" >
-				<md-input-container class="md-block" > 
-					<label>Cross Type</label> 
-					<md-select ng-model="myTrType"> 
-						<md-option><em></em></md-option> 
-						<md-option ng-repeat="n in trTypes" ng-value="n">{{n}}</md-option>
-					</md-select> 
-				</md-input-container>
-				 
-				 <!-- 
+				 --> <md-input-container class="md-block"> <!-- <md-input-container  class="md-block">-->
+		<label>Symbol</label> <input min-width="500" ng-model="mySymbol"
+			required>
+		<div class="hint">Instrument Expiry Strike Multiplier Strategy
+			Premium REF</div>
+		<div ng-messages="userForm.symbol.$error" role="alert">
+			<div ng-message="required"">This is required</div>
+		</div>
+		</md-input-container>
+		<div layout-gt-xs="row">
+			<md-input-container class="md-block"> <label>Cross
+				Type</label> <md-select ng-model="myTrType"> <md-option>
+			<em></em></md-option> <md-option ng-repeat="n in trTypes" ng-value="n">{{n}}</md-option>
+			</md-select> </md-input-container>
+
+			<!-- 
 				<md-input-container class="md-block" flex-gt-sm="10"> -->
-<!-- 
+			<!-- 
 				<md-input-container class="md-block">
 				<label>Buyer</label> 
 				<input  ng-model="myCompany" > 
@@ -127,65 +118,48 @@
 				<input ng-model="myCpCompany"> 
 				</md-input-container>
  -->
- 				
-				<md-input-container class="md-block">
-		          <label>Buyer</label>
-		          <md-select ng-model="myCompany">
-		            <md-option><em></em></md-option>
-		            <md-option ng-repeat="n in clients" ng-value="n">{{n}}</md-option>
-		          </md-select>
-		        </md-input-container>
-				<md-input-container class="md-block">
-		          <label>Seller</label>
-		          <md-select ng-model="myCpCompany">
-		            <md-option><em></em></md-option>
-		            <md-option ng-repeat="n in clients" ng-value="n">{{n}}</md-option>
-		            <!-- <md-option ng-repeat="(key, value) in clients_1" ng-value="key">{{value}}</md-option> -->
-		          </md-select>
-		        </md-input-container>
 
-				<md-button class="md-primary md-raised" ng-click="showCrossDetail($event, myTrType, mySymbol, myCompany, myCpCompany)">
-    					Cross Detail</md-button>
-    					
-<!-- 				<md-button class="md-fab orevie wmd-primary" aria-label="Use Android" ng-click="preview()"> 
+			<md-input-container class="md-block"> <label>Buyer</label>
+			<md-select ng-model="myCompany"> <md-option>
+			<em></em></md-option> <md-option ng-repeat="n in clients" ng-value="n">{{n}}</md-option>
+			</md-select> </md-input-container>
+			<md-input-container class="md-block"> <label>Seller</label>
+			<md-select ng-model="myCpCompany"> <md-option>
+			<em></em></md-option> <md-option ng-repeat="n in clients" ng-value="n">{{n}}</md-option>
+			<!-- <md-option ng-repeat="(key, value) in clients_1" ng-value="key">{{value}}</md-option> -->
+			</md-select> </md-input-container>
+
+			<md-button class="md-primary md-raised"
+				ng-click="showCrossDetail($event, myTrType, mySymbol, myCompany, myCpCompany)">
+			Cross Detail</md-button>
+
+			<!-- 				<md-button class="md-fab orevie wmd-primary" aria-label="Use Android" ng-click="preview()"> 
 					<md-icon md-svg-src="img/icons/ic_fullscreen_24px.svg"></md-icon> 
 				</md-button> -->
-    					
-</div>
-	<!-- 
+
+		</div>
+		<!-- 
 				<md-input-container class="md-block" > <label>Side</label> 
 				<md-select ng-model="mySide" ng-disabled="myTrType !== 'T4 - Interbank Trade Report'">
 				<md-option><em></em></md-option> 
 				<md-option ng-repeat="n in sides" ng-value="n">{{n}}</md-option>
 				</md-select> </md-input-container>
-	 -->
-				
-			<!--
+	 --> <!--
 			<md-button class="md-primary md-raised" ng-show="disabled"
 					ng-click="showCrossDialog($event)" >
 				Create legs </md-button>
--->				
-		</md-card-content>
-	</md-card>
-	<md-card>
-		<!-- Order Trade Panel -->
-		<md-card-title> 
-			<md-card-title-text>
-				<span class="md-headline">Block Trade DashBoard</span> 
-			</md-card-title-text> 
-		</md-card-title> 
-		
-  		<md-content layout-padding>
-		<div id="gridOT" ui-grid="otGridOptions" class="myTradesGrid"  
+--> </md-card-content> </md-card> <md-card> <!-- Order Trade Panel --> <md-card-title>
+		<md-card-title-text> <span class="md-headline">Block
+			Trade DashBoard</span> </md-card-title-text> </md-card-title> <md-content layout-padding>
+		<div id="gridOT" ui-grid="otGridOptions" class="myTradesGrid"
 			ui-grid-resize-columns ui-grid-auto-resize ui-grid-move-columns
 			ui-grid-edit ui-grid-cellNav u-grid-pinning ui-grid-expandable>
-			</div>
-		</md-content>
-		</md-card>
-		
+		</div>
+		</md-content> </md-card>
+
 		<p>{{message}}</p>
+
 	</div>
-	
 
 </body>
 </html>

@@ -57,22 +57,60 @@ if (!window.CFG) {
     
     CFG.rule_check_qty = function(instr, qty) {
     	try {
-	    	var ul = instr.split(' ')[0];
-	    	switch (ul) {
-	    	case 'HSI':
-	    	case 'HSCEI': {
-	    		if (qty > 0 && (qty % 1 === 0))
-	    			return true;
-	    		break;
+	    	var tokens = instr.split(' ')
+	    	if (tokens.length > 1) {
+	    		ul = tokens[0];
+
+		    	switch (ul) {
+		    	case 'HSI':
+		    	case 'HSCEI': {
+		    		if (qty > 0 && (qty % 1 === 0))
+		    			return true;
+		    		break;
+		    	}
+		    	case 'KS':
+	    		case 'KS200':
+		    	{
+		    		deriv = tokens[1];
+	    			
+	    			switch (deriv) {
+		    			case 'Future': 
+		    			{
+		    				return qty >= 20 && (qty % 1 === 0);
+		    			}
+						case 'Put': 
+						case 'Call': 
+		    			{
+		    				return qty >= 100 && (qty % 1 === 0);
+		    			}
+						default : 
+						{
+							return qty > 0 && (qty % 1 === 0);
+						}
+	    			}
+	//	    	case 'KS200': {
+		    		break;
+		    	}
+		    	}
 	    	}
-	    	case 'KS':
-    		case 'KS200':
-	    	{
-//	    	case 'KS200': {
-	    		if (qty > 0 && ((qty * 100) % 1 === 0))
-	    			return true;
-	    		break;
-	    	}
+	    	else {
+	    		ul = tokens[0];
+
+		    	switch (ul) {
+		    	case 'HSI':
+		    	case 'HSCEI': {
+		    		if (qty > 0 && (qty % 1 === 0))
+		    			return true;
+		    		break;
+		    	}
+		    	case 'KS':
+	    		case 'KS200':
+		    	{
+		    		if (qty >= 100)
+		    			return true;
+		    		break;
+		    	}
+	    		}
 	    	}
     	}
     	catch (err) {

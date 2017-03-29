@@ -34,7 +34,7 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	for (i=0; i<legs.length; i++) 
 	{
 		var jsonStr = legs[i];
-    	this.legs.push(new TradeReport(jsonStr.Instrument, '', jsonStr.Strike,
+    	this.legs.push(new TradeReport(jsonStr.Instrument, jsonStr.UL, '', jsonStr.Strike,
 			jsonStr.Expiry, jsonStr.Price, jsonStr.Qty, jsonStr.Buyer,
 			jsonStr.Seller, jsonStr.Group, jsonStr.Status, jsonStr.Remark,
 			jsonStr.TrType, jsonStr.LastUpdateTime));		
