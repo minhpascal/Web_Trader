@@ -29,6 +29,9 @@ function TradeReport(instr, ul, type, strike, expiry, price, qty,
 	this.remark = remark;
 	this.trType = trType;
 	this.lastUpdateTime = moment(new Date(lastUpdateTime)).format('HH:mm:ss.SSS');
+	
+	this.bStatus = '';
+	this.sStatus = '';
 };
 
 //function TradeReport(json) {
@@ -75,6 +78,16 @@ TradeReport.prototype.setRemark = function(remark) {
 
 TradeReport.prototype.updateGroup = function(group, status, remark) {
 };
+
+TradeReport.prototype.updateSideStatus = function(side, status) {
+	logger.debug(side, status);
+	if (side == 'Buy') {
+		bStatus = status;
+	}
+	else if (side == 'Sell') {
+		sStatus = status;
+	}
+}
 
 // export the class
 module.exports = TradeReport;

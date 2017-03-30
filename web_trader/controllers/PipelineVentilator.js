@@ -159,6 +159,7 @@ PipelineVentilator.prototype.SendTradeReport = function(
 			FutMat : futMat,
 			Symbol : symbol,
 			Multiplier : multiplier,
+			Strategy : strat,
 			Legs : legs
 		});
 	
@@ -197,6 +198,8 @@ PipelineVentilator.prototype.onTradeReport = function(doc) {
 		var inputTime = doc.tradeReport.InputTime;
 		var tradeId = doc.tradeReport.TradeId;
 		var multiplier = doc.tradeReport.Multiplier;
+		var strat = doc.tradeReport.Strategy;
+		var price = doc.tradeReport.Premium;
 		
 logger.debug('onTradeReport 185: ', doc.tradeReport);
 //logger.debug('onTradeReport 185: ', refId + ',' + id + ',' + status + ',' + remark);
@@ -263,8 +266,8 @@ logger.debug('onTradeReport 185: ', doc.tradeReport);
 			}
 
 			var block_tr = new BlockTradeReport(id, refId, status, trType,
-					symbol, qty, delta, '', '', buyer, seller, futMat, remark,
-					inputTime, tradeId, multiplier, []);
+					symbol, qty, delta, price, strat, buyer, seller, futMat, remark,
+					inputTime, tradeId, multiplier, legs);
 			oms.addBlockTradeReport(refId, block_tr);
 		}
 	} catch (err) {
@@ -403,18 +406,79 @@ PipelineVentilator.prototype.CreateTradeConfo = function(refId, symbol,
 	logger.info("CreateTradeConfo " + msg);
 	sender.send("TOTF" + msg);
 	
+	var status = 'UNSENT';
 	bdxService = this.app.get('broadcastService');
-	var bd = JSON.stringify({
+	var bd = {
 		'RefId': refId,
+//		'Trader': trader,
+//		'Profile': profile,
+//		'IsFinal': isFinal,
+//		'Rate': rate,
+		'TradeId': tradeId,
+		'Side': side,
+		'Status': status,
+//		'Fee': fee,
+	};
+		
+	bdxService.updateBlotter(bd);
+	
+	oms = this.app.get('oms');
+	var tr = oms.get(refId);
+	if (tr) {
+		tr.updateSideStatus(side, status);
+	}
+//	_map[refId] = -1;
+};
+
+PipelineVentilator.prototype.EmailTradeConfo = function(refId, symbol,
+		company, cpCompany, trader, profile, isFinal, rate, notional, price,
+		tradeId, ref, side, qty, delta, fee, multiplier, file, legs) 
+		{
+	var msg = JSON.stringify({
+		'Symbol': symbol, 
+		'Company': company,
+		'CpCompany': cpCompany,
 		'Trader': trader,
 		'Profile': profile,
 		'IsFinal': isFinal,
 		'Rate': rate,
+		'Notional': notional,
+		'Price': price,
 		'TradeId': tradeId,
+		'RefPrice': ref,
+		'Side': side,
+		'Qty': qty,
+		'Delta': delta,
 		'Fee': fee,
+		'Multiplier': multiplier,
+//		'Legs': JSON.stringify(legs),
+		'File': file,
+		'Legs': legs,
 	});
-		
-	bdxService.updateTradeConfo(bd);
+	logger.info("EmailTradeConfo " + msg);
+	sender.send("TOTE" + msg);
+	
+	var status = 'SENT';
+	bdxService = this.app.get('broadcastService');
+	var bd = {
+			'RefId': refId,
+//		'Trader': trader,
+//		'Profile': profile,
+//		'IsFinal': isFinal,
+//		'Rate': rate,
+			'TradeId': tradeId,
+			'Side': side,
+			'Status': status,
+//		'Fee': fee,
+	};
+	
+	bdxService.updateBlotter(bd);
+
+	oms = this.app.get('oms');
+	var tr = oms.get(refId);
+	if (tr) {
+		tr.updateSideStatus(side, status);
+	}
 	
 //	_map[refId] = -1;
 };

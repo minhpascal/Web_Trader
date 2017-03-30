@@ -30,6 +30,9 @@ function BlockTradeReport(id, refId, status, trType, symbol, qty, delta, price, 
 	this.tradeId = tradeId;
 	this.multiplier = multiplier;
 	
+	this.bStatus = '';
+	this.sStatus = '';
+	
 	this.legs = [];
 	for (i=0; i<legs.length; i++) 
 	{
@@ -55,6 +58,16 @@ BlockTradeReport.prototype.updateGroup = function(group, status, remark, trType,
 		logger.debug(group, leg.group, leg.status, leg.remark, leg.trType, leg.lastUpdateTime);
 	}
 };
+
+BlockTradeReport.prototype.updateSideStatus = function(side, status) {
+	logger.debug(side, status);
+	if (side == 'Buy') {
+		bStatus = status;
+	}
+	else if (side == 'Sell') {
+		sStatus = status;
+	}
+}
 
 // class methods
 BlockTradeReport.prototype.add = function(tr) {

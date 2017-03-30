@@ -186,20 +186,31 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 		}
     });
     
-    socket.on('update:tradeconfo', function (res) {
+    socket.on('update:blotter', function (res) {
     	try {
 //    		console.log(res.message.RefId);
 // $scope.message = data.id + ',' + data.refId + ',' + data.status;
 	    	var refId = Number(res.message.RefId);
-	    	var isExist = false;
+
 	    	for (var i=0; i<$scope.myOtData.length; i++) {
 	    		if ($scope.myOtData[i].RefId === refId) {
-	    			$scope.myOtData[i].Trader = res.message.Trader;
-	    			$scope.myOtData[i].Profile = res.message.Profile;
-	    			$scope.myOtData[i].IsFinal = res.message.IsFinal;
-	    			$scope.myOtData[i].Rate = res.message.Rate;
+//	    			$scope.myOtData[i].Trader = res.message.Trader;
+//	    			$scope.myOtData[i].Profile = res.message.Profile;
+//	    			$scope.myOtData[i].IsFinal = res.message.IsFinal;
+//	    			$scope.myOtData[i].Rate = res.message.Rate;
 	    			$scope.myOtData[i].TradeId = res.message.TradeId;
-	    			$scope.myOtData[i].Fee = res.message.Fee;
+//	    			$scope.myOtData[i].Fee = res.message.Fee;
+	    			var side = res.message.Side;
+	    			switch (side) {
+	    			case 'Buy': {
+	    				$scope.myOtData[i].bStatus = res.message.Status;
+	    				break;
+	    			}
+	    			case 'Sell': {
+	    				$scope.myOtData[i].sStatus = res.message.Status;
+	    				break;
+	    			}
+	    			}
 	    			break;
 	    		}
 	    	}
@@ -240,7 +251,7 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			showRow: function(row) {
 				return true;
 			},
-		    buyerClick: function(ev, row, company, cpCompany, side) {
+		    tradeConfoClick: function(ev, row, company, cpCompany, side) {
 //		    	alert('buyerClick');
 		    	try {
 				$mdDialog.show({
@@ -254,8 +265,6 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 					locals: {
 						'myRefId': row.RefId,
 						'mySymbol': row.Symbol,
-						'myBuyer': row.Buyer,
-						'mySeller': row.Seller,
 						'myPrice': row.Premium,
 						'myCompany': company,
 						'myCpCompany': cpCompany,
@@ -306,12 +315,13 @@ app.controller('AppCtrl', ['$scope', '$http', '$mdDialog',
 			{field : 'Delta', headerCellClass: 'green-header', displayName: 'Delta', width : '*',enableCellEdit : false, enableHiding: false},
 			{field : 'FutMat', displayName: 'Fut Mat', headerCellClass: 'green-header', width : '*',enableCellEdit : false, enableHiding: false},
 			{field : 'Buyer', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false,
-//				cellTemplate:'<div ng-click=\"grid.appScope.buyerClick()\">{{row.entity.Buyer}}</div>'
-//					cellTemplate:'<div ng-click=\"grid.appScope.buyerClick()\">{{row.entity.Buyer}}</div>'
-//					cellTemplate:'<div><button ng-click="{{grid.appScope.buyerClick()">{{row.entity.Buyer}}</button></div>'
-				cellTemplate:'<div><button type="button" class="btn btn-warning" ng-click="grid.appScope.buyerClick(event, row.entity, row.entity.Buyer, row.entity.Seller, \'Buy\')">{{row.entity.Buyer}}</button></div>'
+				cellTemplate:'<div><button type="button" ng-class="!row.entity.bStatus ? \'btn btn-warning\' : (row.entity.bStatus == \'SENT\' ? \'btn btn-success\' : \'btn btn-primary\')" ng-click="grid.appScope.tradeConfoClick(event, row.entity, row.entity.Buyer, row.entity.Seller, \'Buy\')">{{row.entity.Buyer}}</button></div>'
+// btn-primary : blue, btn-warning: yellow, btn-success: green, btn-danger: red
 			},
-			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
+			{field : 'Seller', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false,
+//				cellTemplate:'<div><button type="button" ng-class="row.entity.sStatus == \'SENT\' ? \'btn btn-success\' : \'btn btn-warning\'" ng-click="grid.appScope.tradeConfoClick(event, row.entity, row.entity.Seller, row.entity.Buyer, \'Sell\')">{{row.entity.Seller}}</button></div>'
+				cellTemplate:'<div><button type="button" ng-class="!row.entity.sStatus ? \'btn btn-warning\' : (row.entity.sStatus == \'SENT\' ? \'btn btn-success\' : \'btn btn-primary\')" ng-click="grid.appScope.tradeConfoClick(event, row.entity, row.entity.Seller, row.entity.Buyer, \'Sell\')">{{row.entity.Seller}}</button></div>'
+			},
 			{field : 'InputTime', displayName: 'Input', headerCellClass: 'green-header', width : '*', enableCellEdit : false, enableHiding: false},
 			{field : 'Premium', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
 			{field : 'Strategy', headerCellClass: 'green-header', enableCellEdit : false, visible: true},
@@ -485,6 +495,38 @@ $scope.myRate = 1130;
 			});
 		}
 		
+		$scope.email = function(ev) {
+//		    	alert('buyerClick');
+			
+			$http.post('api/emailTradeConfo', {
+				'refId'  : $scope.myRefId,
+				'symbol'  : $scope.mySymbol,
+				'company'  : $scope.myCompany,
+				'cpCompany'  : $scope.myCpCompany,
+				'trader' : $scope.myTrader,
+				'profile' : $scope.myProfile,
+				'isFinal': $scope.myTdStatus === 'Final' ? true : false,
+						'rate': $scope.myRate,
+						'notional': $scope.myNotional,
+						'price': $scope.myPrice,
+						'tradeId': $scope.myTradeId,
+						'ref': $scope.myRef,
+						'side' : $scope.mySide,
+						'qty': $scope.myQty,
+						'delta': $scope.myDelta,
+						'fee': $scope.myFee,
+						'multiplier': $scope.myMultiplier,
+						'legs' : $scope.myLegsData,
+			}).then(function successCallback(response) {
+				console.log(response.data);
+				alert('succ ');
+				
+			} , function errorCallback(response) {
+//				console.log(response.data.file);
+				alert('error');
+			});
+		}
+		
 		$scope.legGrid = {
 				data : 'myLegsData',
 //					enableHorizontalScrollbar: false, 
@@ -592,8 +634,9 @@ $scope.myRate = 1130;
 	    
 	    $scope.myTrType = 'T2 - Combo',
 //	    $scope.mySymbol = 'HSI DEC17 22000/24000 1x1.25 CR 10 TRADES REF 22,825';
-//	    $scope.mySymbol = 'KS200 JUN17/SEP17 270 1x1 CTS 100 REF 269.5 (MAR17)';
-	    $scope.mySymbol = 'KS200 DEC17/JUN18 240 PS 2.65 REF 284 (JUN17)';
+	    $scope.mySymbol = 'KS200 JUN17/SEP17 270 1x1 CTS 100 REF 269.5 (MAR17)';
+//	    $scope.mySymbol = 'KS200 DEC17/JUN18 240 PS 2.65 REF 284 (DEC17)';
+//	    $scope.mySymbol = 'KS200 APR17/MAY17 270 STRD 2.45 TRADES REF 269.5';
 	    $scope.myMarket = toMarket($scope.mySymbol);
 	    	
 	    $scope.myOtData = [];
@@ -730,7 +773,7 @@ $scope.myRate = 1130;
 			var len = $scope.myList.length;
 			for (var i=0; i<len; i++) {
 				var item = $scope.myList[i];
-				var l = $scope.myMarket2FutMat[item.key];
+//				var l = $scope.myMarket2FutMat[item.key];
 				myMkt2Expiry[item.key] = item.expiry;
 			}
 			console.log('done');
@@ -926,6 +969,7 @@ $scope.myRate = 1130;
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 
@@ -934,7 +978,32 @@ $scope.myRate = 1130;
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
-				'isHide' : true, 'isSingle': $scope.isSingle
+				'isHide' : true, 'isSingle': $scope.isSingle,
+				'Hedge': 'Future',
+			};
+			$scope.param_myData[2] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[3] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -947,7 +1016,8 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
@@ -956,6 +1026,31 @@ $scope.myRate = 1130;
 				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
 				'isHide' : true, 'isSingle': $scope.isSingleLeg,
+				'Hedge': 'Future',
+			};
+			$scope.param_myData[2] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[3] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			$scope.param_isLastLegPriceValid = true;
 			break;
@@ -973,7 +1068,8 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
 				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable': true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
@@ -981,20 +1077,47 @@ $scope.myRate = 1130;
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable': true,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable': false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false,  'isEditable': false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[6] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;			
 		}
@@ -1011,21 +1134,24 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
@@ -1033,6 +1159,31 @@ $scope.myRate = 1130;
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[6] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[7] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;			
 		}
@@ -1048,35 +1199,64 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]),
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[6] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[7] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1092,35 +1272,64 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]),	
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[6] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[7] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1137,7 +1346,8 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
 				displayTag: CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, isEditable: true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': ''
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
@@ -1145,13 +1355,39 @@ $scope.myRate = 1130;
 				displayTag: CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, isEditable: false,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : '', 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref,  
 				displayTag: CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[3] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1225,14 +1461,16 @@ $scope.myRate = 1130;
 				'Buyer': sides[0][0], 'Seller': sides[0][1], 'Multiplier' : Number(multi[0]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
@@ -1240,13 +1478,15 @@ $scope.myRate = 1130;
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
@@ -1254,6 +1494,31 @@ $scope.myRate = 1130;
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[6] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[7] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1267,20 +1532,47 @@ $scope.myRate = 1130;
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[3] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1294,20 +1586,47 @@ $scope.myRate = 1130;
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
 				'Buyer': sides[1][0], 'Seller': sides[1][1], 'Multiplier' : Number(multi[1]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0,
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[3] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[4] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1322,6 +1641,7 @@ $scope.myRate = 1130;
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[1] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[1], 'Expiry' : maturities[1], 'Strike' : strikes[1], 'Qty' : '', 
@@ -1329,27 +1649,55 @@ $scope.myRate = 1130;
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
 				'Group': 1, 'TrType': $scope.myTrType, 
+				'Hedge': '',
 			};
 			$scope.param_myData[2] = {
 				'UL' : instr + ' Call', 'Instrument' : ul[2], 'Expiry' : maturities[2], 'Strike' : strikes[2], 'Qty' : '', 
 				'Buyer': sides[2][0], 'Seller': sides[2][1], 'Multiplier' : Number(multi[2]), 
 				displayTag : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : true,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[3] = {
 				'UL' : instr + ' Put', 'Instrument' : ul[3], 'Expiry' : maturities[3], 'Strike' : strikes[3], 'Qty' : '', 
 				'Buyer': sides[3][0], 'Seller': sides[3][1], 'Multiplier' : Number(multi[3]), 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : true, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': '',
 			};
 			$scope.param_myData[4] = {
 				'UL' : instr + ' Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
 				'Buyer': '', 'Seller': '', 'Price' : ref, 'Multiplier' : 0, 
 				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
 				'isLastLeg' : false, 'isEditable' : false,
-				'Group': 1, 'TrType': $scope.myTrType, 
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Future', isHide : true,
+			};
+			$scope.param_myData[5] = {
+				'UL' : instr + ' Mini Future', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : '', 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : ref, 
+				'displayTag' : CFG.DISPLAY_PRICE_NOEDIT_OK, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : false,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Mini', isHide : true,
+			};
+			$scope.param_myData[6] = {
+				'UL' : instr + ' Syn Call', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
+			};
+			$scope.param_myData[7] = {
+				'UL' : instr + ' Syn Put', 'Instrument' : '', 'Expiry' : futExp, 'Strike' : ref, 'Qty' : '',
+				'Buyer': '', 'Seller': '', 'Multiplier' : 0, 'Price' : '', 
+				'displayTag' : CFG.DISPLAY_PRICE_EDIT_INVALID, displayQty: CFG.DISPLAY_QTY_INVALID, 
+				'isLastLeg' : false, 'isEditable' : true,
+				'Group': 1, 'TrType': $scope.myTrType,
+				'Hedge': 'Synthetic', isHide : true,
 			};
 			break;
 		}
@@ -1707,7 +2055,7 @@ $scope.myRate = 1130;
 //						'<div><span class="formInfo"><a ui-sref="ajax.htm?width=375" class="jTip" id="one" name="Cross as 100">?</a></span></div>'
 //						'<div class="ui-grid-cell-contents" ><a href="#" data-toggle="tooltip" title="Hooray!">{{row.entity.Qty}}</a></div>'
 				}, 
-				{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : false, enableHiding: false}, 
+				{field : 'Strike', headerCellClass: 'brown-header', width : '*',enableCellEdit : true, enableHiding: false}, 
 				{field : 'Expiry',headerCellClass: 'brown-header', width : '*', enableCellEdit : false, enableHiding: false,
 					cellClass : function(grid, row, col, rowRenderIndex, colRenderIndex) {
 						var val = grid.getCellValue(row, col);
@@ -3123,9 +3471,14 @@ function buildLegData(myMarket, myCcy, myLegs, myStrat, myDelta, mySide, myMulti
 	
 	var legData = [];
 	
+	var count = 1;
 	var i = 0;
-	for (i = 0; i<len - 1; i++) {
+	for (i = 0; i<len; i++) {
 		var leg = myLegs[i];
+		if (leg.UL.indexOf('Syn') > 0
+				|| leg.UL.indexOf('Future') > 0) {
+			break;
+		}
 		var letter = leg.Instrument.charAt(leg.Instrument.length-2);
 		var type = 'Call';
 		if (letter > 'M') {
@@ -3143,7 +3496,7 @@ function buildLegData(myMarket, myCcy, myLegs, myStrat, myDelta, mySide, myMulti
 		}
 		
 		legData.push({
-			'Type': 	'Leg ' + (i + 1),
+			'Type': 	'Leg ' + (i +1),
 			'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
 			'Qty': 		leg.Qty,
 			'Expiry':	expiry,
@@ -3155,20 +3508,57 @@ function buildLegData(myMarket, myCcy, myLegs, myStrat, myDelta, mySide, myMulti
 			'Ccy':		myCcy,
 		});
 	}
-	
-	var expiry = myMkt2Expiry[myMarket + myLegs[i].Expiry];
-	
-	legData.push({
-		'Type': 	'Hedge',
-		'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
-		'Qty': 		myLegs[i].Qty,
-		'Expiry': 	expiry,
-		'Product':	'Future',
-		'Price':	myLegs[i].Price,
-		'Premium':	null,
-		'Ccy':		myCcy,
-	});
 
+	count = 1;
+	for (; i<len; i++) {
+		var leg = myLegs[i];
+		if (leg.UL.indexOf('Syn') > 0) {
+			var type = leg.UL.split(' ')[2];
+			
+			var premium = leg.Qty * leg.Price * myPt * myRate;
+			
+			if (signs[i] < 0) 
+				premium = premium * -1;
+			
+			premium = Math.round(premium * 1000) / 1000;
+			var expiry = myMkt2Expiry[myMarket + leg.Expiry];
+			if (!expiry) {
+				alert('leg expiry not exist : ' +  leg.Expiry);
+			}
+			
+			legData.push({
+				'Type': 	'Syn ' + (count++),
+				'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
+				'Qty': 		leg.Qty,
+				'Expiry':	expiry,
+//				'Expiry':	leg.Expiry,
+				'Strike': 	leg.Strike,
+				'Product':	type,
+				'Price':	leg.Price,
+				'Premium':	premium,
+				'Ccy':		myCcy,
+			});			
+		}
+		else if (leg.UL.indexOf('Future') > 0) {
+			var tokens = leg.UL.split(' ');
+			var type = leg.UL.split(' ')[1];
+			if (tokens.length > 2) {
+				type += ' ' + tokens[2];
+			}
+			var expiry = myMkt2Expiry[myMarket + myLegs[i].Expiry];
+			legData.push({
+				'Type': 	'Hedge',
+				'Side':		signs[i] < 0 ? 'Sell' : 'Buy',
+				'Qty': 		myLegs[i].Qty,
+				'Expiry': 	expiry,
+				'Product':	type,
+				'Price':	myLegs[i].Price,
+				'Premium':	null,
+				'Ccy':		myCcy,
+			});
+		}
+	}
+	
 	return legData;
 }
 
